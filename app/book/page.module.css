@@ -1,0 +1,545 @@
+:root {
+  --cream: #f3ede0;
+  --forest: #2b3a29;
+  --sage: #a3b18a;
+  --stone: #d8d3c3;
+  --text: #2b2b2b;
+  --border: #e2dccb;
+}
+
+:global(body) {
+  background-color: var(--cream);
+}
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  padding: 1.5rem 2.25rem;
+  border-radius: 0 0 72px 72px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.navbarContent {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.backButton {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.backArrow {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-right: 8px;
+}
+
+.backIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburgerMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 44px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hamburgerMenu:hover {
+  opacity: 0.8;
+}
+
+.hamburgerLine {
+  width: 100%;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+.settingsIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.settingsIcon:hover {
+  opacity: 0.8;
+}
+
+.settingsIconImage {
+  object-fit: contain;
+}
+
+/* Main Container */
+.container {
+  min-height: calc(100vh - 60px);
+  padding: 2.75rem 2rem 2rem;
+  background-color: var(--cream);
+  font-family: var(--font-lora);
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Calendar Card */
+.calendarCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.75rem;
+  text-align: center;
+}
+
+.calendarTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: 0.3px;
+}
+
+.calendarDescription {
+  font-family: var(--font-lora);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem 0;
+}
+
+.calendarButton {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  letter-spacing: 0.2px;
+  font-family: var(--font-lora);
+  background-color: var(--forest);
+  color: #ffffff;
+  border: 2px solid var(--forest);
+  box-shadow: 0 2px 6px rgba(43, 58, 41, 0.15);
+}
+
+.calendarButton:hover {
+  background-color: var(--sage);
+  border-color: var(--sage);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(43, 58, 41, 0.2);
+}
+
+.calendarButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(43, 58, 41, 0.15);
+}
+
+/* Section Styling */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titleUnderline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+}
+
+/* Sessions Grid */
+.sessionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.sessionCard {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+  align-items: center;
+  position: relative;
+}
+
+.sessionCard:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.bookButton {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  background-color: var(--forest);
+  color: white;
+  border: 1px solid var(--forest);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  z-index: 2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-poppins);
+}
+
+.bookButton:hover {
+  background-color: var(--sage);
+  border-color: var(--sage);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.arrow {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  color: white;
+}
+
+.sessionImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 220, 203, 0.7);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sessionImageContent {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sessionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sessionFieldName {
+  font-family: var(--font-poppins);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forest);
+  letter-spacing: 0.3px;
+}
+
+.sessionTime {
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.sessionDuration {
+  font-family: var(--font-lora);
+  font-size: 0.85rem;
+  color: rgba(43, 43, 43, 0.8);
+}
+
+.sessionPrice {
+  font-family: var(--font-poppins);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+/* Mobile Footer */
+.mobileFooter {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 220, 203, 0.8);
+  box-shadow: 0 -6px 16px rgba(43, 58, 41, 0.12);
+  padding: 0.65rem 1.25rem calc(0.65rem + env(safe-area-inset-bottom));
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  z-index: 90;
+}
+
+.footerAction {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  gap: 0.35rem;
+}
+
+.footerAction[aria-current="page"] {
+  color: var(--forest);
+}
+
+.footerIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.footerLabel {
+  font-family: var(--font-poppins);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--forest);
+  letter-spacing: 0.2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 64px 64px;
+  }
+
+  .navActions {
+    gap: 0.4rem;
+  }
+
+  .hamburgerMenu {
+    width: 36px;
+    height: 26px;
+  }
+
+  .hamburgerLine {
+    height: 2.5px;
+  }
+
+  .settingsIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .container {
+    padding: 2rem 1.25rem 12rem;
+    min-height: auto;
+  }
+
+  .main {
+    gap: 1.5rem;
+    margin-bottom: 8rem;
+  }
+
+  .calendarCard {
+    padding: 1.5rem;
+  }
+
+  .calendarTitle {
+    font-size: 1.15rem;
+  }
+
+  .calendarDescription {
+    font-size: 0.95rem;
+  }
+
+  .calendarButton {
+    font-size: 0.95rem;
+    padding: 0.625rem 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.375rem;
+  }
+
+  .sessionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sessionCard {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .sessionTime {
+    font-size: 0.875rem;
+  }
+
+  .sessionDuration {
+    font-size: 0.82rem;
+  }
+
+  .sessionImage {
+    width: 70px;
+    height: 70px;
+  }
+
+  .sessionImageContent {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mobileFooter {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .navActions {
+    gap: 0.35rem;
+  }
+
+  .hamburgerMenu {
+    width: 30px;
+    height: 22px;
+  }
+
+  .hamburgerLine {
+    height: 2px;
+  }
+
+  .settingsIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .settingsIconImage {
+    width: 32px;
+    height: 32px;
+  }
+
+  .container {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .calendarCard {
+    padding: 1.25rem;
+  }
+
+  .calendarTitle {
+    font-size: 1.1rem;
+  }
+
+  .calendarDescription {
+    font-size: 0.9rem;
+  }
+
+  .calendarButton {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .sessionCard {
+    padding: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .sessionFieldName {
+    font-size: 0.95rem;
+  }
+
+  .sessionTime {
+    font-size: 0.8rem;
+  }
+
+  .sessionDuration {
+    font-size: 0.78rem;
+  }
+
+  .sessionPrice {
+    font-size: 0.95rem;
+  }
+
+  .sessionImage {
+    width: 60px;
+    height: 60px;
+  }
+
+  .sessionImageContent {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

@@ -1,0 +1,523 @@
+:root {
+  --cream: #f3ede0;
+  --forest: #2b3a29;
+  --sage: #a3b18a;
+  --stone: #d8d3c3;
+  --text: #2b2b2b;
+  --border: #e2dccb;
+}
+
+:global(body) {
+  background-color: var(--cream);
+}
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  padding: 1.5rem 2.25rem;
+  border-radius: 0 0 72px 72px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.navbarContent {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.backButton {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.backArrow {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-right: 8px;
+}
+
+.backIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburgerMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 44px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hamburgerMenu:hover {
+  opacity: 0.8;
+}
+
+.hamburgerLine {
+  width: 100%;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+/* Main Container */
+.container {
+  min-height: calc(100vh - 60px);
+  padding: 2rem;
+  background-color: var(--cream);
+  font-family: var(--font-lora);
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Section Styling */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titleUnderline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+}
+
+/* Settings Sections */
+.settingsSection {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
+/* Profile Section */
+.profileCard {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--sage);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileDetails h4 {
+  margin: 0;
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.profileDetails p {
+  margin: 0.25rem 0 0 0;
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
+  color: rgba(43, 43, 43, 0.7);
+}
+
+.editButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font-poppins);
+  color: var(--forest);
+  background-color: rgba(163, 177, 138, 0.1);
+  border: 1px solid var(--sage);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: rgba(163, 177, 138, 0.2);
+}
+
+/* Toggle Section */
+.toggleGroup {
+  border-top: 1px solid var(--border);
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(226, 220, 203, 0.5);
+}
+
+.toggleItem:last-child {
+  border-bottom: none;
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.toggleLabel {
+  font-family: var(--font-poppins);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.toggleDescription {
+  font-family: var(--font-lora);
+  font-size: 0.85rem;
+  color: rgba(43, 43, 43, 0.7);
+  line-height: 1.4;
+}
+
+/* Toggle Switch */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(43, 58, 41, 0.2);
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--sage);
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(24px);
+}
+
+/* Account Section */
+.accountActions {
+  border-top: 1px solid var(--border);
+}
+
+.accountButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(226, 220, 203, 0.5);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+}
+
+.accountButton:last-child {
+  border-bottom: none;
+}
+
+.accountButton:hover {
+  background-color: rgba(163, 177, 138, 0.05);
+}
+
+.buttonIconContainer {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid rgba(226, 220, 203, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.buttonIconImage {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.buttonText {
+  flex: 1;
+  font-family: var(--font-poppins);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--forest);
+}
+
+.buttonArrow {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--sage);
+}
+
+/* Mobile Footer */
+.mobileFooter {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 220, 203, 0.8);
+  box-shadow: 0 -6px 16px rgba(43, 58, 41, 0.12);
+  padding: 0.65rem 0 calc(0.65rem + env(safe-area-inset-bottom));
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  z-index: 90;
+}
+
+.footerAction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  gap: 0.35rem;
+  padding: 0.5rem;
+}
+
+.footerIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.footerLabel {
+  font-family: var(--font-poppins);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--forest);
+  letter-spacing: 0.2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 64px 64px;
+  }
+
+  .navActions {
+    gap: 0.4rem;
+  }
+
+  .hamburgerMenu {
+    width: 36px;
+    height: 26px;
+  }
+
+  .hamburgerLine {
+    height: 2.5px;
+  }
+
+  .container {
+    padding: 1.5rem 1.25rem 12rem;
+    min-height: auto;
+  }
+
+  .main {
+    gap: 1.5rem;
+    margin-bottom: 8rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .profileCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .editButton {
+    align-self: flex-end;
+  }
+
+  .toggleItem {
+    padding: 1.25rem;
+  }
+
+  .accountButton {
+    padding: 1rem 1.25rem;
+  }
+
+  .buttonIconContainer {
+    width: 28px;
+    height: 28px;
+  }
+
+  .buttonIconImage {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobileFooter {
+    display: grid;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .navActions {
+    gap: 0.35rem;
+  }
+
+  .hamburgerMenu {
+    width: 30px;
+    height: 22px;
+  }
+
+  .hamburgerLine {
+    height: 2px;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .sectionHeader {
+    font-size: 1.1rem;
+    padding: 1.25rem 1.25rem 0.875rem 1.25rem;
+  }
+
+  .profileCard {
+    padding: 1.25rem;
+  }
+
+  .toggleItem {
+    padding: 1rem;
+  }
+
+  .accountButton {
+    padding: 0.875rem 1rem;
+  }
+
+  .buttonIconContainer {
+    width: 24px;
+    height: 24px;
+  }
+
+  .buttonIconImage {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -1,0 +1,442 @@
+:root {
+  --cream: #f3ede0;
+  --forest: #2b3a29;
+  --sage: #a3b18a;
+  --stone: #d8d3c3;
+  --text: #2b2b2b;
+  --border: #e2dccb;
+}
+
+:global(body) {
+  background-color: var(--cream);
+}
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  padding: 1.5rem 2.25rem;
+  border-radius: 0 0 72px 72px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.navbarContent {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.backButton {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.backArrow {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  margin-right: 8px;
+}
+
+.backIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.pageTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburgerMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 44px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hamburgerMenu:hover {
+  opacity: 0.8;
+}
+
+.hamburgerLine {
+  width: 100%;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+.settingsIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.settingsIcon:hover {
+  opacity: 0.8;
+}
+
+.settingsIconImage {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+/* Main Container */
+.container {
+  min-height: calc(100vh - 60px);
+  padding: 2.75rem 2rem 2rem;
+  background-color: var(--cream);
+  font-family: var(--font-lora);
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Header Row */
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.locationIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pageTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* Map Card */
+.mapCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.mapCard iframe {
+  width: 100%;
+  height: 300px;
+  border: 0;
+}
+
+/* Info Section */
+.infoSection {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.infoTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: 0.3px;
+}
+
+.addressText {
+  font-family: var(--font-lora);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem 0;
+}
+
+.phoneLink {
+  font-family: var(--font-lora);
+  font-size: 1rem;
+  color: var(--forest);
+  text-decoration: none;
+  margin: 0 0 2rem 0;
+  display: block;
+  transition: color 0.2s ease;
+}
+
+.phoneLink:hover {
+  color: var(--sage);
+}
+
+.primaryButton {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  letter-spacing: 0.2px;
+  font-family: var(--font-lora);
+  background-color: var(--forest);
+  color: #ffffff;
+  border: 2px solid var(--forest);
+  box-shadow: 0 2px 6px rgba(43, 58, 41, 0.15);
+  width: 100%;
+}
+
+.primaryButton:hover {
+  background-color: var(--sage);
+  border-color: var(--sage);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(43, 58, 41, 0.2);
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(43, 58, 41, 0.15);
+}
+
+/* Mobile Footer */
+.mobileFooter {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 220, 203, 0.8);
+  box-shadow: 0 -6px 16px rgba(43, 58, 41, 0.12);
+  padding: 0.65rem 1.25rem calc(0.65rem + env(safe-area-inset-bottom));
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  z-index: 90;
+}
+
+.footerAction {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  gap: 0.35rem;
+}
+
+.footerAction[aria-current="page"] {
+  color: var(--forest);
+}
+
+.footerIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.footerLabel {
+  font-family: var(--font-poppins);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--forest);
+  letter-spacing: 0.2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 64px 64px;
+  }
+
+  .navActions {
+    gap: 0.4rem;
+  }
+
+  .hamburgerMenu {
+    width: 36px;
+    height: 26px;
+  }
+
+  .hamburgerLine {
+    height: 2.5px;
+  }
+
+  .pageTitle {
+    font-size: 1.125rem;
+  }
+
+
+  .settingsIconImage {
+    width: 28px;
+    height: 28px;
+  }
+
+  .container {
+    padding: 2rem 1.25rem 12rem;
+    min-height: auto;
+  }
+
+  .main {
+    gap: 1.5rem;
+    margin-bottom: 8rem;
+  }
+
+  .pageTitle {
+    font-size: 1.375rem;
+  }
+
+  .headerRow {
+    margin-bottom: 1.25rem;
+  }
+
+  .locationIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mapCard iframe {
+    height: 250px;
+  }
+
+  .infoSection {
+    padding: 1.25rem;
+  }
+
+  .infoTitle {
+    font-size: 1rem;
+  }
+
+  .addressText {
+    font-size: 0.95rem;
+  }
+
+  .phoneLink {
+    font-size: 0.95rem;
+  }
+
+  .primaryButton {
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .mobileFooter {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .navActions {
+    gap: 0.35rem;
+  }
+
+  .hamburgerMenu {
+    width: 30px;
+    height: 22px;
+  }
+
+  .hamburgerLine {
+    height: 2px;
+  }
+
+  .pageTitle {
+    font-size: 1.25rem;
+  }
+
+
+  .settingsIconImage {
+    width: 32px;
+    height: 32px;
+  }
+
+  .container {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .headerRow {
+    margin-bottom: 1rem;
+  }
+
+  .locationIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mapCard iframe {
+    height: 200px;
+  }
+
+  .infoSection {
+    padding: 1rem;
+  }
+
+  .infoTitle {
+    font-size: 0.95rem;
+  }
+
+  .addressText {
+    font-size: 0.9rem;
+  }
+
+  .phoneLink {
+    font-size: 0.9rem;
+  }
+
+  .primaryButton {
+    font-size: 0.9rem;
+    padding: 0.625rem 1rem;
+  }
+}
