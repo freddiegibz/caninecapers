@@ -5,32 +5,6 @@ import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Location() {
-  const locations = [
-    {
-      id: "meadow-view-field",
-      name: "Meadow View Field",
-      address: "24 Meadow Lane, London NW1",
-      rating: "4.9 · 128 reviews",
-      distance: "0.8 miles",
-      image: "/centralbark.webp", // Placeholder image
-    },
-    {
-      id: "hillside-park",
-      name: "Hillside Park",
-      address: "89 Hillcrest Road, Bristol BS8",
-      rating: "4.7 · 98 reviews",
-      distance: "1.2 miles",
-      image: "/centralbark.webp", // Placeholder image
-    },
-    {
-      id: "riverside-fields",
-      name: "Riverside Fields",
-      address: "12 Riverside Way, Manchester M3",
-      rating: "4.8 · 156 reviews",
-      distance: "0.5 miles",
-      image: "/centralbark.webp", // Placeholder image
-    },
-  ];
 
   return (
     <>

@@ -37,7 +37,7 @@ export default function Home() {
           <div className={styles.feature}>
             <h3 className={styles.featureTitle}>Real-time Updates</h3>
             <p className={styles.featureDescription}>
-              Get photos and updates during your dog's walk.
+              Get photos and updates during your dog&apos;s walk.
             </p>
           </div>
         </div>
