@@ -28,26 +28,37 @@ export default function Home() {
       </header>
       <div className={styles.container}>
       <main className={styles.main}>
-        <div className={styles.header}>
-          <Image
-            src="/caninecaperslogotext_final.png?v=1"
-            alt="Canine Capers"
-            width={1200}
-            height={240}
-            className={styles.mainLogo}
-          />
-          <p className={styles.subtitle}>
-          Stourport’s home for safe, private dog adventures. Space to run, play, and just be a dog.
-          </p>
-        </div>
-
-        <div className={styles.actions}>
-          <Link href="/signin" className={styles.primaryButton}>
-            Sign In
-          </Link>
-          <Link href="/signup" className={styles.secondaryButton}>
-            Create Account
-          </Link>
+        <div className={styles.heroSection}>
+          <div className={styles.heroBackground}>
+            <Image
+              src="/field.webp"
+              alt="Beautiful field landscape"
+              fill
+              className={styles.backgroundImage}
+              priority
+            />
+            <div className={styles.heroOverlay}></div>
+          </div>
+          <div className={styles.heroContent}>
+            <Image
+              src="/caninecaperslogotext_final.png?v=1"
+              alt="Canine Capers"
+              width={1200}
+              height={240}
+              className={styles.mainLogo}
+            />
+            <p className={styles.subtitle}>
+            Stourport's home for safe, private dog adventures. Space to run, play, and just be a dog.
+            </p>
+            <div className={styles.actions}>
+              <Link href="/signin" className={styles.primaryButton}>
+                Sign In
+              </Link>
+              <Link href="/signup" className={styles.secondaryButton}>
+                Create Account
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className={styles.features}>
