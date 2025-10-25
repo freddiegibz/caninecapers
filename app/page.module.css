@@ -1,3 +1,133 @@
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background-color: #faf8f4;
+  padding: 1.5rem 2.25rem;
+  border-bottom: 1px solid #e2dccb;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  background: transparent;
+}
+
+.logoImage {
+  height: 40px;
+  width: auto;
+  
+  background: transparent;
+}
+
+.navbarContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.symbolLogo {
+  display: flex;
+  align-items: center;
+  background: transparent;
+}
+
+.symbolImage {
+  height: 48px;
+  width: 48px;
+  background: transparent;
+  object-fit: contain;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font-poppins);
+  color: #2b3a29;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover {
+  background-color: rgba(163, 177, 138, 0.1);
+  border-color: #a3b18a;
+}
+
+.primaryNavButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-poppins);
+  color: white;
+  background-color: #2b3a29;
+  text-decoration: none;
+  border: 2px solid #2b3a29;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.primaryNavButton:hover {
+  background-color: #a3b18a;
+  border-color: #a3b18a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(43, 58, 41, 0.2);
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .logoImage {
+    height: 32px;
+  }
+
+  .navActions {
+    gap: 0.5rem;
+  }
+
+  .navButton,
+  .primaryNavButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .logoImage {
+    height: 28px;
+  }
+
+  .navActions {
+    gap: 0.4rem;
+  }
+
+  .navButton,
+  .primaryNavButton {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+  }
+}
+
 .container {
   min-height: 100vh;
   padding: 2rem;
@@ -19,6 +149,18 @@
 .header {
   text-align: center;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mainLogo {
+  width: 1200px;
+  height: 240px;
+  object-fit: contain;
+  background: transparent;
+  margin: 0 auto 2rem auto;
+  display: block;
 }
 
 .title {
@@ -97,12 +239,26 @@
 }
 
 .feature {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(43, 58, 41, 0.1);
-  border: 1px solid #e2dccb;
+  background-color: #f8f8f4;
+  padding: 2rem 2rem 2.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(43, 58, 41, 0.08);
+  border: 2px solid #2b3a29;
   text-align: center;
+  position: relative;
+}
+
+.featureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+}
+
+.iconImage {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
 }
 
 .featureTitle {
@@ -111,12 +267,26 @@
   font-family: var(--font-poppins);
   color: #2b3a29;
   margin: 0 0 1rem 0;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.featureTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: #1a2a1a;
+  border-radius: 2px;
 }
 
 .featureDescription {
   font-size: 1rem;
   font-family: var(--font-lora);
-  color: rgba(43, 43, 43, 0.85);
+  color: #4a5a48;
   line-height: 1.6;
   margin: 0;
 }
@@ -126,6 +296,12 @@
   .main {
     padding: 2rem 1rem;
     gap: 3rem;
+  }
+
+  .mainLogo {
+    width: 90vw;
+    height: auto;
+    max-width: 768px;
   }
 
   .title {
@@ -152,9 +328,28 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+
+  .feature {
+    padding: 1.5rem;
+  }
+
+  .iconImage {
+    width: 80px;
+    height: 80px;
+  }
+
+  .featureTitle::after {
+    width: 50px;
+    height: 2.5px;
+  }
 }
 
 @media (max-width: 480px) {
+  .mainLogo {
+    width: 288px;
+    height: auto;
+  }
+
   .container {
     padding: 1rem 1rem 8rem;
   }
@@ -169,11 +364,27 @@
   }
 
   .subtitle {
+    font-size: 1.4rem;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    padding: 0.75rem 1.5rem;
     font-size: 1rem;
   }
 
   .feature {
     padding: 1.5rem;
+  }
+
+  .iconImage {
+    width: 72px;
+    height: 72px;
+  }
+
+  .featureTitle::after {
+    width: 40px;
+    height: 2px;
   }
 
   .featureTitle {
