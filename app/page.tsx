@@ -48,7 +48,7 @@ export default function Home() {
               className={styles.mainLogo}
             />
             <p className={styles.subtitle}>
-            Stourport's home for safe, private dog adventures. Space to run, play, and just be a dog.
+            Stourport&apos;s home for safe, private dog adventures. Space to run, play, and just be a dog.
             </p>
             <div className={styles.actions}>
               <Link href="/signin" className={styles.primaryButton}>
