@@ -89,6 +89,19 @@ export default function Dashboard() {
     return { id: "central-bark" as const, name: "Central Bark" };
   };
 
+  const getPriceForType = (appointmentTypeID: string) => {
+    switch (appointmentTypeID) {
+      case '18525224': // 30-Minute Reservation
+        return '£5.50/hour';
+      case '29373489': // 45-Minute Reservation
+        return '£6.50/hour';
+      case '18525161': // 1-Hour Reservation
+        return '£5.50/hour';
+      default:
+        return '£5.50/hour';
+    }
+  };
+
   return (
     <>
       <header className={styles.navbar}>
@@ -204,7 +217,7 @@ export default function Dashboard() {
                       <div className={styles.availabilityContent}>
                         <div className={styles.availabilityHeader}>
                           <span className={styles.availabilityName}>{meta.name}</span>
-                          <span className={styles.availabilityPrice}>£5.50/hour</span>
+                          <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
                         </div>
                         <span className={styles.availabilityTimeslot}>{dateLabel}</span>
                       </div>
