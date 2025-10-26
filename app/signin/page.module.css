@@ -54,6 +54,18 @@
   border: 1px solid #e2dccb;
 }
 
+.error {
+  color: #dc3545;
+  font-size: 0.9rem;
+  font-family: var(--font-lora);
+  text-align: center;
+  padding: 0.75rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
 .formGroup {
   display: flex;
   flex-direction: column;

@@ -1,7 +1,33 @@
+'use client';
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "../../src/api/auth";
 import styles from "./page.module.css";
 
 export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      await signIn(email, password);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "An error occurred during sign in");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -12,7 +38,9 @@ export default function SignIn() {
           </p>
         </div>
 
-        <form className={styles.signInForm}>
+        <form className={styles.signInForm} onSubmit={handleSubmit}>
+          {error && <p className={styles.error}>{error}</p>}
+
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>Email</label>
             <input
@@ -21,6 +49,8 @@ export default function SignIn() {
               name="email"
               className={styles.input}
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -33,12 +63,14 @@ export default function SignIn() {
               name="password"
               className={styles.input}
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <button type="submit" className={styles.signInButton}>
-            Sign In
+          <button type="submit" className={styles.signInButton} disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
           <p className={styles.signUpLink}>

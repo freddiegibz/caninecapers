@@ -1,7 +1,40 @@
+'use client';
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signUp } from "../../src/api/auth";
 import styles from "./page.module.css";
 
 export default function SignUp() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await signUp(email, password);
+      setSuccess("Account created successfully! Please check your email to verify your account.");
+      // Optionally redirect to signin after a delay
+      setTimeout(() => {
+        router.push("/signin");
+      }, 3000);
+    } catch (err: any) {
+      setError(err.message || "An error occurred during sign up");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -12,7 +45,10 @@ export default function SignUp() {
           </p>
         </div>
 
-        <form className={styles.signUpForm}>
+        <form className={styles.signUpForm} onSubmit={handleSubmit}>
+          {error && <p className={styles.error}>{error}</p>}
+          {success && <p className={styles.success}>{success}</p>}
+
           <div className={styles.formGroup}>
             <label htmlFor="fullName" className={styles.label}>Full Name</label>
             <input
@@ -21,6 +57,8 @@ export default function SignUp() {
               name="fullName"
               className={styles.input}
               placeholder="Enter your full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               required
             />
           </div>
@@ -33,6 +71,8 @@ export default function SignUp() {
               name="email"
               className={styles.input}
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -45,17 +85,19 @@ export default function SignUp() {
               name="password"
               className={styles.input}
               placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <button type="submit" className={styles.createAccountButton}>
-            Create Account
+          <button type="submit" className={styles.createAccountButton} disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
 
           <p className={styles.signInLink}>
             Already have an account?{" "}
-            <Link href="/login" className={styles.link}>
+            <Link href="/signin" className={styles.link}>
               Sign in here.
             </Link>
           </p>
