@@ -92,13 +92,13 @@ export default function Dashboard() {
   const getPriceForType = (appointmentTypeID: string) => {
     switch (appointmentTypeID) {
       case '18525224': // 30-Minute Reservation
-        return '£5.50/hour';
+        return '£5.50';
       case '29373489': // 45-Minute Reservation
-        return '£6.50/hour';
+        return '£8.25';
       case '18525161': // 1-Hour Reservation
-        return '£5.50/hour';
+        return '£11.00';
       default:
-        return '£5.50/hour';
+        return '£5.50';
     }
   };
 
