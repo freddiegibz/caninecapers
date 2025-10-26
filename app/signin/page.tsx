@@ -21,8 +21,12 @@ export default function SignIn() {
     try {
       await signIn(email, password);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "An error occurred during sign in");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An error occurred during sign in");
+      }
     } finally {
       setLoading(false);
     }
