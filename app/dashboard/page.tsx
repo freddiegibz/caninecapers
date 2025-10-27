@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { supabase } from "../../src/lib/supabaseClient";
 import styles from "./page.module.css";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
+  const [userName, setUserName] = useState<string>('Guest');
 
   type AvailabilityResponseItem = {
     startTime: string; // ISO string
@@ -24,6 +26,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 5;
+
+  useEffect(() => {
+    // Load user name on component mount
+    loadUserName();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          await loadUserName();
+        } else if (event === 'SIGNED_OUT') {
+          setUserName('Guest');
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -102,12 +124,62 @@ export default function Dashboard() {
     }
   };
 
+  const loadUserName = async () => {
+    try {
+      console.log('Loading user name...');
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching user:', error);
+        setUserName('Guest');
+        return;
+      }
+
+      console.log('User fetched:', user ? 'User exists' : 'No user');
+      console.log('User metadata:', user?.user_metadata);
+
+      if (user) {
+        // First try to get name from user metadata
+        let name = user.user_metadata?.name;
+        console.log('Name from metadata:', name);
+
+        // If not found in metadata, try to fetch from profiles table
+        if (!name) {
+          console.log('Name not in metadata, checking profiles table...');
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', user.id)
+            .single();
+
+          console.log('Profile query result:', { profile, profileError });
+
+          if (!profileError && profile?.name) {
+            name = profile.name;
+            console.log('Name from profiles table:', name);
+          } else {
+            console.log('No name found in profiles table either');
+          }
+        }
+
+        const finalName = name || 'Guest';
+        console.log('Final name to display:', finalName);
+        setUserName(finalName);
+      } else {
+        console.log('No user found, setting to Guest');
+        setUserName('Guest');
+      }
+    } catch (error) {
+      console.error('Error loading user name:', error);
+      setUserName('Guest');
+    }
+  };
+
   return (
     <>
       <header className={styles.navbar}>
         <div className={styles.navbarContent}>
           <div className={styles.greeting}>
-            <h1 className={styles.greetingName}>Hello, Sarah</h1>
+            <h1 className={styles.greetingName}>Hello, {userName}</h1>
             <p className={styles.greetingSubtitle}>Welcome to Canine Capers</p>
           </div>
           <div className={styles.navActions}>
@@ -205,26 +277,26 @@ export default function Dashboard() {
                   const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
                   return (
                     <div key={session.id} className={styles.availabilityCard}>
-                      <div className={styles.availabilityImage}>
-                        <Image
+                    <div className={styles.availabilityImage}>
+                      <Image
                           src={meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp'}
                           alt={meta.name}
-                          width={110}
-                          height={110}
-                          className={styles.availabilityImageContent}
-                        />
-                      </div>
-                      <div className={styles.availabilityContent}>
-                        <div className={styles.availabilityHeader}>
+                        width={110}
+                        height={110}
+                        className={styles.availabilityImageContent}
+                      />
+                    </div>
+                    <div className={styles.availabilityContent}>
+                      <div className={styles.availabilityHeader}>
                           <span className={styles.availabilityName}>{meta.name}</span>
                           <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
                         </div>
                         <span className={styles.availabilityTimeslot}>{dateLabel}</span>
-                      </div>
-                      <button className={styles.bookButton}>
-                        Book <span className={styles.arrow}>›</span>
-                      </button>
                     </div>
+                    <button className={styles.bookButton}>
+                      Book <span className={styles.arrow}>›</span>
+                    </button>
+                  </div>
                   );
                 })}
               </div>

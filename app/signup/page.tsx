@@ -22,7 +22,8 @@ export default function SignUp() {
     setSuccess("");
 
     try {
-      await signUp(email, password);
+      console.log('Attempting signup with:', { email, fullName }); // Debug log
+      await signUp(email, password, fullName);
       setSuccess("Account created successfully! Please check your email to verify your account.");
       // Optionally redirect to signin after a delay
       setTimeout(() => {
