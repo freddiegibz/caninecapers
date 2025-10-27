@@ -161,7 +161,7 @@ export default function MySessions() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>View Sessions</span>
+          <span className={styles.footerLabel}>My Sessions</span>
         </Link>
 
         <Link href="/location" className={styles.footerAction}>

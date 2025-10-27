@@ -127,7 +127,7 @@ export default function Book() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Sessions</span>
+          <span className={styles.footerLabel}>My Sessions</span>
         </Link>
 
         <Link href="/location" className={styles.footerAction}>

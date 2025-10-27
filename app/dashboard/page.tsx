@@ -3,21 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import styles from "./page.module.css";
 
-type SessionData = {
-  id: string;
-  calendarID: number;
-  startTime: string;
-  fieldName: string;
-  price: string;
-};
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
   const [userName, setUserName] = useState<string>('Guest');
-  const [selectedSession, setSelectedSession] = useState<SessionData | null>(null);
+  const router = useRouter();
 
   type AvailabilityResponseItem = {
     startTime: string; // ISO string
@@ -135,28 +129,32 @@ export default function Dashboard() {
 
   const handleBookSession = (session: NormalizedSession) => {
     const meta = getFieldMeta(session.calendarID);
-    const sessionData: SessionData = {
+    const price = getPriceForType(selectedType);
+    const durationText = selectedType === '18525224' ? '30 min' :
+                        selectedType === '29373489' ? '45 min' :
+                        selectedType === '18525161' ? '1 hour' : '30 min';
+
+    // Pass session data via query parameters
+    const queryParams = new URLSearchParams({
       id: session.id,
-      calendarID: session.calendarID,
-      startTime: session.startTime,
-      fieldName: meta.name,
-      price: getPriceForType(selectedType)
-    };
+      image_url: meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp',
+      date: formatDate(session.startTime),
+      time: formatTime(session.startTime),
+      length: durationText,
+      field: meta.name,
+      price: price,
+      calendarID: session.calendarID.toString(),
+      startTime: session.startTime
+    });
 
-    console.log('Booking session clicked:', sessionData);
-    setSelectedSession(sessionData);
-  };
+    console.log('Navigating to booking page with session data:', {
+      id: session.id,
+      field: meta.name,
+      date: formatDate(session.startTime),
+      time: formatTime(session.startTime)
+    });
 
-  const handleCloseBooking = () => {
-    setSelectedSession(null);
-  };
-
-  const handleConfirmBooking = () => {
-    if (selectedSession) {
-      console.log('Booking confirmed for session:', selectedSession);
-      alert(`Session booked successfully!\n\nField: ${selectedSession.fieldName}\nDate & Time: ${formatDate(selectedSession.startTime)} at ${formatTime(selectedSession.startTime)}\nPrice: ${selectedSession.price}`);
-      setSelectedSession(null);
-    }
+    router.push(`/book/${session.id}?${queryParams.toString()}`);
   };
 
   const loadUserName = async () => {
@@ -456,71 +454,6 @@ export default function Dashboard() {
         </Link>
       </footer>
 
-      {/* Booking Modal */}
-      {selectedSession && (
-        <div className={styles.modalOverlay} onClick={handleCloseBooking}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Confirm Your Booking</h3>
-              <button
-                className={styles.modalClose}
-                onClick={handleCloseBooking}
-                aria-label="Close modal"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <div className={styles.bookingDetails}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Field:</span>
-                  <span className={styles.detailValue}>{selectedSession.fieldName}</span>
-                </div>
-
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Date:</span>
-                  <span className={styles.detailValue}>{formatDate(selectedSession.startTime)}</span>
-                </div>
-
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Time:</span>
-                  <span className={styles.detailValue}>{formatTime(selectedSession.startTime)}</span>
-                </div>
-
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Duration:</span>
-                  <span className={styles.detailValue}>
-                    {selectedType === '18525224' ? '30 minutes' :
-                     selectedType === '29373489' ? '45 minutes' :
-                     selectedType === '18525161' ? '1 hour' : '30 minutes'}
-                  </span>
-                </div>
-
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Price:</span>
-                  <span className={styles.detailValue}>{selectedSession.price}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button
-                className={styles.cancelButton}
-                onClick={handleCloseBooking}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmButton}
-                onClick={handleConfirmBooking}
-              >
-                Confirm Booking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
