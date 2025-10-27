@@ -6,9 +6,18 @@ import Image from "next/image";
 import { supabase } from "../../src/lib/supabaseClient";
 import styles from "./page.module.css";
 
+type SessionData = {
+  id: string;
+  calendarID: number;
+  startTime: string;
+  fieldName: string;
+  price: string;
+};
+
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
   const [userName, setUserName] = useState<string>('Guest');
+  const [selectedSession, setSelectedSession] = useState<SessionData | null>(null);
 
   type AvailabilityResponseItem = {
     startTime: string; // ISO string
@@ -121,6 +130,32 @@ export default function Dashboard() {
         return '£11.00';
       default:
         return '£5.50';
+    }
+  };
+
+  const handleBookSession = (session: NormalizedSession) => {
+    const meta = getFieldMeta(session.calendarID);
+    const sessionData: SessionData = {
+      id: session.id,
+      calendarID: session.calendarID,
+      startTime: session.startTime,
+      fieldName: meta.name,
+      price: getPriceForType(selectedType)
+    };
+
+    console.log('Booking session clicked:', sessionData);
+    setSelectedSession(sessionData);
+  };
+
+  const handleCloseBooking = () => {
+    setSelectedSession(null);
+  };
+
+  const handleConfirmBooking = () => {
+    if (selectedSession) {
+      console.log('Booking confirmed for session:', selectedSession);
+      alert(`Session booked successfully!\n\nField: ${selectedSession.fieldName}\nDate & Time: ${formatDate(selectedSession.startTime)} at ${formatTime(selectedSession.startTime)}\nPrice: ${selectedSession.price}`);
+      setSelectedSession(null);
     }
   };
 
@@ -290,10 +325,13 @@ export default function Dashboard() {
                       <div className={styles.availabilityHeader}>
                           <span className={styles.availabilityName}>{meta.name}</span>
                           <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
-                        </div>
+                      </div>
                         <span className={styles.availabilityTimeslot}>{dateLabel}</span>
                     </div>
-                    <button className={styles.bookButton}>
+                    <button
+                      className={styles.bookButton}
+                      onClick={() => handleBookSession(session)}
+                    >
                       Book <span className={styles.arrow}>›</span>
                     </button>
                   </div>
@@ -417,6 +455,72 @@ export default function Dashboard() {
           <span className={styles.footerLabel}>Locations</span>
         </Link>
       </footer>
+
+      {/* Booking Modal */}
+      {selectedSession && (
+        <div className={styles.modalOverlay} onClick={handleCloseBooking}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Confirm Your Booking</h3>
+              <button
+                className={styles.modalClose}
+                onClick={handleCloseBooking}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.bookingDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Field:</span>
+                  <span className={styles.detailValue}>{selectedSession.fieldName}</span>
+                </div>
+
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Date:</span>
+                  <span className={styles.detailValue}>{formatDate(selectedSession.startTime)}</span>
+                </div>
+
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Time:</span>
+                  <span className={styles.detailValue}>{formatTime(selectedSession.startTime)}</span>
+                </div>
+
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Duration:</span>
+                  <span className={styles.detailValue}>
+                    {selectedType === '18525224' ? '30 minutes' :
+                     selectedType === '29373489' ? '45 minutes' :
+                     selectedType === '18525161' ? '1 hour' : '30 minutes'}
+                  </span>
+                </div>
+
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Price:</span>
+                  <span className={styles.detailValue}>{selectedSession.price}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={handleCloseBooking}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.confirmButton}
+                onClick={handleConfirmBooking}
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
