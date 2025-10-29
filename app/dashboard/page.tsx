@@ -36,7 +36,8 @@ export default function Dashboard() {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      async (event, _session) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           await loadUserName();
         } else if (event === 'SIGNED_OUT') {
@@ -71,7 +72,8 @@ export default function Dashboard() {
           setSessions(normalized);
           setCurrentPage(1);
         }
-      } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_error: unknown) {
         // Silent fail to keep UI clean; show empty state instead
         if (isMounted) setSessions([]);
       }

@@ -233,7 +233,7 @@ export default function BookingPage() {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoBullet}>•</span>
-              <span>You'll receive a confirmation email with session details</span>
+              <span>You&apos;ll receive a confirmation email with session details</span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoBullet}>•</span>
