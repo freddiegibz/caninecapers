@@ -15,6 +15,7 @@ interface SessionData {
   price: string;
   calendarID: string;
   startTime: string;
+  appointmentTypeID: string;
 }
 
 export default function BookingPage() {
@@ -26,6 +27,7 @@ export default function BookingPage() {
   const [session, setSession] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     // Read session data from URL query parameters
@@ -38,13 +40,14 @@ export default function BookingPage() {
       field: searchParams.get('field') || '',
       price: searchParams.get('price') || '',
       calendarID: searchParams.get('calendarID') || '',
-      startTime: searchParams.get('startTime') || ''
+      startTime: searchParams.get('startTime') || '',
+      appointmentTypeID: searchParams.get('appointmentTypeID') || ''
     };
 
     console.log('Session data from query params:', sessionData);
 
     // Check if we have all required session data
-    const hasRequiredData = sessionData.id && sessionData.date && sessionData.time && sessionData.field;
+    const hasRequiredData = sessionData.id && sessionData.date && sessionData.time && sessionData.field && sessionData.appointmentTypeID;
 
     if (hasRequiredData) {
       setSession(sessionData);
@@ -62,10 +65,21 @@ export default function BookingPage() {
     router.push('/dashboard');
   };
 
-  const handleBookSession = () => {
-    // TODO: Implement actual booking logic with Acuity Scheduling
-    console.log('Booking session:', session);
-    alert('🎉 Booking functionality will be implemented with Acuity Scheduling!');
+  const handleConfirmBooking = () => {
+    if (!session) return;
+
+    setBookingLoading(true);
+
+    // Build Acuity Scheduling URL with appointmentType to skip duration selection
+    const acuityOwnerId = '21300080';
+    const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}`;
+
+    console.log('Redirecting to Acuity Scheduling:', bookingUrl);
+
+    // Add a brief delay for user feedback before redirecting
+    setTimeout(() => {
+      window.location.href = bookingUrl;
+    }, 1500);
   };
 
   if (loading) {
@@ -200,10 +214,11 @@ export default function BookingPage() {
 
             {/* Book Button */}
             <button
-              onClick={handleBookSession}
+              onClick={handleConfirmBooking}
+              disabled={bookingLoading}
               className={styles.bookButton}
             >
-              Book Session
+              {bookingLoading ? 'Redirecting to payment...' : 'Confirm Booking'}
             </button>
           </div>
         </div>

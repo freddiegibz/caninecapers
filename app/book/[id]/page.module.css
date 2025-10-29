@@ -174,6 +174,16 @@
   box-shadow: 0 0 0 3px rgba(43, 58, 41, 0.3);
 }
 
+.bookButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #6b7280;
+}
+
+.bookButton:disabled:hover {
+  background-color: #6b7280;
+}
+
 /* Information Section */
 .infoSection {
   background-color: #ffffff;

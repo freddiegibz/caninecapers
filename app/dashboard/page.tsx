@@ -144,7 +144,8 @@ export default function Dashboard() {
       field: meta.name,
       price: price,
       calendarID: session.calendarID.toString(),
-      startTime: session.startTime
+      startTime: session.startTime,
+      appointmentTypeID: selectedType
     });
 
     console.log('Navigating to booking page with session data:', {
