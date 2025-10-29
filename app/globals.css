@@ -3,6 +3,14 @@
   --foreground: #171717;
   --font-poppins: 'Poppins', sans-serif;
   --font-lora: 'Lora', serif;
+
+  /* Theme colors */
+  --cream: #f3ede0;
+  --forest: #2b3a29;
+  --sage: #a3b18a;
+  --stone: #d8d3c3;
+  --text: #2b2b2b;
+  --border: #e2dccb;
 }
 
 @media (prefers-color-scheme: dark) {
