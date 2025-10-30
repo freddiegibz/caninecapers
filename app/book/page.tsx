@@ -257,7 +257,7 @@ export default function Book() {
               {selectedField > 0 && selectedType && (
                 <Script
                   src="https://embed.acuityscheduling.com/js/embed.js"
-                  strategy="lazy"
+                  strategy="lazyOnload"
                 />
               )}
 

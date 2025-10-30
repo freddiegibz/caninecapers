@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../src/lib/supabaseClient';
 import styles from './page.module.css';
@@ -16,7 +16,7 @@ interface BookingData {
   startTime: string;
 }
 
-export default function ConfirmationPage() {
+function ConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -119,5 +119,22 @@ export default function ConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.container}>
+        <div className={styles.confirmationCard}>
+          <div className={styles.content}>
+            <div className={styles.loadingSpinner}></div>
+            <p className={styles.loadingText}>Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
