@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -249,8 +250,15 @@ export default function Book() {
                     allow="payment"
                     className={styles.calendarIframe}
                   ></iframe>
-                  <script src="https://embed.acuityscheduling.com/js/embed.js" type="text/javascript"></script>
                 </div>
+              )}
+
+              {/* Load Acuity embed script when iframe is present */}
+              {selectedField > 0 && selectedType && (
+                <Script
+                  src="https://embed.acuityscheduling.com/js/embed.js"
+                  strategy="lazy"
+                />
               )}
 
               {/* Show message when selections not complete */}
@@ -285,7 +293,7 @@ export default function Book() {
                   </label>
                 );
               })}
-            </div>
+                </div>
             {loading && (
               <div style={{ width: '100%', textAlign: 'center', color: 'var(--forest)', marginBottom: '0.75rem', fontWeight: 600 }}>
                 Loading available sessions…
@@ -307,25 +315,25 @@ export default function Book() {
                     className={styles.sessionCard}
                     onClick={() => handleBookSession(session)}
                   >
-                    <div className={styles.sessionImage}>
-                      <Image
+                <div className={styles.sessionImage}>
+                  <Image
                         src={meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp'}
                         alt={meta.name}
-                        width={80}
-                        height={80}
-                        className={styles.sessionImageContent}
-                      />
-                    </div>
-                    <div className={styles.sessionDetails}>
+                    width={80}
+                    height={80}
+                    className={styles.sessionImageContent}
+                  />
+                </div>
+                <div className={styles.sessionDetails}>
                       <span className={styles.sessionFieldName}>{meta.name}</span>
                       <span className={styles.sessionTime}>{dateLabel}</span>
                       <span className={styles.sessionDuration}>{durationText} session</span>
                       <span className={styles.sessionPrice}>{getPriceForType(selectedType)}</span>
-                    </div>
+                </div>
                     <div className={styles.bookButton}>
-                      Book <span className={styles.arrow}>›</span>
+                  Book <span className={styles.arrow}>›</span>
                     </div>
-                  </div>
+              </div>
                 );
               })}
             </div>
