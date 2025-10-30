@@ -216,6 +216,7 @@
   transition: box-shadow 0.2s ease;
   align-items: center;
   position: relative;
+  cursor: pointer;
 }
 
 .sessionCard:hover {
@@ -307,6 +308,15 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--forest);
+}
+
+.noSessions {
+  text-align: center;
+  color: var(--text);
+  opacity: 0.7;
+  font-style: italic;
+  padding: 2rem 1rem;
+  grid-column: 1 / -1;
 }
 
 /* Mobile Footer */

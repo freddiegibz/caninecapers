@@ -571,6 +571,7 @@
   box-shadow: 0 16px 32px rgba(43, 58, 41, 0.12), 0 4px 10px rgba(43, 58, 41, 0.08);
   transition: box-shadow 0.2s ease;
   position: relative;
+  cursor: pointer;
 }
 
 .availabilityCard:hover {

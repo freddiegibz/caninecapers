@@ -70,7 +70,23 @@ export default function BookingPage() {
 
     setBookingLoading(true);
 
+    // Save booking data to localStorage before redirecting to Acuity
+    const bookingData = {
+      field: session.field,
+      calendarID: session.calendarID,
+      appointmentTypeID: session.appointmentTypeID,
+      date: session.date,
+      time: session.time,
+      length: session.length,
+      price: session.price,
+      startTime: session.startTime
+    };
+
+    localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+    console.log('Saved pending booking to localStorage:', bookingData);
+
     // Build Acuity Scheduling URL with appointmentType to skip duration selection
+    // Note: Configure the success redirect URL in Acuity admin to: /confirmation?status=success
     const acuityOwnerId = '21300080';
     const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}`;
 

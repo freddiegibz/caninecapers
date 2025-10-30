@@ -312,7 +312,11 @@ export default function Dashboard() {
                   const meta = getFieldMeta(session.calendarID);
                   const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
                   return (
-                    <div key={session.id} className={styles.availabilityCard}>
+                    <div
+                      key={session.id}
+                      className={styles.availabilityCard}
+                      onClick={() => handleBookSession(session)}
+                    >
                     <div className={styles.availabilityImage}>
                       <Image
                           src={meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp'}
@@ -329,12 +333,9 @@ export default function Dashboard() {
                       </div>
                         <span className={styles.availabilityTimeslot}>{dateLabel}</span>
                     </div>
-                    <button
-                      className={styles.bookButton}
-                      onClick={() => handleBookSession(session)}
-                    >
+                    <div className={styles.bookButton}>
                       Book <span className={styles.arrow}>›</span>
-                    </button>
+                    </div>
                   </div>
                   );
                 })}
