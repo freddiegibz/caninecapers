@@ -21,7 +21,8 @@ export default function Book() {
   };
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute
+  const [selectedType, setSelectedType] = useState<string>(''); // No default - user must select
+  const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function Book() {
         return '£5.50';
     }
   };
+
 
   const handleBookSession = (session: NormalizedSession) => {
     const meta = getFieldMeta(session.calendarID);
@@ -186,9 +188,77 @@ export default function Book() {
             <div className={styles.calendarCard}>
               <h3 className={styles.calendarTitle}>Browse Calendar</h3>
               <p className={styles.calendarDescription}>
-                View all available sessions in a calendar format to find the perfect time for your dog.
+                Select your preferred appointment length and field to view available times in calendar format.
               </p>
-              <button className={styles.calendarButton}>Open Calendar</button>
+
+              {/* Appointment Type Selection */}
+              <div style={{ marginBottom: '1rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Appointment Length:</h4>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {[{ id: '18525224', label: '30-Minute' }, { id: '29373489', label: '45-Minute' }, { id: '18525161', label: '1-Hour' }].map(opt => {
+                    const checked = selectedType === opt.id;
+                    return (
+                      <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: checked ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
+                        <input
+                          type="radio"
+                          name="appointmentTypeCalendar"
+                          value={opt.id}
+                          checked={checked}
+                          onChange={(e) => setSelectedType(e.target.value)}
+                          style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
+                        />
+                        {opt.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Field Selection */}
+              <div style={{ marginBottom: '1rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Select Field:</h4>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 4783035, label: 'Central Bark' },
+                    { id: 6255352, label: 'Hyde Bark' }
+                  ].map(field => (
+                    <label key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: selectedField === field.id ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
+                      <input
+                        type="radio"
+                        name="field"
+                        value={field.id}
+                        checked={selectedField === field.id}
+                        onChange={(e) => setSelectedField(Number(e.target.value))}
+                        style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
+                      />
+                      {field.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Show iframe when both selections are made */}
+              {selectedField > 0 && selectedType && (
+                <div className={styles.calendarContainer}>
+                  <iframe
+                    src={`https://app.acuityscheduling.com/schedule.php?owner=21300080&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
+                    title="Schedule Appointment"
+                    width="100%"
+                    height="800"
+                    frameBorder="0"
+                    allow="payment"
+                    className={styles.calendarIframe}
+                  ></iframe>
+                  <script src="https://embed.acuityscheduling.com/js/embed.js" type="text/javascript"></script>
+                </div>
+              )}
+
+              {/* Show message when selections not complete */}
+              {(!selectedField || !selectedType) && (
+                <div style={{ textAlign: 'center', color: 'var(--text)', opacity: 0.7, padding: '2rem', fontStyle: 'italic' }}>
+                  Please select both a field and appointment length to view the calendar.
+                </div>
+              )}
             </div>
           </section>
 

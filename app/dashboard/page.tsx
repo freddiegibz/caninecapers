@@ -164,44 +164,74 @@ export default function Dashboard() {
     try {
       console.log('Loading user name...');
       const { data: { user }, error } = await supabase.auth.getUser();
+
       if (error) {
         console.error('Error fetching user:', error);
         setUserName('Guest');
         return;
       }
 
-      console.log('User fetched:', user ? 'User exists' : 'No user');
+      console.log('User object:', user);
+      console.log('User ID:', user?.id);
+      console.log('User email:', user?.email);
       console.log('User metadata:', user?.user_metadata);
 
       if (user) {
-        // First try to get name from user metadata
-        let name = user.user_metadata?.name;
+        // Try multiple ways to get the name
+        let name = null;
+
+        // 1. Check user metadata for name
+        name = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.display_name;
         console.log('Name from metadata:', name);
 
-        // If not found in metadata, try to fetch from profiles table
+        // 2. Check user metadata for first/last name combination
+        if (!name && user.user_metadata) {
+          const firstName = user.user_metadata.first_name || user.user_metadata.given_name;
+          const lastName = user.user_metadata.last_name || user.user_metadata.family_name;
+          if (firstName || lastName) {
+            name = [firstName, lastName].filter(Boolean).join(' ');
+            console.log('Name from first/last name:', name);
+          }
+        }
+
+        // 3. Try to fetch from profiles table
         if (!name) {
           console.log('Name not in metadata, checking profiles table...');
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', user.id)
-            .single();
+          try {
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('name, first_name, last_name, full_name')
+              .eq('id', user.id)
+              .single();
 
-          console.log('Profile query result:', { profile, profileError });
+            console.log('Profile query result:', { profile, profileError });
 
-          if (!profileError && profile?.name) {
-            name = profile.name;
-            console.log('Name from profiles table:', name);
-          } else {
-            console.log('No name found in profiles table either');
+            if (!profileError && profile) {
+              // Try different name fields from profiles table
+              name = profile.name || profile.full_name ||
+                     (profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : null) ||
+                     profile.first_name || profile.last_name;
+
+              console.log('Name from profiles table:', name);
+            } else {
+              console.log('Profile query failed:', profileError?.message);
+            }
+          } catch (profileErr) {
+            console.error('Error querying profiles table:', profileErr);
           }
+        }
+
+        // 4. Fallback to email username
+        if (!name && user.email) {
+          name = user.email.split('@')[0];
+          console.log('Using email username:', name);
         }
 
         const finalName = name || 'Guest';
         console.log('Final name to display:', finalName);
         setUserName(finalName);
       } else {
-        console.log('No user found, setting to Guest');
+        console.log('No authenticated user found');
         setUserName('Guest');
       }
     } catch (error) {

@@ -257,6 +257,17 @@
   justify-content: center;
   text-decoration: none;
   gap: 0.35rem;
+  position: relative;
+}
+
+.footerAction:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background-color: #e2dccb;
 }
 
 .footerAction[aria-current="page"] {
