@@ -71,11 +71,27 @@ export async function POST(request: Request) {
     const { date, start_time } = splitDatetime(datetime);
     const length = getAppointmentLength(type);
 
+    // Query Supabase users table to find matching user by email
+    const { data: user } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    let user_id = null;
+    if (user) {
+      user_id = user.id;
+      console.log(`✅ Booking linked to user ${email}`);
+    } else {
+      console.log(`⚠️ No matching user for ${email} — saved as unlinked.`);
+    }
+
     // Insert into Supabase booked_sessions table
     const { error } = await supabase
       .from('booked_sessions')
       .insert({
         acuity_id: id,
+        user_id: user_id,
         client_name: client_name,
         client_email: email,
         field: field,
