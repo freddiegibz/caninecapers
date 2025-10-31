@@ -172,7 +172,7 @@ export default function MySessions() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Locations</span>
+          <span className={styles.footerLabel}>Location</span>
         </Link>
       </footer>
     </>

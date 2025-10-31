@@ -91,7 +91,7 @@ export default function Location() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Book</span>
+          <span className={styles.footerLabel}>Book Session</span>
         </Link>
 
         <Link href="/my-sessions" className={styles.footerAction}>
@@ -113,7 +113,7 @@ export default function Location() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Locations</span>
+          <span className={styles.footerLabel}>Location</span>
         </Link>
       </footer>
     </>
