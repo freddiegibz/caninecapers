@@ -358,8 +358,10 @@ export default function Dashboard() {
                     </div>
                     <div className={styles.availabilityContent}>
                       <div className={styles.availabilityHeader}>
-                          <span className={styles.availabilityName}>{meta.name}</span>
-                          <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
+                          <span className={styles.availabilityName}>
+                            {meta.name}
+                            <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
+                          </span>
                       </div>
                         <span className={styles.availabilityTimeslot}>{dateLabel}</span>
                     </div>
