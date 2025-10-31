@@ -26,6 +26,8 @@ export default function Book() {
   const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 5;
 
   useEffect(() => {
     let isMounted = true;
@@ -231,7 +233,10 @@ export default function Book() {
                               name="appointmentTypeCalendar"
                               value={opt.id}
                               checked={checked}
-                              onChange={(e) => setSelectedType(e.target.value)}
+                              onChange={(e) => {
+                            setSelectedType(e.target.value);
+                            setCurrentPage(1); // Reset to first page when type changes
+                          }}
                               style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
                             />
                             {opt.label}
@@ -255,7 +260,10 @@ export default function Book() {
                             name="field"
                             value={field.id}
                             checked={selectedField === field.id}
-                            onChange={(e) => setSelectedField(Number(e.target.value))}
+                            onChange={(e) => {
+                          setSelectedField(Number(e.target.value));
+                          setCurrentPage(1); // Reset to first page when field changes
+                        }}
                             style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
                           />
                           {field.label}
@@ -330,44 +338,80 @@ export default function Book() {
                 Loading available sessions…
               </div>
             )}
-            <div className={styles.sessionsGrid}>
+            <div className={styles.availabilityGrid}>
               {sessions.length === 0 && !loading && (
-                <p className={styles.noSessions}>No sessions available for this type.</p>
+                <p className={styles.availabilityTimeslot}>No sessions available for this type.</p>
               )}
-              {sessions.slice(0, 6).map((session) => {  // Show first 6 sessions
+              {sessions
+                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                .map((session) => {
                 const meta = getFieldMeta(session.calendarID);
                 const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
-                const durationText = selectedType === '18525224' ? '30 min' :
-                                    selectedType === '29373489' ? '45 min' :
-                                    selectedType === '18525161' ? '1 hour' : '30 min';
                 return (
                   <div
                     key={session.id}
-                    className={styles.sessionCard}
+                    className={styles.availabilityCard}
                     onClick={() => handleBookSession(session)}
                   >
-                <div className={styles.sessionImage}>
-                  <Image
+                  <div className={styles.availabilityImage}>
+                    <Image
                         src={meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp'}
                         alt={meta.name}
-                    width={80}
-                    height={80}
-                    className={styles.sessionImageContent}
-                  />
-                </div>
-                <div className={styles.sessionDetails}>
-                      <span className={styles.sessionFieldName}>{meta.name}</span>
-                      <span className={styles.sessionTime}>{dateLabel}</span>
-                      <span className={styles.sessionDuration}>{durationText} session</span>
-                      <span className={styles.sessionPrice}>{getPriceForType(selectedType)}</span>
-                </div>
-                    <div className={styles.bookButton}>
-                  Book <span className={styles.arrow}>›</span>
+                      width={110}
+                      height={110}
+                      className={styles.availabilityImageContent}
+                    />
+                  </div>
+                  <div className={styles.availabilityContent}>
+                    <div className={styles.availabilityHeader}>
+                        <span className={styles.availabilityName}>
+                          {meta.name}
+                          <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
+                        </span>
                     </div>
-              </div>
+                      <span className={styles.availabilityTimeslot}>{dateLabel}</span>
+                  </div>
+                  <div className={styles.bookButton}>
+                    Book <span className={styles.arrow}>›</span>
+                  </div>
+                </div>
                 );
               })}
             </div>
+            {sessions.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '0.5rem 0.9rem',
+                    borderRadius: 10,
+                    border: `2px solid ${currentPage === 1 ? '#a3b18a66' : '#2b3a29'}`,
+                    color: '#2b3a29',
+                    background: '#fff',
+                    opacity: currentPage === 1 ? 0.6 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => (p * pageSize < sessions.length ? p + 1 : p))}
+                  disabled={currentPage * pageSize >= sessions.length}
+                  style={{
+                    padding: '0.5rem 0.9rem',
+                    borderRadius: 10,
+                    border: `2px solid ${currentPage * pageSize >= sessions.length ? '#a3b18a66' : '#2b3a29'}`,
+                    color: '#2b3a29',
+                    background: '#fff',
+                    opacity: currentPage * pageSize >= sessions.length ? 0.6 : 1,
+                    cursor: currentPage * pageSize >= sessions.length ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </section>
         </main>
       </div>
