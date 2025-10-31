@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
+import SessionCard from "../../components/SessionCard";
 import styles from "./page.module.css";
 
 export default function Book() {
@@ -348,33 +349,14 @@ export default function Book() {
                 const meta = getFieldMeta(session.calendarID);
                 const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
                 return (
-                  <div
+                  <SessionCard
                     key={session.id}
-                    className={styles.availabilityCard}
+                    session={session}
+                    meta={meta}
+                    dateLabel={dateLabel}
+                    price={getPriceForType(selectedType)}
                     onClick={() => handleBookSession(session)}
-                  >
-                  <div className={styles.availabilityImage}>
-                    <Image
-                        src={meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp'}
-                        alt={meta.name}
-                      width={110}
-                      height={110}
-                      className={styles.availabilityImageContent}
-                    />
-                  </div>
-                  <div className={styles.availabilityContent}>
-                    <div className={styles.availabilityHeader}>
-                        <span className={styles.availabilityName}>
-                          {meta.name}
-                          <span className={styles.availabilityPrice}>{getPriceForType(selectedType)}</span>
-                        </span>
-                    </div>
-                      <span className={styles.availabilityTimeslot}>{dateLabel}</span>
-                  </div>
-                  <div className={styles.bookButton}>
-                    Book <span className={styles.arrow}>›</span>
-                  </div>
-                </div>
+                  />
                 );
               })}
             </div>

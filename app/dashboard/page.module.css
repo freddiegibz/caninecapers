@@ -564,84 +564,12 @@
 }
 
 
-.availabilityCard {
-  display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
-  background-color: #FAF9F5;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.05),
-    0 8px 24px rgba(43, 58, 41, 0.08),
-    0 16px 48px rgba(43, 58, 41, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-  transform: translateY(0);
-}
 
-.availabilityCard:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(43, 58, 41, 0.1),
-    0 16px 48px rgba(43, 58, 41, 0.08);
-}
-
-.availabilityImage {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 220, 203, 0.7);
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.availabilityImageContent {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.availabilityContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.availabilityHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.availabilityName {
+.availabilityTimeslot {
   font-family: var(--font-poppins);
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--forest);
-}
-
-.availabilityPrice {
-  font-family: var(--font-poppins);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(43, 58, 41, 0.55);
-  background-color: rgba(43, 58, 41, 0.02);
-  padding: 0.15rem 0.4rem;
-  margin-left: 0.5rem;
-  border-radius: 999px;
-  border: 1px solid rgba(226, 220, 203, 0.15);
-}
-
-.availabilityAddress {
-  font-family: var(--font-lora);
-  font-size: 0.9rem;
-  color: rgba(43, 43, 43, 0.85);
 }
 
 .availabilityMeta {
@@ -649,14 +577,6 @@
   flex-wrap: wrap;
   gap: 0.85rem;
   align-items: center;
-}
-
-.availabilityTimeslot {
-  font-family: var(--font-poppins);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--forest);
-  letter-spacing: -0.01em;
 }
 
 .availabilityRating {

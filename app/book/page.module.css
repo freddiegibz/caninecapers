@@ -101,7 +101,10 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2.75rem 2rem 2rem;
-  background-color: var(--cream);
+  background: linear-gradient(to top, #BFD4B2 0%, #E6E7D6 50%, #DCE9E5 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   font-family: var(--font-lora);
 }
 
@@ -404,34 +407,19 @@
     height: 28px;
   }
 
-  .availabilityGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .availabilityCard {
-    padding: 1.1rem;
-    gap: 0.875rem;
-  }
-
-  .bookButton {
-    bottom: 0.875rem;
-    right: 0.875rem;
-    padding: 0.45rem 0.875rem;
-    font-size: 0.8rem;
-  }
-
-  .availabilityPrice {
-    font-size: 0.7rem;
-    padding: 0.15rem 0.4rem;
-  }
-
-  .availabilityHeader {
-    align-items: center;
-  }
 
   .container {
     padding: 2rem 1.25rem 12rem;
     min-height: auto;
+  }
+
+  .filterToggle {
+    transition: all 0.2s ease;
+  }
+
+  .filterToggle:hover {
+    background-color: var(--sage) !important;
+    transform: translateY(-1px);
   }
 
   .main {
@@ -588,83 +576,3 @@
   width: 100%;
 }
 
-.availabilityCard {
-  display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
-  background-color: #FAF9F5;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.05),
-    0 8px 24px rgba(43, 58, 41, 0.08),
-    0 16px 48px rgba(43, 58, 41, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-  transform: translateY(0);
-}
-
-.availabilityCard:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(43, 58, 41, 0.1),
-    0 16px 48px rgba(43, 58, 41, 0.08);
-}
-
-.availabilityImage {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 220, 203, 0.7);
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.availabilityImageContent {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.availabilityContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.availabilityHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.availabilityName {
-  font-family: var(--font-poppins);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--forest);
-}
-
-.availabilityPrice {
-  font-family: var(--font-poppins);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(43, 58, 41, 0.55);
-  background-color: rgba(43, 58, 41, 0.02);
-  padding: 0.15rem 0.4rem;
-  margin-left: 0.5rem;
-  border-radius: 999px;
-  border: 1px solid rgba(226, 220, 203, 0.15);
-}
-
-.availabilityTimeslot {
-  font-family: var(--font-poppins);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--forest);
-}
