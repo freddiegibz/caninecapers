@@ -315,6 +315,15 @@
   background-color: rgba(163, 177, 138, 0.05);
 }
 
+.accountButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.accountButton:disabled:hover {
+  background-color: transparent;
+}
+
 .buttonIconContainer {
   width: 32px;
   height: 32px;
@@ -507,6 +516,164 @@
 
   .accountButton {
     padding: 0.875rem 1rem;
+  }
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e2dccb;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.modalClose:hover {
+  background-color: #f3f4f6;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(43, 58, 41, 0.1);
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid #e2dccb;
+}
+
+.cancelButton,
+.submitButton {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.submitButton {
+  background-color: var(--forest);
+  border: 1px solid var(--forest);
+  color: white;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--sage);
+  border-color: var(--sage);
+}
+
+.cancelButton:disabled,
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .modalContent {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .modalHeader {
+    padding: 1.25rem 1.25rem 0.875rem 1.25rem;
+  }
+
+  .modalBody {
+    padding: 1.25rem;
+  }
+
+  .modalFooter {
+    padding: 0.875rem 1.25rem 1.25rem 1.25rem;
   }
 
   .buttonIconContainer {

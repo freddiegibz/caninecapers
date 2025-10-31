@@ -1,13 +1,233 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { supabase } from "../../src/lib/supabaseClient";
 import styles from "./page.module.css";
 
 export default function Settings() {
+  const router = useRouter();
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [updatesEnabled, setUpdatesEnabled] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [userName, setUserName] = useState<string>('Loading...');
+  const [userEmail, setUserEmail] = useState<string>('Loading...');
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
+  const loadUserData = async () => {
+    try {
+      console.log('Loading user data for settings...');
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error fetching user:', error);
+        setUserName('Guest');
+        setUserEmail('guest@example.com');
+        setIsLoadingUser(false);
+        return;
+      }
+
+      console.log('Settings - User fetched:', user);
+
+      if (user) {
+        // Set email directly from user object
+        setUserEmail(user.email || 'No email');
+
+        // Try multiple ways to get the name
+        let name = null;
+
+        // 1. Check user metadata for name
+        name = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.display_name;
+        console.log('Name from metadata:', name);
+
+        // 2. Check user metadata for first/last name combination
+        if (!name && user.user_metadata) {
+          const firstName = user.user_metadata.first_name || user.user_metadata.given_name;
+          const lastName = user.user_metadata.last_name || user.user_metadata.family_name;
+          if (firstName || lastName) {
+            name = [firstName, lastName].filter(Boolean).join(' ');
+            console.log('Name from first/last name:', name);
+          }
+        }
+
+        // 3. Try to fetch from profiles table
+        if (!name) {
+          console.log('Name not in metadata, checking profiles table...');
+          try {
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('name, first_name, last_name, full_name')
+              .eq('id', user.id)
+              .single();
+
+            console.log('Profile query result:', { profile, profileError });
+
+            if (!profileError && profile) {
+              // Try different name fields from profiles table
+              name = profile.name || profile.full_name ||
+                     (profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : null) ||
+                     profile.first_name || profile.last_name;
+
+              console.log('Name from profiles table:', name);
+            } else {
+              console.log('Profile query failed:', profileError?.message);
+            }
+          } catch (profileErr) {
+            console.error('Error querying profiles table:', profileErr);
+          }
+        }
+
+        // 4. Fallback to email username
+        if (!name && user.email) {
+          name = user.email.split('@')[0];
+          console.log('Using email username:', name);
+        }
+
+        const finalName = name || 'User';
+        console.log('Final name for settings:', finalName);
+        setUserName(finalName);
+      } else {
+        console.log('No authenticated user found in settings');
+        setUserName('Guest');
+        setUserEmail('guest@example.com');
+      }
+    } catch (error) {
+      console.error('Error loading user data for settings:', error);
+      setUserName('Guest');
+      setUserEmail('guest@example.com');
+    } finally {
+      setIsLoadingUser(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      console.log('Starting logout process...');
+
+      // Check if user is actually logged in first
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('Current user before logout:', user);
+
+      if (userError) {
+        console.error('Error checking current user:', userError);
+        alert('Unable to verify login status. Please try again.');
+        setIsLoggingOut(false);
+        return;
+      }
+
+      if (!user) {
+        console.log('No user logged in, redirecting to home');
+        router.push('/');
+        return;
+      }
+
+      console.log('Calling supabase.auth.signOut()...');
+      const { error } = await supabase.auth.signOut();
+      console.log('signOut result - error:', error);
+
+      if (error) {
+        console.error('Logout error:', error);
+        alert(`Failed to log out: ${error.message}`);
+        setIsLoggingOut(false);
+      } else {
+        console.log('User logged out successfully, redirecting...');
+        // Use window.location for a hard redirect to ensure clean state
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error('Unexpected logout error:', error);
+      alert(`An unexpected error occurred: ${error}`);
+      setIsLoggingOut(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    // Basic validation
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError('All fields are required');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long');
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      setPasswordError('');
+      console.log('Starting password change process...');
+
+      // First, re-authenticate with current password
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user || !user.email) {
+        setPasswordError('Unable to verify user session');
+        setIsChangingPassword(false);
+        return;
+      }
+
+      console.log('Re-authenticating user...');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordData.currentPassword
+      });
+
+      if (signInError) {
+        console.error('Re-authentication failed:', signInError);
+        setPasswordError('Current password is incorrect');
+        setIsChangingPassword(false);
+        return;
+      }
+
+      console.log('Updating password...');
+      // Now update the password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (updateError) {
+        console.error('Password update failed:', updateError);
+        setPasswordError(updateError.message || 'Failed to update password');
+      } else {
+        console.log('Password updated successfully');
+        // Clear form and close modal
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setShowPasswordModal(false);
+        alert('Password changed successfully!');
+      }
+    } catch (error) {
+      console.error('Unexpected error during password change:', error);
+      setPasswordError('An unexpected error occurred');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const openPasswordModal = () => {
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setPasswordError('');
+    setShowPasswordModal(true);
+  };
 
   return (
     <>
@@ -59,8 +279,12 @@ export default function Settings() {
                     />
                   </div>
                   <div className={styles.profileDetails}>
-                    <h4 className={styles.profileName}>Sarah Johnson</h4>
-                    <p className={styles.profileEmail}>sarah.johnson@email.com</p>
+                    <h4 className={styles.profileName}>
+                      {isLoadingUser ? 'Loading...' : userName}
+                    </h4>
+                    <p className={styles.profileEmail}>
+                      {isLoadingUser ? 'Loading...' : userEmail}
+                    </p>
                   </div>
                 </div>
                 <button className={styles.editButton}>
@@ -113,7 +337,7 @@ export default function Settings() {
               <h3 className={styles.sectionHeader}>Account</h3>
 
               <div className={styles.accountActions}>
-                <button className={styles.accountButton}>
+                <button className={styles.accountButton} onClick={openPasswordModal}>
                   <div className={styles.buttonIconContainer}>
                     <Image
                       src="/changepass.png"
@@ -127,7 +351,11 @@ export default function Settings() {
                   <span className={styles.buttonArrow}>›</span>
                 </button>
 
-                <button className={styles.accountButton}>
+                <button
+                  className={styles.accountButton}
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                >
                   <div className={styles.buttonIconContainer}>
                     <Image
                       src="/logout.png"
@@ -137,7 +365,9 @@ export default function Settings() {
                       className={styles.buttonIconImage}
                     />
                   </div>
-                  <span className={styles.buttonText}>Logout</span>
+                  <span className={styles.buttonText}>
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </span>
                   <span className={styles.buttonArrow}>›</span>
                 </button>
               </div>
@@ -156,7 +386,7 @@ export default function Settings() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Book</span>
+          <span className={styles.footerLabel}>Book Session</span>
         </Link>
 
         <Link href="/my-sessions" className={styles.footerAction}>
@@ -167,7 +397,7 @@ export default function Settings() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Sessions</span>
+          <span className={styles.footerLabel}>My Sessions</span>
         </Link>
 
         <Link href="/location" className={styles.footerAction}>
@@ -181,6 +411,80 @@ export default function Settings() {
           <span className={styles.footerLabel}>Locations</span>
         </Link>
       </footer>
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowPasswordModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Change Password</h3>
+              <button
+                className={styles.modalClose}
+                onClick={() => setShowPasswordModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Current Password</label>
+                <input
+                  type="password"
+                  className={styles.formInput}
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  placeholder="Enter your current password"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>New Password</label>
+                <input
+                  type="password"
+                  className={styles.formInput}
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Enter your new password"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Confirm New Password</label>
+                <input
+                  type="password"
+                  className={styles.formInput}
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Confirm your new password"
+                />
+              </div>
+
+              {passwordError && (
+                <div className={styles.errorMessage}>{passwordError}</div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowPasswordModal(false)}
+                disabled={isChangingPassword}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleChangePassword}
+                disabled={isChangingPassword}
+              >
+                {isChangingPassword ? 'Changing...' : 'Change Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

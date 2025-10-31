@@ -404,6 +404,30 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
+
+              {/* Link to extended calendar view */}
+              <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingBottom: '1rem' }}>
+                <Link
+                  href="/book"
+                  style={{
+                    color: 'var(--forest)',
+                    textDecoration: 'underline',
+                    fontSize: '0.9rem',
+                    fontWeight: 500
+                  }}
+                >
+                  Browse Extended Calendar →
+                </Link>
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--text)',
+                  opacity: 0.8,
+                  marginTop: '0.25rem',
+                  marginBottom: 0
+                }}>
+                  View sessions for upcoming months and book further in advance
+                </p>
+              </div>
             </section>
           )}
 
