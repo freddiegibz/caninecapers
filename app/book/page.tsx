@@ -22,9 +22,10 @@ export default function Book() {
   };
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
-  const [selectedType, setSelectedType] = useState<string>(''); // No default - user must select
+  const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute for sessions
   const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
   const [loading, setLoading] = useState<boolean>(false);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -156,10 +157,10 @@ export default function Book() {
             <Link href="/dashboard" className={styles.backButton}>
               <span className={styles.backArrow}>&lt;</span>
               <Image
-                src="/house.png"
+                src="/caninecaperslogosymbol.png"
                 alt="Dashboard"
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 className={styles.backIcon}
               />
             </Link>
@@ -192,54 +193,81 @@ export default function Book() {
                 Select your preferred appointment length and field to view available times in calendar format.
               </p>
 
-              {/* Appointment Type Selection */}
-              <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Appointment Length:</h4>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  {[{ id: '18525224', label: '30-Minute' }, { id: '29373489', label: '45-Minute' }, { id: '18525161', label: '1-Hour' }].map(opt => {
-                    const checked = selectedType === opt.id;
-                    return (
-                      <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: checked ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
-                        <input
-                          type="radio"
-                          name="appointmentTypeCalendar"
-                          value={opt.id}
-                          checked={checked}
-                          onChange={(e) => setSelectedType(e.target.value)}
-                          style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
-                        />
-                        {opt.label}
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Toggle Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={styles.filterToggle}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  backgroundColor: 'var(--forest)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  fontFamily: 'var(--font-poppins)',
+                  cursor: 'pointer',
+                  marginBottom: '1rem',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {showFilters ? 'Hide Calendar Filters' : 'Show Calendar Filters'}
+              </button>
 
-              {/* Field Selection */}
-              <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Select Field:</h4>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  {[
-                    { id: 4783035, label: 'Central Bark' },
-                    { id: 6255352, label: 'Hyde Bark' }
-                  ].map(field => (
-                    <label key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: selectedField === field.id ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
-                      <input
-                        type="radio"
-                        name="field"
-                        value={field.id}
-                        checked={selectedField === field.id}
-                        onChange={(e) => setSelectedField(Number(e.target.value))}
-                        style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
-                      />
-                      {field.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Collapsible Filter Content */}
+              {showFilters && (
+                <>
+                  {/* Appointment Type Selection */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Appointment Length:</h4>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      {[{ id: '18525224', label: '30-Minute' }, { id: '29373489', label: '45-Minute' }, { id: '18525161', label: '1-Hour' }].map(opt => {
+                        const checked = selectedType === opt.id;
+                        return (
+                          <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: checked ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
+                            <input
+                              type="radio"
+                              name="appointmentTypeCalendar"
+                              value={opt.id}
+                              checked={checked}
+                              onChange={(e) => setSelectedType(e.target.value)}
+                              style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
+                            />
+                            {opt.label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              {/* Show iframe when both selections are made */}
-              {selectedField > 0 && selectedType && (
+                  {/* Field Selection */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Select Field:</h4>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      {[
+                        { id: 4783035, label: 'Central Bark' },
+                        { id: 6255352, label: 'Hyde Bark' }
+                      ].map(field => (
+                        <label key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: selectedField === field.id ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
+                          <input
+                            type="radio"
+                            name="field"
+                            value={field.id}
+                            checked={selectedField === field.id}
+                            onChange={(e) => setSelectedField(Number(e.target.value))}
+                            style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
+                          />
+                          {field.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Show iframe when filters are expanded and both selections are made */}
+              {showFilters && selectedField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
                     src={`https://app.acuityscheduling.com/schedule.php?owner=21300080&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
@@ -254,17 +282,20 @@ export default function Book() {
               )}
 
               {/* Load Acuity embed script when iframe is present */}
-              {selectedField > 0 && selectedType && (
+              {showFilters && selectedField > 0 && selectedType && (
                 <Script
                   src="https://embed.acuityscheduling.com/js/embed.js"
                   strategy="lazyOnload"
                 />
               )}
 
-              {/* Show message when selections not complete */}
-              {(!selectedField || !selectedType) && (
+              {/* Show message when filters not expanded or selections not complete */}
+              {(!showFilters || !selectedField || !selectedType) && (
                 <div style={{ textAlign: 'center', color: 'var(--text)', opacity: 0.7, padding: '2rem', fontStyle: 'italic' }}>
-                  Please select both a field and appointment length to view the calendar.
+                  {showFilters
+                    ? 'Please select both a field and appointment length to view the calendar.'
+                    : 'Click "Show Calendar Filters" above to access the calendar view.'
+                  }
                 </div>
               )}
             </div>

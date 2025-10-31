@@ -45,10 +45,10 @@ export default function MySessions() {
             <Link href="/dashboard" className={styles.backButton}>
               <span className={styles.backArrow}>&lt;</span>
               <Image
-                src="/house.png"
+                src="/caninecaperslogosymbol.png"
                 alt="Dashboard"
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 className={styles.backIcon}
               />
             </Link>
