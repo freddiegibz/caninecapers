@@ -292,20 +292,20 @@ export default function Dashboard() {
               className={`${styles.toggleButton} ${activeSection === 'availability' ? styles.active : ''}`}
               onClick={() => setActiveSection('availability')}
             >
-              Upcoming Availability
+              Available Sessions
             </button>
             <button
               className={`${styles.toggleButton} ${activeSection === 'sessions' ? styles.active : ''}`}
               onClick={() => setActiveSection('sessions')}
             >
-              Your Future Sessions
+              Your Sessions
             </button>
           </div>
 
           {activeSection === 'availability' && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>
-                Available Slots
+                Available Sessions
                 <span className={styles.titleUnderline}></span>
               </h2>
               <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -434,7 +434,7 @@ export default function Dashboard() {
           {activeSection === 'sessions' && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>
-                Your Slots
+                Your Sessions
                 <span className={styles.titleUnderline}></span>
               </h2>
               <div className={styles.sessionsGrid}>
