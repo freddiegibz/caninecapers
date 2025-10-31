@@ -361,7 +361,7 @@ export default function Dashboard() {
                     disabled={currentPage === 1}
                     style={{
                       padding: '0.5rem 0.9rem',
-                      borderRadius: 10,
+                      borderRadius: 6,
                       border: `2px solid ${currentPage === 1 ? '#a3b18a66' : '#2b3a29'}`,
                       color: '#2b3a29',
                       background: '#fff',
@@ -376,7 +376,7 @@ export default function Dashboard() {
                     disabled={currentPage * pageSize >= sessions.length}
                     style={{
                       padding: '0.5rem 0.9rem',
-                      borderRadius: 10,
+                      borderRadius: 6,
                       border: `2px solid ${currentPage * pageSize >= sessions.length ? '#a3b18a66' : '#2b3a29'}`,
                       color: '#2b3a29',
                       background: '#fff',
@@ -388,32 +388,39 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
-
-              {/* Link to extended calendar view */}
-              <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingBottom: '1rem' }}>
-                <Link
-                  href="/book"
-                  style={{
-                    color: 'var(--forest)',
-                    textDecoration: 'underline',
-                    fontSize: '0.9rem',
-                    fontWeight: 500
-                  }}
-                >
-                  Browse Extended Calendar →
-                </Link>
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--text)',
-                  opacity: 0.8,
-                  marginTop: '0.25rem',
-                  marginBottom: 0
-                }}>
-                  View sessions for upcoming months and book further in advance
-                </p>
-              </div>
             </section>
           )}
+
+          {/* Extended Calendar Section */}
+          <section className={styles.section}>
+            <div style={{
+              borderTop: '1px solid rgba(226, 220, 203, 0.4)',
+              paddingTop: '1.5rem',
+              textAlign: 'center'
+            }}>
+              <Link
+                href="/book"
+                style={{
+                  color: 'var(--forest)',
+                  textDecoration: 'underline',
+                  fontSize: '0.9rem',
+                  fontWeight: 500
+                }}
+              >
+                Browse Extended Calendar →
+              </Link>
+              <p style={{
+                fontSize: '0.8rem',
+                color: 'var(--text)',
+                opacity: 0.8,
+                marginTop: '0.25rem',
+                marginBottom: 0,
+                lineHeight: 1.4
+              }}>
+                View sessions for upcoming months and book further in advance
+              </p>
+            </div>
+          </section>
 
           {activeSection === 'sessions' && (
             <section className={styles.section}>

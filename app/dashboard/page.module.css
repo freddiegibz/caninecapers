@@ -161,10 +161,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2rem;
-  background: linear-gradient(to top, #BFD4B2 0%, #E6E7D6 50%, #DCE9E5 100%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: #F7F4EF;
   font-family: var(--font-lora);
 }
 
@@ -174,7 +171,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* Section Toggle */
@@ -195,13 +192,12 @@
   font-weight: 600;
   font-family: var(--font-poppins);
   color: var(--forest);
-  background-color: #ffffff;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  background-color: transparent;
   border: 2px solid var(--border);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
   width: 100%;
 }
 
@@ -211,18 +207,16 @@
 }
 
 .toggleButton.active {
-  background: linear-gradient(90deg, #2b3a29 0%, #3d4a3d 100%), url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  background-blend-mode: normal;
+  background-color: var(--forest);
   color: #ffffff;
   border-color: var(--forest);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .toggleButton.active:hover {
-  background: linear-gradient(90deg, #a3b18a 0%, #8f9d76 100%), url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  background-blend-mode: normal;
+  background-color: var(--sage);
   border-color: var(--sage);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
 
@@ -263,7 +257,7 @@
 .introSubtitle {
   font-family: var(--font-lora);
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: rgba(43, 43, 43, 0.8);
   margin: 0.5rem 0 0 0;
   font-weight: 400;
@@ -272,7 +266,7 @@
 .introDescription {
   font-family: var(--font-lora);
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.6;
   color: rgba(43, 43, 43, 0.85);
   margin: 0;
 }
@@ -381,12 +375,12 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.3px;
@@ -494,7 +488,7 @@
   padding: 0.875rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
@@ -559,7 +553,7 @@
 .availabilityGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
 }
 
@@ -570,6 +564,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--forest);
+  line-height: 1.4;
 }
 
 .availabilityMeta {
