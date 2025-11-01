@@ -270,23 +270,30 @@ export default function Dashboard() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          <article className={styles.introCard}>
-            <div className={styles.introContent}>
-              <h2 className={styles.introTitle}>Your Canine Capers Hub</h2>
-              <p className={styles.introSubtitle}>Easily book, manage, and enjoy your private Canine Capers sessions</p>
+          <section className={styles.compactHero}>
+            <div className={styles.heroContent}>
+              <h1 className={styles.heroGreeting}>
+                Welcome back, {userName}
+              </h1>
+              <h2 className={styles.heroTitle}>
+                Your Canine Capers Hub
+              </h2>
+              <p className={styles.heroSubtitle}>
+                Book, manage, and enjoy your sessions.
+              </p>
             </div>
 
-            <div className={styles.introImageWrapper}>
+            <div className={styles.heroImageWrapper}>
               <Image
                 src="/dogdashboardsection.png"
                 alt="Excited dog enjoying playtime"
                 width={360}
                 height={260}
-                className={styles.introImage}
+                className={styles.heroImage}
                 priority
               />
             </div>
-          </article>
+          </section>
 
           <div className={styles.sectionToggle}>
             <button
@@ -309,22 +316,18 @@ export default function Dashboard() {
                 Available Sessions
                 <span className={styles.titleUnderline}></span>
               </h2>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                {[{ id: '18525224', label: '30-Minute Reservation' }, { id: '29373489', label: '45-Minute Reservation' }, { id: '18525161', label: '1-Hour Reservation' }].map(opt => {
+              <div className={styles.chipContainer}>
+                {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
                   const checked = selectedType === opt.id;
                   return (
-                    <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid #e2dccb', background: checked ? '#f8f6f2' : '#ffffff', color: '#2b3a29', fontWeight: 600 }}>
-                      <input
-                        type="radio"
-                        name="appointmentType"
-                        value={opt.id}
-                        checked={checked}
-                        onChange={(e) => setSelectedType(e.target.value)}
-                        disabled={loading}
-                        style={{ accentColor: '#2b3a29' as unknown as string, width: 18, height: 18, borderRadius: 6 }}
-                      />
+                    <button
+                      key={opt.id}
+                      className={`${styles.chipButton} ${checked ? styles.chipActive : ''}`}
+                      onClick={() => setSelectedType(opt.id)}
+                      disabled={loading}
+                    >
                       {opt.label}
-                    </label>
+                    </button>
                   );
                 })}
               </div>
@@ -391,36 +394,38 @@ export default function Dashboard() {
             </section>
           )}
 
-          {/* Extended Calendar Section */}
-          <section className={styles.section}>
-            <div style={{
-              borderTop: '1px solid rgba(226, 220, 203, 0.4)',
-              paddingTop: '1.5rem',
-              textAlign: 'center'
-            }}>
-              <Link
-                href="/book"
-                style={{
-                  color: 'var(--forest)',
-                  textDecoration: 'underline',
-                  fontSize: '0.9rem',
-                  fontWeight: 500
-                }}
-              >
-                Browse Extended Calendar →
-              </Link>
-              <p style={{
-                fontSize: '0.8rem',
-                color: 'var(--text)',
-                opacity: 0.8,
-                marginTop: '0.25rem',
-                marginBottom: 0,
-                lineHeight: 1.4
+          {/* Extended Calendar Section - Only show for Available Sessions */}
+          {activeSection === 'availability' && (
+            <section className={styles.section}>
+              <div style={{
+                borderTop: '1px solid rgba(226, 220, 203, 0.4)',
+                paddingTop: '1.5rem',
+                textAlign: 'center'
               }}>
-                View sessions for upcoming months and book further in advance
-              </p>
-            </div>
-          </section>
+                <Link
+                  href="/book"
+                  style={{
+                    color: 'var(--forest)',
+                    textDecoration: 'underline',
+                    fontSize: '0.9rem',
+                    fontWeight: 500
+                  }}
+                >
+                  Browse Extended Calendar →
+                </Link>
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--text)',
+                  opacity: 0.8,
+                  marginTop: '0.25rem',
+                  marginBottom: 0,
+                  lineHeight: 1.4
+                }}>
+                  View sessions for upcoming months and book further in advance
+                </p>
+              </div>
+            </section>
+          )}
 
           {activeSection === 'sessions' && (
             <section className={styles.section}>
