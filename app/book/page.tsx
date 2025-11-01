@@ -50,7 +50,7 @@ export default function Book() {
         if (isMounted) {
           setSessions(normalized);
         }
-      } catch (error: unknown) {
+      } catch (_error: unknown) {
         // Silent fail to keep UI clean; show empty state instead
         if (isMounted) setSessions([]);
       }
@@ -351,7 +351,6 @@ export default function Book() {
                 return (
                   <SessionCard
                     key={session.id}
-                    session={session}
                     meta={meta}
                     dateLabel={dateLabel}
                     price={getPriceForType(selectedType)}

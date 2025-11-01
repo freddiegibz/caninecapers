@@ -2,11 +2,6 @@ import Image from "next/image";
 import styles from "./SessionCard.module.css";
 
 interface SessionCardProps {
-  session: {
-    id: string;
-    calendarID: number;
-    startTime: string;
-  };
   meta: {
     id: string;
     name: string;
@@ -16,7 +11,7 @@ interface SessionCardProps {
   onClick: () => void;
 }
 
-export default function SessionCard({ session, meta, dateLabel, price, onClick }: SessionCardProps) {
+export default function SessionCard({ meta, dateLabel, price, onClick }: SessionCardProps) {
   return (
     <div className={styles.availabilityCard} onClick={onClick}>
       <div className={styles.availabilityImage}>

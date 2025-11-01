@@ -346,10 +346,8 @@ export default function Dashboard() {
                   const meta = getFieldMeta(session.calendarID);
                   const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
                   return (
-                    <div className={styles.card}>
+                    <div key={session.id} className={styles.card}>
                       <SessionCard
-                        key={session.id}
-                        session={session}
                         meta={meta}
                         dateLabel={dateLabel}
                         price={getPriceForType(selectedType)}
