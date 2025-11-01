@@ -297,13 +297,13 @@ export default function Dashboard() {
 
           <div className={styles.sectionToggle}>
             <button
-              className={`${styles.toggleButton} ${activeSection === 'availability' ? styles.active : ''}`}
+              className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'availability' ? styles.active : ''}`}
               onClick={() => setActiveSection('availability')}
             >
               Available Sessions
             </button>
             <button
-              className={`${styles.toggleButton} ${activeSection === 'sessions' ? styles.active : ''}`}
+              className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'sessions' ? styles.active : ''}`}
               onClick={() => setActiveSection('sessions')}
             >
               Your Sessions
@@ -322,7 +322,7 @@ export default function Dashboard() {
                   return (
                     <button
                       key={opt.id}
-                      className={`${styles.chipButton} ${checked ? styles.chipActive : ''}`}
+                      className={`${styles.chipButton} ${styles.button} ${checked ? styles.chipActive : ''}`}
                       onClick={() => setSelectedType(opt.id)}
                       disabled={loading}
                     >
@@ -346,20 +346,23 @@ export default function Dashboard() {
                   const meta = getFieldMeta(session.calendarID);
                   const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
                   return (
-                    <SessionCard
-                      key={session.id}
-                      session={session}
-                      meta={meta}
-                      dateLabel={dateLabel}
-                      price={getPriceForType(selectedType)}
-                      onClick={() => handleBookSession(session)}
-                    />
+                    <div className={styles.card}>
+                      <SessionCard
+                        key={session.id}
+                        session={session}
+                        meta={meta}
+                        dateLabel={dateLabel}
+                        price={getPriceForType(selectedType)}
+                        onClick={() => handleBookSession(session)}
+                      />
+                    </div>
                   );
                 })}
               </div>
               {sessions.length > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
                   <button
+                    className={styles.button}
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     style={{
@@ -375,6 +378,7 @@ export default function Dashboard() {
                     Previous
                   </button>
                   <button
+                    className={styles.button}
                     onClick={() => setCurrentPage((p) => (p * pageSize < sessions.length ? p + 1 : p))}
                     disabled={currentPage * pageSize >= sessions.length}
                     style={{
@@ -510,9 +514,10 @@ export default function Dashboard() {
 
       {/* Branded Footer Note */}
       <div className={styles.brandedFooter}>
-        <p className={styles.footerNote}>
-          🐾 Canine Capers is proudly local — <span className={styles.footerHighlight}>thank you for supporting your community</span>.
-        </p>
+        <div className={styles.footerDivider}>🐾──────────────</div>
+        <div className={styles.footerNote}>
+          Canine Capers is proudly local — <span>thank you for supporting your community.</span>
+        </div>
       </div>
 
     </>
