@@ -6,7 +6,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function MySessions() {
-  const [pastSessionsOpen, setPastSessionsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const upcomingSessions = [
     {
@@ -76,98 +76,123 @@ export default function MySessions() {
         {/* Page Header */}
         <header className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>My Sessions</h1>
-          <p className={styles.pageSubtitle}>View and manage your field bookings.</p>
+          <p className={styles.pageSubtitle}>See your upcoming and past bookings in one place.</p>
           <div className={styles.headerDivider}></div>
         </header>
 
+        {/* Segmented Toggle Bar */}
+        <div className={styles.toggleBar}>
+          <button
+            className={`${styles.toggleButton} ${activeTab === 'upcoming' ? styles.active : ''}`}
+            onClick={() => setActiveTab('upcoming')}
+          >
+            Upcoming
+          </button>
+          <button
+            className={`${styles.toggleButton} ${activeTab === 'past' ? styles.active : ''}`}
+            onClick={() => setActiveTab('past')}
+          >
+            Past
+          </button>
+        </div>
+
+        {/* Session Lists */}
         <main className={styles.main}>
-          <section className={styles.sectionContainer}>
-            <div className={styles.sectionContent}>
-              <h2 className={styles.sectionTitle}>
-                <Image
-                  src="/booksession.png"
-                  alt=""
-                  width={16}
-                  height={16}
-                  className={styles.sectionIcon}
-                />
-                Upcoming Sessions
-              </h2>
-
-              <div className={styles.sessionsGrid}>
-                {upcomingSessions.map((session) => (
-                  <div key={session.id} className={styles.sessionCard}>
-                    <div className={styles.sessionImageContainer}>
-                      <Image
-                        src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
-                        alt={session.name}
-                        width={300}
-                        height={169}
-                        className={styles.sessionImage}
-                      />
-                    </div>
-                    <div className={styles.sessionDetails}>
-                      <span className={styles.sessionFieldName}>{session.name}</span>
-                      <div className={styles.sessionMeta}>
-                        <span className={styles.sessionTime}>
-                          <span className={styles.metaIcon}>🕒</span>
-                          {session.time}
-                        </span>
-                        <span className={styles.sessionAddress}>
-                          <span className={styles.metaIcon}>📍</span>
-                          {session.address}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className={`${styles.sectionContainer} ${styles.collapsibleSection}`}>
-            <div className={styles.sectionContent}>
-              <div
-                className={styles.collapsibleHeader}
-                onClick={() => setPastSessionsOpen(!pastSessionsOpen)}
-              >
-                <h3 className={styles.collapsibleTitle}>Past Sessions</h3>
-                <span className={`${styles.collapsibleIcon} ${pastSessionsOpen ? styles.rotated : ''}`}>
-                  ▼
-                </span>
-              </div>
-              <div className={`${styles.collapsibleContent} ${pastSessionsOpen ? styles.open : ''}`}>
-                <div className={styles.sessionsGrid}>
-                  {pastSessions.map((session) => (
-                    <div key={session.id} className={`${styles.sessionCard} ${styles.pastCard}`}>
+          {activeTab === 'upcoming' && (
+            <div className={styles.sessionList}>
+              {upcomingSessions.length > 0 ? (
+                upcomingSessions.map((session, index) => (
+                  <div key={session.id}>
+                    <div className={styles.sessionCard}>
                       <div className={styles.sessionImageContainer}>
                         <Image
                           src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
                           alt={session.name}
-                          width={300}
-                          height={169}
+                          width={400}
+                          height={225}
                           className={styles.sessionImage}
                         />
                       </div>
                       <div className={styles.sessionDetails}>
-                        <span className={`${styles.sessionFieldName} ${styles.pastText}`}>{session.name}</span>
+                        <div className={styles.sessionHeader}>
+                          <h3 className={styles.sessionFieldName}>{session.name}</h3>
+                          <button className={styles.cancelButton}>Cancel</button>
+                        </div>
                         <div className={styles.sessionMeta}>
-                          <span className={`${styles.sessionTime} ${styles.pastText}`}>
+                          <div className={styles.metaRow}>
                             <span className={styles.metaIcon}>🕒</span>
-                            {session.time}
-                          </span>
-                          <span className={`${styles.sessionAddress} ${styles.pastText}`}>
+                            <span className={styles.sessionTime}>{session.time}</span>
+                          </div>
+                          <div className={styles.metaRow}>
                             <span className={styles.metaIcon}>📍</span>
-                            {session.address}
-                          </span>
+                            <span className={styles.sessionAddress}>{session.address}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                    {index < upcomingSessions.length - 1 && <div className={styles.cardDivider}></div>}
+                  </div>
+                ))
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>🐕</div>
+                  <h3 className={styles.emptyTitle}>No upcoming sessions</h3>
+                  <p className={styles.emptyText}>Ready to book your next one?</p>
+                  <Link href="/book" className={styles.primaryButton}>
+                    Book a Session
+                  </Link>
                 </div>
-              </div>
+              )}
             </div>
-          </section>
+          )}
+
+          {activeTab === 'past' && (
+            <div className={styles.sessionList}>
+              {pastSessions.length > 0 ? (
+                pastSessions.map((session, index) => (
+                  <div key={session.id}>
+                    <div className={`${styles.sessionCard} ${styles.pastCard}`}>
+                      <div className={styles.sessionImageContainer}>
+                        <Image
+                          src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
+                          alt={session.name}
+                          width={400}
+                          height={225}
+                          className={styles.sessionImage}
+                        />
+                      </div>
+                      <div className={styles.sessionDetails}>
+                        <div className={styles.sessionHeader}>
+                          <h3 className={styles.sessionFieldName}>{session.name}</h3>
+                          <button className={styles.rebookButton}>Rebook</button>
+                        </div>
+                        <div className={styles.sessionMeta}>
+                          <div className={styles.metaRow}>
+                            <span className={styles.metaIcon}>🕒</span>
+                            <span className={styles.sessionTime}>{session.time}</span>
+                          </div>
+                          <div className={styles.metaRow}>
+                            <span className={styles.metaIcon}>📍</span>
+                            <span className={styles.sessionAddress}>{session.address}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {index < pastSessions.length - 1 && <div className={styles.cardDivider}></div>}
+                  </div>
+                ))
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>🐾</div>
+                  <h3 className={styles.emptyTitle}>No past sessions yet</h3>
+                  <p className={styles.emptyText}>Your booking history will appear here.</p>
+                  <Link href="/book" className={styles.secondaryButton}>
+                    Explore Fields
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
 
@@ -183,7 +208,7 @@ export default function MySessions() {
           <span className={styles.footerLabel}>Book Session</span>
         </Link>
 
-        <Link href="/my-sessions" className={`${styles.footerAction} ${styles.active}`} aria-current="page">
+        <Link href="/my-sessions" className={styles.footerAction} aria-current="page">
           <Image
             src="/viewsessions.png"
             alt="My Sessions"
