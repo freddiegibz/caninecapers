@@ -192,7 +192,7 @@
   font-weight: 600;
   font-family: var(--font-poppins);
   color: var(--forest);
-  background-color: transparent;
+  background-color: #ECEBE7;
   border: none;
   border-radius: 16px;
   cursor: pointer;
@@ -1139,6 +1139,37 @@
   transform: scale(0.98);
 }
 
+/* Branded Footer Note */
+.brandedFooter {
+  text-align: center;
+  margin-top: 32px;
+  margin-bottom: 80px;
+  animation: footerFadeIn 0.6s ease-out;
+}
+
+.footerNote {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(74, 74, 58, 0.85);
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.footerHighlight {
+  color: #2B3A29;
+  font-weight: 600;
+}
+
+@keyframes footerFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Mobile responsive modal */
 @media (max-width: 480px) {
   .modalOverlay {
@@ -1170,5 +1201,15 @@
   .cancelButton,
   .confirmButton {
     width: 100%;
+  }
+
+  .brandedFooter {
+    margin-top: 24px;
+    margin-bottom: 72px;
+  }
+
+  .footerNote {
+    padding: 0 0.75rem;
+    font-size: 12px;
   }
 }

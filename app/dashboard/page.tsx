@@ -508,6 +508,13 @@ export default function Dashboard() {
         </Link>
       </footer>
 
+      {/* Branded Footer Note */}
+      <div className={styles.brandedFooter}>
+        <p className={styles.footerNote}>
+          🐾 Canine Capers is proudly local — <span className={styles.footerHighlight}>thank you for supporting your community</span>.
+        </p>
+      </div>
+
     </>
   );
 }
