@@ -28,6 +28,7 @@ export default function Book() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [hasScrolled, setHasScrolled] = useState<boolean>(false);
   const pageSize = 5;
 
   useEffect(() => {
@@ -64,6 +65,19 @@ export default function Book() {
       isMounted = false;
     };
   }, [selectedType]);
+
+  // Scroll detection for footer visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollTop > 100 && !hasScrolled) {
+        setHasScrolled(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasScrolled]);
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -189,151 +203,150 @@ export default function Book() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          <section className={styles.section}>
-            <div className={styles.calendarCard}>
-              <h3 className={styles.calendarTitle}>Browse Calendar</h3>
-              <p className={styles.calendarDescription}>
-                Select your preferred appointment length and field to view available times in calendar format.
-              </p>
+          {/* Compact Calendar Toggle */}
+          <div className={styles.calendarToggleBar}>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`${styles.calendarToggleButton} ${showFilters ? styles.expanded : ''}`}
+            >
+              <span className={styles.toggleIcon}>
+                {showFilters ? '−' : '+'}
+              </span>
+              <span className={styles.toggleText}>
+                {showFilters ? 'Hide Calendar' : 'Browse Calendar'}
+              </span>
+              <span className={styles.toggleArrow}>
+                {showFilters ? '↑' : '↓'}
+              </span>
+            </button>
+          </div>
 
-              {/* Toggle Button */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={styles.filterToggle}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  backgroundColor: 'var(--forest)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: 500,
-                  fontFamily: 'var(--font-poppins)',
-                  cursor: 'pointer',
-                  marginBottom: '1rem',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {showFilters ? 'Hide Calendar Filters' : 'Show Calendar Filters'}
-              </button>
-
-              {/* Collapsible Filter Content */}
-              {showFilters && (
-                <>
-                  {/* Appointment Type Selection */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Appointment Length:</h4>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                      {[{ id: '18525224', label: '30-Minute' }, { id: '29373489', label: '45-Minute' }, { id: '18525161', label: '1-Hour' }].map(opt => {
-                        const checked = selectedType === opt.id;
-                        return (
-                          <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: checked ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
-                            <input
-                              type="radio"
-                              name="appointmentTypeCalendar"
-                              value={opt.id}
-                              checked={checked}
-                              onChange={(e) => {
-                            setSelectedType(e.target.value);
-                            setCurrentPage(1); // Reset to first page when type changes
+          {/* Expanded Calendar Panel */}
+          {showFilters && (
+            <div className={styles.calendarPanel}>
+              {/* Quick Filter Selection */}
+              <div className={styles.quickFilters}>
+                <div className={styles.filterGroup}>
+                  <span className={styles.filterLabel}>Length:</span>
+                  <div className={styles.filterOptions}>
+                    {[{ id: '18525224', label: '30m' }, { id: '29373489', label: '45m' }, { id: '18525161', label: '1h' }].map(opt => {
+                      const checked = selectedType === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          className={`${styles.quickFilter} ${checked ? styles.active : ''}`}
+                          onClick={() => {
+                            setSelectedType(opt.id);
+                            setCurrentPage(1);
                           }}
-                              style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
-                            />
-                            {opt.label}
-                          </label>
-                        );
-                      })}
-                    </div>
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
 
-                  {/* Field Selection */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>Select Field:</h4>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                      {[
-                        { id: 4783035, label: 'Central Bark' },
-                        { id: 6255352, label: 'Hyde Bark' }
-                      ].map(field => (
-                        <label key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: selectedField === field.id ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
-                          <input
-                            type="radio"
-                            name="field"
-                            value={field.id}
-                            checked={selectedField === field.id}
-                            onChange={(e) => {
-                          setSelectedField(Number(e.target.value));
-                          setCurrentPage(1); // Reset to first page when field changes
+                <div className={styles.filterGroup}>
+                  <span className={styles.filterLabel}>Field:</span>
+                  <div className={styles.filterOptions}>
+                    {[
+                      { id: 4783035, label: 'Central' },
+                      { id: 6255352, label: 'Hyde' }
+                    ].map(field => (
+                      <button
+                        key={field.id}
+                        className={`${styles.quickFilter} ${selectedField === field.id ? styles.active : ''}`}
+                        onClick={() => {
+                          setSelectedField(field.id);
+                          setCurrentPage(1);
                         }}
-                            style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
-                          />
-                          {field.label}
-                        </label>
-                      ))}
-                    </div>
+                      >
+                        {field.label}
+                      </button>
+                    ))}
                   </div>
-                </>
-              )}
+                </div>
+              </div>
 
-              {/* Show iframe when filters are expanded and both selections are made */}
-              {showFilters && selectedField > 0 && selectedType && (
+              {/* Calendar Iframe */}
+              {selectedField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
                     src={`https://app.acuityscheduling.com/schedule.php?owner=21300080&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
                     title="Schedule Appointment"
                     width="100%"
-                    height="800"
+                    height="600"
                     frameBorder="0"
                     allow="payment"
                     className={styles.calendarIframe}
                   ></iframe>
+                  <Script
+                    src="https://embed.acuityscheduling.com/js/embed.js"
+                    strategy="lazyOnload"
+                  />
                 </div>
               )}
 
-              {/* Load Acuity embed script when iframe is present */}
-              {showFilters && selectedField > 0 && selectedType && (
-                <Script
-                  src="https://embed.acuityscheduling.com/js/embed.js"
-                  strategy="lazyOnload"
-                />
-              )}
-
-              {/* Show message when filters not expanded or selections not complete */}
-              {(!showFilters || !selectedField || !selectedType) && (
-                <div style={{ textAlign: 'center', color: 'var(--text)', opacity: 0.7, padding: '2rem', fontStyle: 'italic' }}>
-                  {showFilters
-                    ? 'Please select both a field and appointment length to view the calendar.'
-                    : 'Click "Show Calendar Filters" above to access the calendar view.'
-                  }
+              {/* Selection Prompt */}
+              {(!selectedField || !selectedType) && (
+                <div className={styles.selectionPrompt}>
+                  Select length and field above to view calendar
                 </div>
               )}
             </div>
-          </section>
+          )}
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>
               Upcoming Availability
               <span className={styles.titleUnderline}></span>
             </h2>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              {[{ id: '18525224', label: '30-Minute Reservation' }, { id: '29373489', label: '45-Minute Reservation' }, { id: '18525161', label: '1-Hour Reservation' }].map(opt => {
-                const checked = selectedType === opt.id;
-                return (
-                  <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: checked ? '#f8f6f2' : '#ffffff', color: 'var(--text)', fontWeight: 600 }}>
-                    <input
-                      type="radio"
-                      name="appointmentType"
-                      value={opt.id}
-                      checked={checked}
-                      onChange={(e) => setSelectedType(e.target.value)}
-                      disabled={loading}
-                      style={{ accentColor: 'var(--forest)', width: 18, height: 18, borderRadius: 6 }}
-                    />
-                    {opt.label}
-                  </label>
-                );
-              })}
+
+            {/* Unified Filter Row */}
+            <div className={styles.unifiedFilterRow}>
+              <div className={styles.filterSection}>
+                <span className={styles.filterSectionLabel}>Length</span>
+                <div className={styles.filterChips}>
+                  {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
+                    const checked = selectedType === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                        onClick={() => setSelectedType(opt.id)}
+                        disabled={loading}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
+
+              <div className={styles.filterSection}>
+                <span className={styles.filterSectionLabel}>Field</span>
+                <div className={styles.filterChips}>
+                  {[
+                    { id: 0, label: 'All' },
+                    { id: 4783035, label: 'Central' },
+                    { id: 6255352, label: 'Hyde' }
+                  ].map(field => {
+                    const checked = selectedField === field.id;
+                    return (
+                      <button
+                        key={field.id}
+                        className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                        onClick={() => setSelectedField(field.id)}
+                        disabled={loading}
+                      >
+                        {field.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
             {loading && (
               <div style={{ width: '100%', textAlign: 'center', color: 'var(--forest)', marginBottom: '0.75rem', fontWeight: 600 }}>
                 Loading available sessions…
@@ -359,43 +372,30 @@ export default function Book() {
                 );
               })}
             </div>
-            {sessions.length > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+            {sessions.length >= pageSize && currentPage * pageSize < sessions.length && (
+              <div className={styles.loadMoreContainer}>
                 <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  style={{
-                    padding: '0.5rem 0.9rem',
-                    borderRadius: 10,
-                    border: `2px solid ${currentPage === 1 ? '#a3b18a66' : '#2b3a29'}`,
-                    color: '#2b3a29',
-                    background: '#fff',
-                    opacity: currentPage === 1 ? 0.6 : 1,
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  }}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className={styles.loadMoreButton}
+                  disabled={loading}
                 >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setCurrentPage((p) => (p * pageSize < sessions.length ? p + 1 : p))}
-                  disabled={currentPage * pageSize >= sessions.length}
-                  style={{
-                    padding: '0.5rem 0.9rem',
-                    borderRadius: 10,
-                    border: `2px solid ${currentPage * pageSize >= sessions.length ? '#a3b18a66' : '#2b3a29'}`,
-                    color: '#2b3a29',
-                    background: '#fff',
-                    opacity: currentPage * pageSize >= sessions.length ? 0.6 : 1,
-                    cursor: currentPage * pageSize >= sessions.length ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  Next
+                  {loading ? 'Loading...' : 'Load More Sessions'}
                 </button>
               </div>
             )}
           </section>
         </main>
       </div>
+
+      {/* Branded Footer Note - Only show after scrolling */}
+      {hasScrolled && (
+        <div className={styles.brandedFooter}>
+          <div className={styles.footerDivider}>🐾──────────────</div>
+          <div className={styles.footerNote}>
+            Canine Capers is proudly local — <span>thank you for supporting your community.</span>
+          </div>
+        </div>
+      )}
 
       <footer className={styles.mobileFooter} aria-label="Primary actions">
         <Link href="/book" className={styles.footerAction} aria-current="page">

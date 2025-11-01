@@ -27,6 +27,7 @@ export default function Dashboard() {
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
   const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute
+  const [selectedField, setSelectedField] = useState<number>(0); // All fields by default
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 5;
@@ -61,13 +62,19 @@ export default function Dashboard() {
         if (!res.ok) throw new Error("Failed to load availability");
         const data: AvailabilityResponseItem[] = await res.json();
 
-        const normalized: NormalizedSession[] = data
+        let normalized: NormalizedSession[] = data
           .map((item, idx) => ({
             id: `${item.calendarID}-${idx}-${item.startTime}`,
             calendarID: Number(item.calendarID),
             startTime: item.startTime,
-          }))
-          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+          }));
+
+        // Filter by selected field if not "All" (0)
+        if (selectedField !== 0) {
+          normalized = normalized.filter(session => session.calendarID === selectedField);
+        }
+
+        normalized = normalized.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
         if (isMounted) {
           setSessions(normalized);
@@ -87,7 +94,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [selectedType]);
+  }, [selectedType, selectedField]);
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -316,20 +323,53 @@ export default function Dashboard() {
                 Available Sessions
                 <span className={styles.titleUnderline}></span>
               </h2>
-              <div className={styles.chipContainer}>
-                {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
-                  const checked = selectedType === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      className={`${styles.chipButton} ${styles.button} ${checked ? styles.chipActive : ''}`}
-                      onClick={() => setSelectedType(opt.id)}
-                      disabled={loading}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
+
+              {/* Unified Filter Row */}
+              <div className={styles.unifiedFilterRow}>
+                <div className={styles.filterSection}>
+                  <span className={styles.filterSectionLabel}>Length</span>
+                  <div className={styles.filterChips}>
+                    {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
+                      const checked = selectedType === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                          onClick={() => setSelectedType(opt.id)}
+                          disabled={loading}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className={styles.filterSection}>
+                  <span className={styles.filterSectionLabel}>Field</span>
+                  <div className={styles.filterChips}>
+                    {[
+                      { id: 0, label: 'All' },
+                      { id: 4783035, label: 'Central' },
+                      { id: 6255352, label: 'Hyde' }
+                    ].map(field => {
+                      const checked = selectedField === field.id;
+                      return (
+                        <button
+                          key={field.id}
+                          className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                          onClick={() => {
+                          setSelectedField(field.id);
+                          setCurrentPage(1);
+                        }}
+                          disabled={loading}
+                        >
+                          {field.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
               {loading && (
                 <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
