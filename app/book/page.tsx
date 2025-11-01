@@ -203,7 +203,7 @@ export default function Book() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          {/* Compact Calendar Toggle */}
+          {/* Collapsible Browse Calendar Section */}
           <div className={styles.calendarToggleBar}>
             <button
               onClick={() => setShowFilters(!showFilters)}

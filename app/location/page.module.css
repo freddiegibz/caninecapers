@@ -112,7 +112,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2.75rem 2rem 2rem;
-  background-color: var(--cream);
+  background-color: #FBFAF7;
   font-family: var(--font-lora);
 }
 
