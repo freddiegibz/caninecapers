@@ -444,8 +444,37 @@
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 64px 64px;
+  }
+
+  .navActions {
+    gap: 0.4rem;
+  }
+
+  .hamburgerMenu {
+    width: 36px;
+    height: 26px;
+  }
+
+  .hamburgerLine {
+    height: 2.5px;
+  }
+
+  .settingsIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .settingsIconImage {
+    width: 28px;
+    height: 28px;
+  }
+
   .container {
-    padding: 16px;
+    padding: 2rem 1.25rem 12rem;
+    min-height: auto;
   }
 
   .pageTitle {
@@ -512,5 +541,105 @@
 
   .mobileFooter {
     display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .navActions {
+    gap: 0.35rem;
+  }
+
+  .hamburgerMenu {
+    width: 30px;
+    height: 22px;
+  }
+
+  .hamburgerLine {
+    height: 2px;
+  }
+
+  .settingsIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .settingsIconImage {
+    width: 32px;
+    height: 32px;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+
+  .toggleBar {
+    margin-bottom: 20px;
+    max-width: 260px;
+  }
+
+  .toggleButton {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .sessionList {
+    gap: 10px;
+  }
+
+  .sessionCard {
+    border-radius: 8px;
+  }
+
+  .sessionDetails {
+    padding: 12px;
+  }
+
+  .sessionFieldName {
+    font-size: 0.95rem;
+  }
+
+  .cancelButton,
+  .rebookButton {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .sessionTime {
+    font-size: 0.8rem;
+  }
+
+  .sessionAddress {
+    font-size: 0.75rem;
+  }
+
+  .emptyState {
+    padding: 24px 16px;
+  }
+
+  .emptyIcon {
+    font-size: 2rem;
+  }
+
+  .emptyTitle {
+    font-size: 1rem;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .mobileFooter {
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
   }
 }
