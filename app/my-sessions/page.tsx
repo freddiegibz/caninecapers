@@ -73,68 +73,98 @@ export default function MySessions() {
       </header>
 
       <div className={styles.container}>
+        {/* Page Header */}
+        <header className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>My Sessions</h1>
+          <p className={styles.pageSubtitle}>View and manage your field bookings.</p>
+          <div className={styles.headerDivider}></div>
+        </header>
+
         <main className={styles.main}>
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              Upcoming Sessions
-              <span className={styles.titleUnderline}></span>
-            </h2>
-            <p className={styles.sectionDescription}>
-              Your scheduled field sessions that are coming up.
-            </p>
+          <section className={styles.sectionContainer}>
+            <div className={styles.sectionContent}>
+              <h2 className={styles.sectionTitle}>
+                <Image
+                  src="/booksession.png"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className={styles.sectionIcon}
+                />
+                Upcoming Sessions
+              </h2>
 
-            <div className={styles.sessionsGrid}>
-              {upcomingSessions.map((session) => (
-                <div key={session.id} className={styles.sessionCard}>
-                  <div className={styles.sessionImage}>
-                    <Image
-                      src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
-                      alt={session.name}
-                      width={110}
-                      height={110}
-                      className={styles.sessionImageContent}
-                    />
-                  </div>
-                  <div className={styles.sessionContent}>
-                    <span className={styles.sessionFieldName}>{session.name}</span>
-                    <span className={styles.sessionTime}>{session.time}</span>
-                    <span className={styles.sessionAddress}>{session.address}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className={`${styles.section} ${styles.collapsibleSection}`}>
-            <div
-              className={styles.collapsibleHeader}
-              onClick={() => setPastSessionsOpen(!pastSessionsOpen)}
-            >
-              <h3 className={styles.collapsibleTitle}>Past Sessions</h3>
-              <span className={`${styles.collapsibleIcon} ${pastSessionsOpen ? styles.rotated : ''}`}>
-                ▼
-              </span>
-            </div>
-            <div className={`${styles.collapsibleContent} ${pastSessionsOpen ? styles.open : ''}`}>
               <div className={styles.sessionsGrid}>
-                {pastSessions.map((session) => (
+                {upcomingSessions.map((session) => (
                   <div key={session.id} className={styles.sessionCard}>
-                    <div className={styles.sessionImage}>
+                    <div className={styles.sessionImageContainer}>
                       <Image
                         src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
                         alt={session.name}
-                        width={110}
-                        height={110}
-                        className={styles.sessionImageContent}
+                        width={300}
+                        height={169}
+                        className={styles.sessionImage}
                       />
                     </div>
-                    <div className={styles.sessionContent}>
+                    <div className={styles.sessionDetails}>
                       <span className={styles.sessionFieldName}>{session.name}</span>
-                      <span className={styles.sessionTime}>{session.time}</span>
-                      <span className={styles.sessionAddress}>{session.address}</span>
+                      <div className={styles.sessionMeta}>
+                        <span className={styles.sessionTime}>
+                          <span className={styles.metaIcon}>🕒</span>
+                          {session.time}
+                        </span>
+                        <span className={styles.sessionAddress}>
+                          <span className={styles.metaIcon}>📍</span>
+                          {session.address}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </section>
+
+          <section className={`${styles.sectionContainer} ${styles.collapsibleSection}`}>
+            <div className={styles.sectionContent}>
+              <div
+                className={styles.collapsibleHeader}
+                onClick={() => setPastSessionsOpen(!pastSessionsOpen)}
+              >
+                <h3 className={styles.collapsibleTitle}>Past Sessions</h3>
+                <span className={`${styles.collapsibleIcon} ${pastSessionsOpen ? styles.rotated : ''}`}>
+                  ▼
+                </span>
+              </div>
+              <div className={`${styles.collapsibleContent} ${pastSessionsOpen ? styles.open : ''}`}>
+                <div className={styles.sessionsGrid}>
+                  {pastSessions.map((session) => (
+                    <div key={session.id} className={`${styles.sessionCard} ${styles.pastCard}`}>
+                      <div className={styles.sessionImageContainer}>
+                        <Image
+                          src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
+                          alt={session.name}
+                          width={300}
+                          height={169}
+                          className={styles.sessionImage}
+                        />
+                      </div>
+                      <div className={styles.sessionDetails}>
+                        <span className={`${styles.sessionFieldName} ${styles.pastText}`}>{session.name}</span>
+                        <div className={styles.sessionMeta}>
+                          <span className={`${styles.sessionTime} ${styles.pastText}`}>
+                            <span className={styles.metaIcon}>🕒</span>
+                            {session.time}
+                          </span>
+                          <span className={`${styles.sessionAddress} ${styles.pastText}`}>
+                            <span className={styles.metaIcon}>📍</span>
+                            {session.address}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
