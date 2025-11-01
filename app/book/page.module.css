@@ -101,10 +101,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2.75rem 2rem 2rem;
-  background: linear-gradient(to top, #BFD4B2 0%, #E6E7D6 50%, #DCE9E5 100%);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: #FBFAF7;
   font-family: var(--font-lora);
 }
 
