@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import SessionCard from "../../components/SessionCard";

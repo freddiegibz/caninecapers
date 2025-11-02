@@ -85,7 +85,7 @@ export default function Location() {
                   </div>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
-                    <span>Parking: Free parking available in the main car park. Look for the "Canine Capers" signs.</span>
+                    <span>Parking: Free parking available in the main car park. Look for the &ldquo;Canine Capers&rdquo; signs.</span>
                   </div>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
