@@ -158,10 +158,10 @@ export default function Location() {
       <footer className={styles.mobileFooter} aria-label="Primary actions">
         <Link href="/dashboard" className={styles.footerAction}>
           <Image
-            src="/house.png"
+            src="/images/homeicon.png"
             alt="Dashboard"
-            width={26}
-            height={26}
+            width={16}
+            height={16}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Home</span>
@@ -202,10 +202,10 @@ export default function Location() {
 
         <Link href="/settings" className={styles.footerAction}>
           <Image
-            src="/settings.png"
+            src="/images/settingsicon.png"
             alt="Settings"
-            width={26}
-            height={26}
+            width={16}
+            height={16}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Settings</span>

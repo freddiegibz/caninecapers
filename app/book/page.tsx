@@ -391,10 +391,10 @@ export default function Book() {
       <footer className={styles.mobileFooter} aria-label="Primary actions">
         <Link href="/dashboard" className={styles.footerAction}>
           <Image
-            src="/house.png"
+            src="/images/homeicon.png"
             alt="Dashboard"
-            width={26}
-            height={26}
+            width={16}
+            height={16}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Home</span>
@@ -404,8 +404,8 @@ export default function Book() {
           <Image
             src="/booksession.png"
             alt="Book Session"
-            width={26}
-            height={26}
+            width={22}
+            height={22}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Book</span>
@@ -415,8 +415,8 @@ export default function Book() {
           <Image
             src="/viewsessions.png"
             alt="My Sessions"
-            width={26}
-            height={26}
+            width={22}
+            height={22}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Sessions</span>
@@ -426,8 +426,8 @@ export default function Book() {
           <Image
             src="/location.png"
             alt="Locations"
-            width={26}
-            height={26}
+            width={22}
+            height={22}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Location</span>
@@ -435,10 +435,10 @@ export default function Book() {
 
         <Link href="/settings" className={styles.footerAction}>
           <Image
-            src="/settings.png"
+            src="/images/settingsicon.png"
             alt="Settings"
-            width={26}
-            height={26}
+            width={16}
+            height={16}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Settings</span>
