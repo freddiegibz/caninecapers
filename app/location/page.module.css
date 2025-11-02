@@ -2,7 +2,7 @@
 .navbar {
   position: sticky;
   top: 0;
-  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  background: #FBFAF7;
   padding: 1.5rem 2.25rem;
   border-radius: 0 0 72px 72px;
   z-index: 100;
@@ -22,31 +22,29 @@
 
 .greeting {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.75rem;
   flex: 1;
 }
 
-.backButton {
-  margin-top: 12px;
+.logoLink {
   display: flex;
   align-items: center;
 }
 
-.backArrow {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  margin-right: 8px;
-}
-
-.backIcon {
+.logoIcon {
   width: 32px;
   height: 32px;
   object-fit: contain;
-  background-color: #FAF9F5;
-  border-radius: 50%;
-  padding: 4px;
+}
+
+.brandTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+  letter-spacing: 0.3px;
 }
 
 .pageTitle {
@@ -122,15 +120,17 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 /* Header Row */
 .headerRow {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  padding-bottom: 16px;
 }
 
 .locationIcon {
@@ -140,6 +140,12 @@
   flex-shrink: 0;
 }
 
+.titleContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
 .pageTitle {
   font-family: var(--font-poppins);
   font-size: 1.5rem;
@@ -147,6 +153,17 @@
   color: var(--forest);
   margin: 0;
   letter-spacing: 0.3px;
+}
+
+.titleAccent {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 160px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--forest) 0%, var(--sage) 100%);
+  border-radius: 2px;
+  margin-top: 2px;
 }
 
 /* Map Card */
@@ -165,13 +182,147 @@
   border: 0;
 }
 
-/* Info Section */
+/* Directions Section */
+.directionsSection {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.directionsTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.3px;
+}
+
+.directionsSubtitle {
+  font-family: var(--font-lora);
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.directionCard {
+  background-color: #f9f7f3;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 220, 203, 0.6);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.directionCard:last-child {
+  margin-bottom: 0;
+}
+
+.directionCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.directionToggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: var(--font-poppins);
+}
+
+.directionToggle:hover {
+  background-color: rgba(163, 177, 138, 0.05);
+}
+
+.directionToggle:focus {
+  outline: 2px solid var(--forest);
+  outline-offset: 2px;
+}
+
+.directionIcon {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.directionFieldName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+  flex: 1;
+  text-align: left;
+}
+
+.directionArrow {
+  font-size: 1.1rem;
+  color: var(--forest);
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.directionContent {
+  padding: 0 1.25rem 1rem 1.25rem;
+  border-top: 1px solid rgba(226, 220, 203, 0.4);
+  background-color: #ffffff;
+}
+
+.directionItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-lora);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.directionItem:last-child {
+  margin-bottom: 0;
+}
+
+.bullet {
+  color: var(--forest);
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Info Section - Unified Contact Card */
 .infoSection {
   background-color: #ffffff;
   border-radius: 16px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.contactIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.contactContent {
+  flex: 1;
 }
 
 .infoTitle {
@@ -179,7 +330,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--forest);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.25rem 0;
   letter-spacing: 0.3px;
 }
 
@@ -188,7 +339,7 @@
   font-size: 1rem;
   line-height: 1.6;
   color: var(--text);
-  margin: 0 0 1.5rem 0;
+  margin: 0;
 }
 
 .phoneLink {
@@ -196,7 +347,7 @@
   font-size: 1rem;
   color: var(--forest);
   text-decoration: none;
-  margin: 0 0 2rem 0;
+  margin: 0;
   display: block;
   transition: color 0.2s ease;
 }
@@ -244,16 +395,12 @@
   backdrop-filter: blur(12px);
   border-top: 1px solid rgba(226, 220, 203, 0.8);
   box-shadow: 0 -6px 16px rgba(43, 58, 41, 0.12);
-  padding: 0.65rem 1.25rem calc(0.65rem + env(safe-area-inset-bottom));
+  padding: 0.65rem calc(0.65rem + env(safe-area-inset-bottom));
   display: none;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
   z-index: 90;
 }
 
 .footerAction {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -261,6 +408,8 @@
   text-decoration: none;
   gap: 0.35rem;
   position: relative;
+  padding: 0.5rem 0;
+  width: 100%;
 }
 
 .footerAction:not(:last-child)::after {
@@ -353,24 +502,49 @@
   }
 
   .infoTitle {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .addressText {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .phoneLink {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .primaryButton {
-    font-size: 0.95rem;
-    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .directionsSection {
+    padding: 1.25rem;
+  }
+
+  .directionsTitle {
+    font-size: 1.1rem;
+  }
+
+  .directionToggle {
+    padding: 0.875rem 1rem;
+  }
+
+  .directionFieldName {
+    font-size: 1rem;
+  }
+
+  .directionContent {
+    padding: 0 1rem 0.875rem 1rem;
+  }
+
+  .directionItem {
+    font-size: 0.9rem;
   }
 
   .mobileFooter {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -425,19 +599,43 @@
   }
 
   .infoTitle {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .addressText {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .phoneLink {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .primaryButton {
-    font-size: 0.9rem;
-    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .directionsSection {
+    padding: 1rem;
+  }
+
+  .directionsTitle {
+    font-size: 1rem;
+  }
+
+  .directionToggle {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .directionFieldName {
+    font-size: 0.95rem;
+  }
+
+  .directionContent {
+    padding: 0 0.875rem 0.75rem 0.875rem;
+  }
+
+  .directionItem {
+    font-size: 0.85rem;
   }
 }

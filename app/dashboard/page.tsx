@@ -257,22 +257,6 @@ export default function Dashboard() {
             <h1 className={styles.greetingName}>Hello, {userName}</h1>
             <p className={styles.greetingSubtitle}>Welcome to Canine Capers</p>
           </div>
-          <div className={styles.navActions}>
-            <Link href="/settings" className={styles.settingsIcon}>
-              <Image 
-                src="/settings.png"
-                alt="Settings"
-                width={40}
-                height={40}
-                className={styles.settingsIconImage}
-              />
-            </Link>
-            <button className={styles.hamburgerMenu} aria-label="Menu">
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
-            </button>
-          </div>
         </div>
       </header>
 
@@ -517,6 +501,17 @@ export default function Dashboard() {
       </div>
 
       <footer className={styles.mobileFooter} aria-label="Primary actions">
+        <Link href="/dashboard" className={styles.footerAction} aria-current="page">
+          <Image
+            src="/house.png"
+            alt="Dashboard"
+            width={26}
+            height={26}
+            className={styles.footerIcon}
+          />
+          <span className={styles.footerLabel}>Home</span>
+        </Link>
+
         <Link href="/book" className={styles.footerAction}>
           <Image
             src="/booksession.png"
@@ -525,7 +520,7 @@ export default function Dashboard() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Book Session</span>
+          <span className={styles.footerLabel}>Book</span>
         </Link>
 
         <Link href="/my-sessions" className={styles.footerAction}>
@@ -536,7 +531,7 @@ export default function Dashboard() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>My Sessions</span>
+          <span className={styles.footerLabel}>Sessions</span>
         </Link>
 
         <Link href="/location" className={styles.footerAction}>
@@ -548,6 +543,17 @@ export default function Dashboard() {
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Location</span>
+        </Link>
+
+        <Link href="/settings" className={styles.footerAction}>
+          <Image
+            src="/settings.png"
+            alt="Settings"
+            width={26}
+            height={26}
+            className={styles.footerIcon}
+          />
+          <span className={styles.footerLabel}>Settings</span>
         </Link>
       </footer>
 

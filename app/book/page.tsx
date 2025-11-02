@@ -171,32 +171,16 @@ export default function Book() {
       <header className={styles.navbar}>
         <div className={styles.navbarContent}>
           <div className={styles.greeting}>
-            <Link href="/dashboard" className={styles.backButton}>
-              <span className={styles.backArrow}>&lt;</span>
+            <Link href="/dashboard" className={styles.logoLink}>
               <Image
                 src="/caninecaperslogosymbol.png"
-                alt="Dashboard"
+                alt="Canine Capers"
                 width={32}
                 height={32}
-                className={styles.backIcon}
+                className={styles.logoIcon}
               />
             </Link>
-          </div>
-          <div className={styles.navActions}>
-            <Link href="/settings" className={styles.settingsIcon}>
-              <Image
-                src="/settings.png"
-                alt="Settings"
-                width={40}
-                height={40}
-                className={styles.settingsIconImage}
-              />
-            </Link>
-            <button className={styles.hamburgerMenu} aria-label="Menu">
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
-              <span className={styles.hamburgerLine}></span>
-            </button>
+            <h1 className={styles.brandTitle}>Canine Capers</h1>
           </div>
         </div>
       </header>
@@ -405,6 +389,17 @@ export default function Book() {
       )}
 
       <footer className={styles.mobileFooter} aria-label="Primary actions">
+        <Link href="/dashboard" className={styles.footerAction}>
+          <Image
+            src="/house.png"
+            alt="Dashboard"
+            width={26}
+            height={26}
+            className={styles.footerIcon}
+          />
+          <span className={styles.footerLabel}>Home</span>
+        </Link>
+
         <Link href="/book" className={styles.footerAction} aria-current="page">
           <Image
             src="/booksession.png"
@@ -413,7 +408,7 @@ export default function Book() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>Book Session</span>
+          <span className={styles.footerLabel}>Book</span>
         </Link>
 
         <Link href="/my-sessions" className={styles.footerAction}>
@@ -424,7 +419,7 @@ export default function Book() {
             height={26}
             className={styles.footerIcon}
           />
-          <span className={styles.footerLabel}>My Sessions</span>
+          <span className={styles.footerLabel}>Sessions</span>
         </Link>
 
         <Link href="/location" className={styles.footerAction}>
@@ -436,6 +431,17 @@ export default function Book() {
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Location</span>
+        </Link>
+
+        <Link href="/settings" className={styles.footerAction}>
+          <Image
+            src="/settings.png"
+            alt="Settings"
+            width={26}
+            height={26}
+            className={styles.footerIcon}
+          />
+          <span className={styles.footerLabel}>Settings</span>
         </Link>
       </footer>
     </>
