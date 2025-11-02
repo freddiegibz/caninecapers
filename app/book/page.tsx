@@ -203,6 +203,13 @@ export default function Book() {
 
       <div className={styles.container}>
         <main className={styles.main}>
+          {/* Page Header */}
+          <header className={styles.pageHeader}>
+            <h1 className={styles.pageTitle}>Book A Session</h1>
+            <p className={styles.pageSubtitle}>Find and book your next field session</p>
+            <div className={styles.headerDivider}></div>
+          </header>
+
           {/* Collapsible Browse Calendar Section */}
           <div className={styles.calendarToggleBar}>
             <button
