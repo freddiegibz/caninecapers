@@ -23,24 +23,45 @@ function formatDate(datetime: string): string {
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json();
-
-    // --- JSON LOGGING SECTION ---
+    // --- FLEXIBLE PARSING ---
+    let payload: any;
     try {
-      const logDir = path.join(process.cwd(), 'tmp');
-      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+      payload = await request.json();
+      console.log('✅ Parsed as JSON payload');
+    } catch {
+      console.log('⚠️ JSON parsing failed, trying form-encoded...');
+      const text = await request.text();
+      const params = new URLSearchParams(text);
+      const obj: any = {};
+
+      for (const [key, value] of params.entries()) {
+        obj[key] = value;
+      }
+
+      payload = { appointment: {} };
+      for (const [k, v] of Object.entries(obj)) {
+        const match = k.match(/^appointment\[(.+)\]$/);
+        if (match) {
+          payload.appointment[match[1]] = v;
+        }
+      }
+      console.log('✅ Parsed as form-encoded payload');
+    }
+
+    // Log the full incoming payload for debugging
+    console.log('🔗 Acuity Webhook Received:', JSON.stringify(payload, null, 2));
+
+    const appointment = payload.appointment || payload;
+
+    // --- LOG PAYLOAD TO /tmp ---
+    try {
+      const logDir = '/tmp';
       const filePath = path.join(logDir, `acuity_payload_${Date.now()}.json`);
       fs.writeFileSync(filePath, JSON.stringify(payload, null, 2));
       console.log(`📄 Saved payload to ${filePath}`);
     } catch (fileErr) {
       console.error('❌ Error writing payload file:', fileErr);
     }
-    // --- END LOGGING SECTION ---
-
-    // Log the full incoming payload for debugging
-    console.log('🔗 Acuity Webhook Received:', JSON.stringify(payload, null, 2));
-
-    const appointment = payload.appointment || payload;
     const { id, datetime, calendar, firstName, lastName, email } = appointment;
 
     if (!id || !datetime || !calendar || !firstName || !lastName || !email) {
