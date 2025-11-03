@@ -11,7 +11,8 @@ import styles from "./page.module.css";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
-  const [userName, setUserName] = useState<string>('Guest');
+  const [userName, setUserName] = useState<string>('');
+  const [userNameLoading, setUserNameLoading] = useState<boolean>(true);
   const router = useRouter();
 
   type AvailabilityResponseItem = {
@@ -43,7 +44,8 @@ export default function Dashboard() {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           await loadUserName();
         } else if (event === 'SIGNED_OUT') {
-          setUserName('Guest');
+          setUserName('');
+          setUserNameLoading(false);
         }
       }
     );
@@ -176,6 +178,7 @@ export default function Dashboard() {
       if (error) {
         console.error('Error fetching user:', error);
         setUserName('Guest');
+        setUserNameLoading(false);
         return;
       }
 
@@ -238,13 +241,16 @@ export default function Dashboard() {
         const finalName = name || 'Guest';
         console.log('Final name to display:', finalName);
         setUserName(finalName);
+        setUserNameLoading(false);
       } else {
         console.log('No authenticated user found');
         setUserName('Guest');
+        setUserNameLoading(false);
       }
     } catch (error) {
       console.error('Error loading user name:', error);
       setUserName('Guest');
+      setUserNameLoading(false);
     }
   };
 
@@ -252,10 +258,12 @@ export default function Dashboard() {
     <>
       <header className={styles.navbar}>
         <div className={styles.navbarContent}>
-          <div className={styles.greeting}>
-            <h1 className={styles.greetingName}>Hello, {userName}</h1>
-            <p className={styles.greetingSubtitle}>Welcome to Canine Capers</p>
-          </div>
+          {!userNameLoading && userName && (
+            <div className={styles.greeting}>
+              <h1 className={styles.greetingName}>Hello, {userName}</h1>
+              <p className={styles.greetingSubtitle}>Welcome to Canine Capers</p>
+            </div>
+          )}
         </div>
       </header>
 
@@ -263,9 +271,11 @@ export default function Dashboard() {
         <main className={styles.main}>
           <section className={styles.compactHero}>
             <div className={styles.heroContent}>
-              <h1 className={styles.heroGreeting}>
-                Welcome back, {userName}
-              </h1>
+              {!userNameLoading && userName && (
+                <h1 className={styles.heroGreeting}>
+                  Welcome back, {userName}
+                </h1>
+              )}
               <h2 className={styles.heroTitle}>
                 Your Canine Capers Hub
               </h2>
