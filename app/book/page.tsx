@@ -393,8 +393,8 @@ export default function Book() {
           <Image
             src="/images/homeicon.png"
             alt="Dashboard"
-            width={16}
-            height={16}
+            width={32}
+            height={32}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Home</span>
@@ -404,8 +404,8 @@ export default function Book() {
           <Image
             src="/booksession.png"
             alt="Book Session"
-            width={22}
-            height={22}
+            width={32}
+            height={32}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Book</span>
@@ -415,8 +415,8 @@ export default function Book() {
           <Image
             src="/viewsessions.png"
             alt="My Sessions"
-            width={22}
-            height={22}
+            width={32}
+            height={32}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Sessions</span>
@@ -426,8 +426,8 @@ export default function Book() {
           <Image
             src="/location.png"
             alt="Locations"
-            width={22}
-            height={22}
+            width={32}
+            height={32}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Location</span>
@@ -437,8 +437,8 @@ export default function Book() {
           <Image
             src="/images/settingsicon.png"
             alt="Settings"
-            width={16}
-            height={16}
+            width={32}
+            height={32}
             className={styles.footerIcon}
           />
           <span className={styles.footerLabel}>Settings</span>
