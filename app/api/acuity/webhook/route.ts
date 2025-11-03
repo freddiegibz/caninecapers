@@ -3,6 +3,26 @@ import { supabase } from '../../../../src/lib/supabaseClient';
 import fs from 'fs';
 import path from 'path';
 
+// Type definitions for Acuity webhook payloads
+interface AcuityAppointment {
+  id: string | number;
+  datetime: string;
+  calendar: string | number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  type?: string;
+  price?: string | number;
+}
+
+interface AcuityWebhookPayload {
+  appointment?: AcuityAppointment;
+  [key: string]: unknown;
+}
+
+// Helper type for form data parsing
+type FormDataObject = Record<string, string>;
+
 // Helper: map Acuity calendar IDs → field names
 function getFieldName(calendarID: number): string {
   switch (calendarID) {
@@ -24,7 +44,7 @@ function formatDate(datetime: string): string {
 export async function POST(request: Request) {
   try {
     // --- FLEXIBLE PARSING ---
-    let payload: any;
+    let payload: AcuityWebhookPayload;
     try {
       payload = await request.json();
       console.log('✅ Parsed as JSON payload');
@@ -32,19 +52,49 @@ export async function POST(request: Request) {
       console.log('⚠️ JSON parsing failed, trying form-encoded...');
       const text = await request.text();
       const params = new URLSearchParams(text);
-      const obj: any = {};
+      const formData: FormDataObject = {};
 
       for (const [key, value] of params.entries()) {
-        obj[key] = value;
+        formData[key] = value;
       }
 
-      payload = { appointment: {} };
-      for (const [k, v] of Object.entries(obj)) {
-        const match = k.match(/^appointment\[(.+)\]$/);
+      const appointmentData: Partial<AcuityAppointment> = {};
+      for (const [key, value] of Object.entries(formData)) {
+        const match = key.match(/^appointment\[(.+)\]$/);
         if (match) {
-          payload.appointment[match[1]] = v;
+          const fieldName = match[1];
+          switch (fieldName) {
+            case 'id':
+              appointmentData.id = isNaN(Number(value)) ? value : Number(value);
+              break;
+            case 'calendar':
+              appointmentData.calendar = isNaN(Number(value)) ? value : Number(value);
+              break;
+            case 'price':
+              appointmentData.price = isNaN(Number(value)) ? value : Number(value);
+              break;
+            case 'type':
+              appointmentData.type = value;
+              break;
+            case 'datetime':
+              appointmentData.datetime = value;
+              break;
+            case 'firstName':
+              appointmentData.firstName = value;
+              break;
+            case 'lastName':
+              appointmentData.lastName = value;
+              break;
+            case 'email':
+              appointmentData.email = value;
+              break;
+            default:
+              // For any other fields, just store as string
+              (appointmentData as Record<string, unknown>)[fieldName] = value;
+          }
         }
       }
+      payload = { appointment: appointmentData as AcuityAppointment };
       console.log('✅ Parsed as form-encoded payload');
     }
 
@@ -69,7 +119,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const field = getFieldName(Number(calendar));
+    if (typeof datetime !== 'string') {
+      console.error('❌ Invalid datetime format:', datetime);
+      return NextResponse.json({ error: 'Invalid datetime format' }, { status: 400 });
+    }
+
+    const calendarId = typeof calendar === 'string' || typeof calendar === 'number'
+      ? Number(calendar)
+      : NaN;
+
+    if (isNaN(calendarId)) {
+      console.error('❌ Invalid calendar ID:', calendar);
+      return NextResponse.json({ error: 'Invalid calendar ID' }, { status: 400 });
+    }
+
+    const field = getFieldName(calendarId);
     const date = formatDate(datetime);
 
     // Find user by email

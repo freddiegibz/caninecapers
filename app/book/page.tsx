@@ -51,7 +51,7 @@ export default function Book() {
         if (isMounted) {
           setSessions(normalized);
         }
-      } catch (_: unknown) {
+      } catch {
         // Silent fail to keep UI clean; show empty state instead
         if (isMounted) setSessions([]);
       }
