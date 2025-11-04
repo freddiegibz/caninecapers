@@ -44,14 +44,18 @@ function formatDate(datetime: string): string {
 export async function POST(request: Request) {
   try {
     // --- FLEXIBLE PARSING ---
+    // Read the request body once to avoid "Body has already been read" error
+    const requestBody = await request.text();
+
     let payload: AcuityWebhookPayload;
     try {
-      payload = await request.json();
+      // Try to parse as JSON first
+      payload = JSON.parse(requestBody);
       console.log('✅ Parsed as JSON payload');
     } catch {
       console.log('⚠️ JSON parsing failed, trying form-encoded...');
-      const text = await request.text();
-      const params = new URLSearchParams(text);
+      // If JSON fails, parse as form-encoded data
+      const params = new URLSearchParams(requestBody);
       const formData: FormDataObject = {};
 
       for (const [key, value] of params.entries()) {
