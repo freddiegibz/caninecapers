@@ -95,6 +95,23 @@ export async function POST(request: Request) {
     console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail, sessionId, sessionToken });
     console.log('📄 Session matching condition check:', { isAppGenerated, sessionId: !!sessionId, sessionToken: !!sessionToken });
 
+    // Validate required fields before processing
+    if (!appointmentId || !datetime || !calendarId || !clientEmail) {
+      console.error('❌ Missing required fields:', { appointmentId, datetime, calendarId, clientEmail });
+      return NextResponse.json({ message: 'OK' }, { status: 200 });
+    }
+
+    // Parse and validate calendar ID
+    const calendarNum = parseInt(calendarId, 10);
+    if (isNaN(calendarNum)) {
+      console.error('❌ Invalid calendar ID:', calendarId);
+      return NextResponse.json({ message: 'OK' }, { status: 200 });
+    }
+
+    // Map fields to sessions table (declare variables early)
+    const field = getFieldName(calendarNum);
+    const date = formatDate(datetime);
+
     // Handle session-based matching for app-generated bookings
     if (isAppGenerated && sessionId && sessionToken) {
       console.log('🎯 App-generated booking with session ID - attempting session matching');
@@ -204,23 +221,6 @@ export async function POST(request: Request) {
       console.error('❌ Error writing payload file:', fileErr);
     }
 
-    // Validate required fields
-    if (!appointmentId || !datetime || !calendarId || !clientEmail) {
-      console.error('❌ Missing required fields:', { appointmentId, datetime, calendarId, clientEmail });
-      // Always return 200 OK to Acuity, even on validation errors
-      return NextResponse.json({ message: 'OK' }, { status: 200 });
-    }
-
-    // Parse and validate calendar ID
-    const calendarNum = parseInt(calendarId, 10);
-    if (isNaN(calendarNum)) {
-      console.error('❌ Invalid calendar ID:', calendarId);
-      return NextResponse.json({ message: 'OK' }, { status: 200 });
-    }
-
-    // Map fields to sessions table
-    const field = getFieldName(calendarNum);
-    const date = formatDate(datetime);
     const status = action === 'scheduled' ? 'complete' : 'incomplete';
 
     // Find user by email
