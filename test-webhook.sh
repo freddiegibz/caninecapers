@@ -9,11 +9,21 @@ echo "🧪 Testing Acuity Webhook..."
 echo "URL: $WEBHOOK_URL"
 echo
 
-# Test 1: Valid app-generated booking
-echo "📤 Test 1: Valid app-generated booking for registered user"
+# Test 1: Valid app-generated booking with session ID
+echo "📤 Test 1: Valid app-generated booking with session ID"
+# First create a session (simulate what the app does)
+SESSION_RESPONSE=$(curl -s -X POST "https://caninecapers.vercel.app/api/sessions/create-incomplete" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":null,"field":"Central Bark","date":"2025-11-04T14:30:00.000Z"}')
+SESSION_ID=$(echo $SESSION_RESPONSE | grep -o '"sessionId":"[^"]*"' | cut -d'"' -f4)
+SESSION_TOKEN=$(echo $SESSION_RESPONSE | grep -o '"sessionToken":"[^"]*"' | cut -d'"' -f4)
+
+echo "Created session: $SESSION_ID with token: $SESSION_TOKEN"
+
+# Now test webhook with session data
 curl -X POST "$WEBHOOK_URL" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "action=scheduled&appointment[id]=12345&appointment[datetime]=2024-01-15T14:30:00-0000&appointment[calendarID]=4783035&appointment[client][email]=test@example.com&source=app"
+  -d "action=scheduled&appointment[id]=12345&appointment[datetime]=2025-11-04T14:30:00-0000&appointment[calendarID]=4783035&appointment[client][email]=test@example.com&source=app&sessionId=$SESSION_ID&sessionToken=$SESSION_TOKEN"
 echo -e "\n"
 
 # Test 1b: External booking (should be logged but not processed)

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { supabase } from '../../../src/lib/supabaseClient';
 import styles from './page.module.css';
 
 interface SessionData {
@@ -65,37 +66,97 @@ export default function BookingPage() {
     router.push('/dashboard');
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!session) return;
 
     setBookingLoading(true);
 
-    // Save booking data to localStorage before redirecting to Acuity
-    const bookingData = {
-      field: session.field,
-      calendarID: session.calendarID,
-      appointmentTypeID: session.appointmentTypeID,
-      date: session.date,
-      time: session.time,
-      length: session.length,
-      price: session.price,
-      startTime: session.startTime
-    };
+    try {
+      // Check if user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
-    console.log('Saved pending booking to localStorage:', bookingData);
+      if (authError) {
+        console.error('Auth check error:', authError);
+      }
 
-    // Build Acuity Scheduling URL with appointmentType to skip duration selection
-    // Note: Configure the success redirect URL in Acuity admin to: /confirmation?status=success
-    const acuityOwnerId = '21300080';
-    const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}&source=app`;
+      // Create incomplete session in database first
+      const sessionData = {
+        user_id: user?.id || null, // Link to authenticated user if available
+        field: session.field,
+        date: new Date(session.startTime).toISOString(),
+        session_token: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
 
-    console.log('Redirecting to Acuity Scheduling:', bookingUrl);
+      console.log('Creating session for user:', user?.id || 'anonymous');
 
-    // Add a brief delay for user feedback before redirecting
-    setTimeout(() => {
-      window.location.href = bookingUrl;
-    }, 1500);
+      console.log('Creating incomplete session:', sessionData);
+
+      const response = await fetch('/api/sessions/create-incomplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sessionData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create session');
+      }
+
+      const { sessionId, sessionToken } = await response.json();
+      console.log('Created incomplete session:', { sessionId, sessionToken });
+
+      // Save booking data with session info
+      const bookingData = {
+        sessionId,
+        sessionToken,
+        field: session.field,
+        calendarID: session.calendarID,
+        appointmentTypeID: session.appointmentTypeID,
+        date: session.date,
+        time: session.time,
+        length: session.length,
+        price: session.price,
+        startTime: session.startTime
+      };
+
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+      console.log('Saved booking data to localStorage:', bookingData);
+
+      // Build Acuity Scheduling URL with session parameters
+      const acuityOwnerId = '21300080';
+      const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}&source=app&sessionId=${sessionId}&sessionToken=${sessionToken}`;
+
+      console.log('Redirecting to Acuity Scheduling:', bookingUrl);
+
+      // Add a brief delay for user feedback before redirecting
+      setTimeout(() => {
+        window.location.href = bookingUrl;
+      }, 1500);
+    } catch (error) {
+      console.error('Failed to create session:', error);
+      // Fallback: redirect without session tracking
+      const acuityOwnerId = '21300080';
+      const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}&source=app`;
+
+      console.log('Redirecting to Acuity (fallback):', bookingUrl);
+
+      // Save basic booking data
+      const bookingData = {
+        field: session.field,
+        calendarID: session.calendarID,
+        appointmentTypeID: session.appointmentTypeID,
+        date: session.date,
+        time: session.time,
+        length: session.length,
+        price: session.price,
+        startTime: session.startTime
+      };
+
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+
+      setTimeout(() => {
+        window.location.href = bookingUrl;
+      }, 1500);
+    }
   };
 
   if (loading) {

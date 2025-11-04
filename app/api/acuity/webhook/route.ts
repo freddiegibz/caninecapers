@@ -56,6 +56,8 @@ export async function POST(request: Request) {
     const appointmentId = formData['appointment[id]'];
     const datetime = formData['appointment[datetime]'];
     const calendarId = formData['appointment[calendarID]'];
+    const sessionId = formData['sessionId']; // Custom parameter from Acuity URL
+    const sessionToken = formData['sessionToken']; // Security token
 
     // Check for app-generated booking validation
     const source = formData['source'];
@@ -90,10 +92,51 @@ export async function POST(request: Request) {
       }
     }
 
-    console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail });
+    console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail, sessionId, sessionToken });
+    console.log('📄 Session matching condition check:', { isAppGenerated, sessionId: !!sessionId, sessionToken: !!sessionToken });
 
-    // Handle non-app-generated bookings gracefully
-    if (!isAppGenerated) {
+    // Handle session-based matching for app-generated bookings
+    if (isAppGenerated && sessionId && sessionToken) {
+      console.log('🎯 App-generated booking with session ID - attempting session matching');
+
+      // Find the incomplete session by ID and validate token
+      const { data: existingSession, error: sessionErr } = await supabase
+        .from('sessions')
+        .select('id, session_token, user_id')
+        .eq('id', sessionId)
+        .eq('status', 'incomplete')
+        .maybeSingle();
+
+      if (sessionErr) {
+        console.error('❌ Session lookup error:', sessionErr);
+      }
+
+      if (existingSession && existingSession.session_token === sessionToken) {
+        // Valid session found - mark as complete
+        const { error: updateErr } = await supabase
+          .from('sessions')
+          .update({
+            status: 'complete',
+            acuity_appointment_id: parseInt(appointmentId, 10),
+            date,
+            field,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', sessionId);
+
+        if (updateErr) {
+          console.error('❌ Session update error:', updateErr);
+        } else {
+          console.log(`✅ Marked session ${sessionId} as complete with appointment ${appointmentId}`);
+        }
+      } else {
+        console.log(`⚠️ Session ${sessionId} not found or token mismatch - treating as external booking`);
+        // Fall through to external booking logic
+      }
+    }
+
+    // Handle non-app-generated bookings or fallback for failed session matching
+    if (!isAppGenerated || !sessionId || !sessionToken) {
       console.log('ℹ️ Non-app booking detected - logging but not processing:', {
         appointmentId,
         clientEmail,
