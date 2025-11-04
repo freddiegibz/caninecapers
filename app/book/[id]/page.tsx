@@ -88,7 +88,7 @@ export default function BookingPage() {
     // Build Acuity Scheduling URL with appointmentType to skip duration selection
     // Note: Configure the success redirect URL in Acuity admin to: /confirmation?status=success
     const acuityOwnerId = '21300080';
-    const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}`;
+    const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${acuityOwnerId}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${session.date}&time=${session.time}&source=app`;
 
     console.log('Redirecting to Acuity Scheduling:', bookingUrl);
 
