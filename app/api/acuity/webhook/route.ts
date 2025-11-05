@@ -16,6 +16,24 @@ interface AcuityWebhookLog {
   };
 }
 
+// Database operation types
+interface SessionUpdateData {
+  status: 'complete';
+  acuity_appointment_id: number;
+  updated_at: string;
+  date?: string;
+  field?: string;
+}
+
+interface SessionInsertData {
+  user_id: string | null;
+  acuity_appointment_id: number;
+  status: 'complete';
+  source?: string;
+  date?: string;
+  field?: string;
+}
+
 // Helper: map Acuity calendar IDs → field names
 function getFieldName(calendarID: number): string {
   switch (calendarID) {
@@ -165,7 +183,7 @@ export async function POST(request: Request) {
 
       if (existingSession && existingSession.session_token === sessionToken) {
         // Valid session found - mark as complete
-        const updateData: any = {
+        const updateData: SessionUpdateData = {
           status: 'complete',
           acuity_appointment_id: parseInt(appointmentId, 10),
           updated_at: new Date().toISOString(),
@@ -323,7 +341,7 @@ export async function POST(request: Request) {
       }
     } else {
       // Insert new session for unlinked user
-      const insertData: any = {
+      const insertData: SessionInsertData = {
         user_id: null,
         acuity_appointment_id: parseInt(appointmentId, 10),
         status: 'complete',
