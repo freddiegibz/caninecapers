@@ -103,22 +103,49 @@ export async function POST(request: Request) {
     console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail, sessionId, sessionToken });
     console.log('📄 Session matching condition check:', { isAppGenerated, sessionId: !!sessionId, sessionToken: !!sessionToken });
 
-    // Validate required fields before processing
-    if (!appointmentId || !datetime || !calendarId || !clientEmail) {
-      console.error('❌ Missing required fields:', { appointmentId, datetime, calendarId, clientEmail });
+    // Validate minimum required fields - be flexible for different Acuity webhook events
+    if (!appointmentId) {
+      console.error('❌ Missing appointment ID - cannot process:', { appointmentId });
       return NextResponse.json({ message: 'OK' }, { status: 200 });
     }
 
-    // Parse and validate calendar ID
-    const calendarNum = parseInt(calendarId, 10);
-    if (isNaN(calendarNum)) {
-      console.error('❌ Invalid calendar ID:', calendarId);
+    // Log what we have vs what we need
+    console.log('📋 Field availability:', {
+      hasAppointmentId: !!appointmentId,
+      hasDatetime: !!datetime,
+      hasCalendarId: !!calendarId,
+      hasClientEmail: !!clientEmail,
+      isAppGenerated
+    });
+
+    // Only require full data for app-generated bookings
+    if (isAppGenerated && (!datetime || !calendarId || !clientEmail)) {
+      console.error('❌ App-generated booking missing required fields:', { appointmentId, datetime, calendarId, clientEmail });
       return NextResponse.json({ message: 'OK' }, { status: 200 });
     }
 
-    // Map fields to sessions table (declare variables early)
-    const field = getFieldName(calendarNum);
-    const date = formatDate(datetime);
+    // For external bookings, we can work with partial data
+    if (!isAppGenerated) {
+      console.log('ℹ️ External booking with partial data - processing what we can');
+    }
+
+    // Parse and validate calendar ID (skip for external bookings with missing data)
+    let calendarNum: number | null = null;
+    let field = 'Unknown Field';
+    let date: string | null = null;
+
+    if (calendarId) {
+      calendarNum = parseInt(calendarId, 10);
+      if (isNaN(calendarNum)) {
+        console.error('❌ Invalid calendar ID:', calendarId);
+        return NextResponse.json({ message: 'OK' }, { status: 200 });
+      }
+      field = getFieldName(calendarNum);
+    }
+
+    if (datetime) {
+      date = formatDate(datetime);
+    }
 
     // Handle session-based matching for app-generated bookings
     if (isAppGenerated && sessionId && sessionToken) {
@@ -138,15 +165,19 @@ export async function POST(request: Request) {
 
       if (existingSession && existingSession.session_token === sessionToken) {
         // Valid session found - mark as complete
+        const updateData: any = {
+          status: 'complete',
+          acuity_appointment_id: parseInt(appointmentId, 10),
+          updated_at: new Date().toISOString(),
+        };
+
+        // Only update fields that are available
+        if (date) updateData.date = date;
+        if (field !== 'Unknown Field') updateData.field = field;
+
         const { error: updateErr } = await supabase
           .from('sessions')
-          .update({
-            status: 'complete',
-            acuity_appointment_id: parseInt(appointmentId, 10),
-            date,
-            field,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq('id', sessionId);
 
         if (updateErr) {
@@ -154,7 +185,7 @@ export async function POST(request: Request) {
         } else {
           console.log(`✅ Marked session ${sessionId} as complete with appointment ${appointmentId}`);
         }
-      } else {
+    } else {
         console.log(`⚠️ Session ${sessionId} not found or token mismatch - treating as external booking`);
         // Fall through to external booking logic
       }
@@ -231,19 +262,21 @@ export async function POST(request: Request) {
 
     const status = action === 'scheduled' ? 'complete' : 'incomplete';
 
-    // Find user by email
-    const { data: user, error: userErr } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', clientEmail)
-      .maybeSingle();
+    // Find user by email (only if we have an email)
+    let user_id = null;
+    if (clientEmail) {
+      const { data: user, error: userErr } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', clientEmail)
+        .maybeSingle();
 
-    if (userErr) {
-      console.error('❌ User lookup error:', userErr);
-      // Continue processing even if user lookup fails
+      if (userErr) {
+        console.error('❌ User lookup error:', userErr);
+        // Continue processing even if user lookup fails
+      }
+      user_id = user?.id ?? null;
     }
-
-    const user_id = user?.id ?? null;
 
     // Handle idempotency: if user exists, check for incomplete session to complete
     let sessionError = null;
@@ -281,8 +314,8 @@ export async function POST(request: Request) {
         const { error } = await supabase.from('sessions').insert({
           user_id,
           acuity_appointment_id: parseInt(appointmentId, 10),
-          field,
-          date,
+        field,
+        date,
           status: 'complete',
         });
         sessionError = error;
@@ -290,13 +323,17 @@ export async function POST(request: Request) {
       }
     } else {
       // Insert new session for unlinked user
-      const { error } = await supabase.from('sessions').insert({
+      const insertData: any = {
         user_id: null,
         acuity_appointment_id: parseInt(appointmentId, 10),
-        field,
-        date,
         status: 'complete',
-      });
+      };
+
+      // Only include fields that are available
+      if (date) insertData.date = date;
+      if (field !== 'Unknown Field') insertData.field = field;
+
+      const { error } = await supabase.from('sessions').insert(insertData);
       sessionError = error;
       console.log(`✅ Created new completed session for unlinked user ${clientEmail}`);
     }
