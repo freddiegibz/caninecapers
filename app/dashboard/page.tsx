@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { formatLondon } from "../../src/utils/dateTime";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import SessionCard from "../../components/SessionCard";
@@ -98,23 +99,7 @@ export default function Dashboard() {
     };
   }, [selectedType, selectedField]);
 
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    });
-  };
-
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  };
+  // London timezone formatting utilities are imported above
 
   const getFieldMeta = (calendarID: number) => {
     if (calendarID === 4783035) {
@@ -147,11 +132,16 @@ export default function Dashboard() {
                         selectedType === '18525161' ? '1 hour' : '30 min';
 
     // Pass session data via query parameters
+    // Extract date and time components for URL params
+    // session.startTime is already GMT London ISO string (e.g., "2025-11-05T17:00:00.000Z")
+    const dateParam = session.startTime.split('T')[0]; // YYYY-MM-DD from London time
+    const timeParam = session.startTime.split('T')[1].slice(0, 5); // HH:MM from London time
+
     const queryParams = new URLSearchParams({
       id: session.id,
       image_url: meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp',
-      date: formatDate(session.startTime),
-      time: formatTime(session.startTime),
+      date: dateParam,
+      time: timeParam,
       length: durationText,
       field: meta.name,
       price: price,
@@ -163,8 +153,9 @@ export default function Dashboard() {
     console.log('Navigating to booking page with session data:', {
       id: session.id,
       field: meta.name,
-      date: formatDate(session.startTime),
-      time: formatTime(session.startTime)
+      date: dateParam,
+      time: timeParam,
+      formattedDisplay: formatLondon(session.startTime)
     });
 
     router.push(`/book/${session.id}?${queryParams.toString()}`);
@@ -378,7 +369,7 @@ export default function Dashboard() {
                   .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                   .map((session) => {
                   const meta = getFieldMeta(session.calendarID);
-                  const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
+                  const dateLabel = formatLondon(session.startTime);
                   return (
                     <div key={session.id} className={styles.card}>
                       <SessionCard

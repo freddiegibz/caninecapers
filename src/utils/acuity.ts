@@ -1,9 +1,21 @@
-export function getAcuityBookingUrl(sessionId: string, calendarId: string, appointmentTypeId: string, date: string, time: string): string {
-  const OWNER_ID = '3e8feaf8'; // Acuity schedule/owner ID (from your working URL example)
-  const fieldId = '17502393'; // The field ID for your custom Session ID question
+// Acuity configuration constants
+export const ACUITY_OWNER_ID = '3e8feaf8'; // Correct Acuity schedule/owner ID
+export const ACUITY_SESSION_FIELD_ID = '17502393'; // Custom Session ID field ID
 
-  // Use your working path-based format with field pre-filling added
-  const baseUrl = `https://app.acuityscheduling.com/schedule/${OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?appointmentTypeIds[]=${appointmentTypeId}&calendarIds=${calendarId}&date=${date}&time=${time}&field:${fieldId}=${sessionId}`;
+export function getAcuityBookingUrl(sessionId: string, calendarId: string, appointmentTypeId: string, date: string, time: string): string {
+  // date and time parameters are already in London timezone
+  // Determine if it's BST (March-October) or GMT
+  const dateObj = new Date(`${date}T${time}:00Z`);
+  const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
+  const isBST = month >= 3 && month <= 10; // Simplified BST check
+  const timezoneOffset = isBST ? '+01:00' : '+00:00';
+
+  // Create ISO datetime string with proper London timezone offset
+  const isoDateTime = `${date}T${time}:00${timezoneOffset}`;
+  const encodedDateTime = encodeURIComponent(isoDateTime);
+
+  // Use canonical Acuity URL format with datetime segment
+  const baseUrl = `https://app.acuityscheduling.com/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}/datetime/${encodedDateTime}?appointmentTypeIds[]=${appointmentTypeId}&calendarIds=${calendarId}&date=${date}&time=${time}&field:${ACUITY_SESSION_FIELD_ID}=${sessionId}`;
 
   return baseUrl;
 }

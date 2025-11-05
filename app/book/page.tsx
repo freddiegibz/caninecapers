@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
+import { ACUITY_OWNER_ID } from "../../src/utils/acuity";
 import SessionCard from "../../components/SessionCard";
 import styles from "./page.module.css";
 
@@ -81,19 +82,21 @@ export default function Book() {
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
+    return d.toLocaleDateString('en-GB', {
       weekday: "long",
       day: "numeric",
       month: "long",
+      timeZone: 'Europe/London'
     });
   };
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleTimeString(undefined, {
+    return d.toLocaleTimeString('en-GB', {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
+      timeZone: 'Europe/London'
     });
   };
 
@@ -264,7 +267,7 @@ export default function Book() {
               {selectedField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
-                    src={`https://app.acuityscheduling.com/schedule.php?owner=21300080&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
+                    src={`https://app.acuityscheduling.com/schedule.php?owner=${ACUITY_OWNER_ID}&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
                     title="Schedule Appointment"
                     width="100%"
                     height="600"

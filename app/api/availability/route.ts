@@ -69,10 +69,25 @@ export async function GET(request: Request) {
           .then(async (res) => {
             if (!res.ok) return [] as NormalizedAvailability[];
             const data: AcuityTime[] = await res.json();
-            return data.map((item) => ({
-              calendarID: Number(calendarID),
-              startTime: item.time,
-            }));
+            return data.map((item) => {
+              // Acuity times are in calendar timezone (London = UTC)
+              // Handle different time formats: +0000, Z, or no timezone
+              let timeString = item.time;
+              if (timeString.includes('+0000')) {
+                // Replace +0000 with Z for proper UTC parsing
+                timeString = timeString.replace('+0000', 'Z');
+              } else if (!timeString.includes('Z')) {
+                // Add Z if no timezone indicator
+                timeString = timeString + 'Z';
+              }
+
+              const utcTime = new Date(timeString);
+
+              return {
+                calendarID: Number(calendarID),
+                startTime: utcTime.toISOString(), // Store as GMT London time (UTC)
+              };
+            });
           })
           .catch(() => [] as NormalizedAvailability[]);
 

@@ -29,15 +29,17 @@ echo
 
 # Test 2: Verify booking URL format with all parameters
 echo "📤 Test 2: Verify booking URL format"
-if [[ "$BOOKING_URL" == *"schedule/3e8feaf8"* ]] && [[ "$BOOKING_URL" == *"appointment/"* ]] && [[ "$BOOKING_URL" == *"calendar/"* ]] && [[ "$BOOKING_URL" == *"appointmentTypeIds"* ]] && [[ "$BOOKING_URL" == *"calendarIds"* ]] && [[ "$BOOKING_URL" == *"date="* ]] && [[ "$BOOKING_URL" == *"time="* ]] && [[ "$BOOKING_URL" == *"field:17502393=$SESSION_ID"* ]]; then
+if [[ "$BOOKING_URL" == *"schedule/3e8feaf8"* ]] && [[ "$BOOKING_URL" == *"appointment/"* ]] && [[ "$BOOKING_URL" == *"calendar/"* ]] && [[ "$BOOKING_URL" == *"datetime/"* ]] && [[ "$BOOKING_URL" == *"appointmentTypeIds"* ]] && [[ "$BOOKING_URL" == *"calendarIds"* ]] && [[ "$BOOKING_URL" == *"date="* ]] && [[ "$BOOKING_URL" == *"time="* ]] && [[ "$BOOKING_URL" == *"field:17502393=$SESSION_ID"* ]]; then
   echo "✅ Booking URL format is correct!"
-  echo "  - Uses path-based format: schedule/3e8feaf8/appointment/.../calendar/..."
+  echo "  - Uses correct owner ID: 3e8feaf8"
+  echo "  - Uses canonical datetime format: schedule/.../datetime/..."
+  echo "  - Contains encoded ISO datetime with timezone offset"
   echo "  - Contains appointmentTypeIds and calendarIds arrays"
   echo "  - Contains date and time parameters"
   echo "  - Contains Session ID field: field:17502393=$SESSION_ID"
 else
   echo "❌ Booking URL format is incorrect"
-  echo "Expected: https://app.acuityscheduling.com/schedule/3e8feaf8/appointment/.../calendar/...?appointmentTypeIds[]=...&calendarIds=...&date=...&time=...&field:17502393=<UUID>"
+  echo "Expected: https://app.acuityscheduling.com/schedule/3e8feaf8/appointment/.../calendar/.../datetime/...?appointmentTypeIds[]=...&calendarIds=...&date=...&time=...&field:17502393=<UUID>"
   echo "Actual: $BOOKING_URL"
 fi
 echo
