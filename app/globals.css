@@ -28,6 +28,7 @@ body {
 
 body {
   color: var(--foreground);
+  background: #f3ede0; /* cream background for pages */
   font-family: var(--font-lora);
   font-size: 16px;
   line-height: 1.6;
