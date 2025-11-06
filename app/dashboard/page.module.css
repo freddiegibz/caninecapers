@@ -834,10 +834,10 @@
 }
 
 /* Available Times Section */
-.availableTimesSection {
-  margin-top: 0rem;
-  padding: 1.5rem 1.5rem 1.5rem 0;
-}
+  .availableTimesSection {
+    margin-top: 0rem;
+    padding: 1.5rem;
+  }
 
 .selectDayTitle {
   font-family: var(--font-poppins);
@@ -1247,7 +1247,11 @@
   }
 
   .section {
-    padding: 0;
+    padding: 1rem;
+  }
+
+  .availableTimesSection {
+    padding: 1rem;
   }
 
   .compactHero {
