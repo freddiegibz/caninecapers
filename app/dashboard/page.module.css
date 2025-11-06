@@ -161,7 +161,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2rem;
-  background: linear-gradient(135deg, #faf9f6 0%, #edebe5 100%);
+  background: linear-gradient(135deg, #faf9f6 0%, #f0ede8 50%, #edebe5 100%);
   font-family: var(--font-lora);
 }
 
@@ -232,7 +232,7 @@
   box-shadow: 0 8px 20px rgba(43, 58, 41, 0.08);
   align-items: flex-start;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .heroContent {
