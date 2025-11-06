@@ -14,6 +14,8 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
   const [userName, setUserName] = useState<string>('');
   const [userNameLoading, setUserNameLoading] = useState<boolean>(true);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [dayGroups, setDayGroups] = useState<Record<string, { date: string; dayName: string; count: number; sessions: NormalizedSession[] }>>({});
   const router = useRouter();
 
   type AvailabilityResponseItem = {
@@ -79,8 +81,28 @@ export default function Dashboard() {
 
         normalized = normalized.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
+        // Group by date and count slots when field and type are selected
+        const dayGroups: Record<string, { date: string; dayName: string; count: number; sessions: NormalizedSession[] }> = {};
+        normalized.forEach(session => {
+          const date = new Date(session.startTime);
+          const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+          const dayName = date.toLocaleDateString('en-GB', { weekday: 'long' });
+
+          if (!dayGroups[dateKey]) {
+            dayGroups[dateKey] = {
+              date: dateKey,
+              dayName,
+              count: 0,
+              sessions: []
+            };
+          }
+          dayGroups[dateKey].count++;
+          dayGroups[dateKey].sessions.push(session);
+        });
+
         if (isMounted) {
           setSessions(normalized);
+          setDayGroups(dayGroups);
           setCurrentPage(1);
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -307,10 +329,10 @@ export default function Dashboard() {
 
           {activeSection === 'availability' && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                Available Sessions
-                <span className={styles.titleUnderline}></span>
-              </h2>
+              <h2 className={styles.dashboardSectionTitle}>Available Sessions</h2>
+              <h3 className={styles.sectionSubtitle}>
+                Select Session Length & Field
+              </h3>
 
               {/* Unified Filter Row */}
               <div className={styles.unifiedFilterRow}>
@@ -323,7 +345,11 @@ export default function Dashboard() {
                         <button
                           key={opt.id}
                           className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                          onClick={() => setSelectedType(opt.id)}
+                          onClick={() => {
+                            setSelectedType(opt.id);
+                            setSelectedDay(null);
+                            setCurrentPage(1);
+                          }}
                           disabled={loading}
                         >
                           {opt.label}
@@ -348,6 +374,7 @@ export default function Dashboard() {
                           className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
                           onClick={() => {
                           setSelectedField(field.id);
+                          setSelectedDay(null);
                           setCurrentPage(1);
                         }}
                           disabled={loading}
@@ -364,61 +391,89 @@ export default function Dashboard() {
                   Loading available sessions…
                 </div>
               )}
-              <div className={styles.availabilityGrid}>
-                {sessions.length === 0 && (
-                  <p className={styles.availabilityTimeslot}>No sessions available for this type.</p>
-                )}
-                {sessions
-                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                  .map((session) => {
-                  const meta = getFieldMeta(session.calendarID);
-                  const dateLabel = formatLondon(session.startTime);
-                  return (
-                    <div key={session.id} className={styles.card}>
-                      <SessionCard
-                        meta={meta}
-                        dateLabel={dateLabel}
-                        price={getPriceForType(selectedType)}
-                        onClick={() => handleBookSession(session)}
-                      />
+              {/* Day cards always visible when field and type are selected */}
+              {selectedType && (
+                <div>
+                  <h3 className={styles.selectDayTitle}>Select Day</h3>
+                  <div className={styles.dayCardsGrid}>
+                    {Object.values(dayGroups)
+                      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                      .map((dayGroup) => {
+                        const dateObj = new Date(dayGroup.date);
+                        const day = dateObj.getDate();
+                        const month = dateObj.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
+
+                        return (
+                        <div
+                          key={dayGroup.date}
+                          className={`${styles.dayCard} ${selectedDay === dayGroup.date ? styles.selected : ''}`}
+                          onClick={() => setSelectedDay(selectedDay === dayGroup.date ? null : dayGroup.date)}
+                        >
+                            <div className={styles.dayName}>{dayGroup.dayName}</div>
+                            <div className={styles.dayDate}>{day} {month}</div>
+                            <div className={styles.daySlots}>
+                              {dayGroup.count} slot{dayGroup.count !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {/* Available Times Section - appears below day cards when a day is selected */}
+                  {selectedDay && (
+                    <div className={styles.availableTimesSection}>
+                      <h3 className={styles.availableTimesTitle}>Available Times</h3>
+                      <div className={styles.availableTimesList}>
+                        {sessions
+                          .filter(session => {
+                            const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
+                            return sessionDate === selectedDay;
+                          })
+                          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                          .map((session) => {
+                            const meta = getFieldMeta(session.calendarID);
+                            const timeString = formatLondon(session.startTime);
+
+                            return (
+                              <div
+                                key={session.id}
+                                className={styles.availableTimeItem}
+                                onClick={() => handleBookSession(session)}
+                              >
+                                <span className={styles.availableTimeTime}>{timeString}</span>
+                                <span className={styles.availableTimeField}>{meta.name}</span>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-              {sessions.length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
-                  <button
-                    className={styles.button}
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    style={{
-                      padding: '0.5rem 0.9rem',
-                      borderRadius: 6,
-                      border: `2px solid ${currentPage === 1 ? '#a3b18a66' : '#2b3a29'}`,
-                      color: '#2b3a29',
-                      background: '#fff',
-                      opacity: currentPage === 1 ? 0.6 : 1,
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    className={styles.button}
-                    onClick={() => setCurrentPage((p) => (p * pageSize < sessions.length ? p + 1 : p))}
-                    disabled={currentPage * pageSize >= sessions.length}
-                    style={{
-                      padding: '0.5rem 0.9rem',
-                      borderRadius: 6,
-                      border: `2px solid ${currentPage * pageSize >= sessions.length ? '#a3b18a66' : '#2b3a29'}`,
-                      color: '#2b3a29',
-                      background: '#fff',
-                      opacity: currentPage * pageSize >= sessions.length ? 0.6 : 1,
-                      cursor: currentPage * pageSize >= sessions.length ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    Next
-                  </button>
+                  )}
+                </div>
+              )}
+
+
+              {/* Show regular session grid when no type filter is applied */}
+              {!selectedDay && !selectedType && (
+                <div className={styles.availabilityGrid}>
+                  {sessions.length === 0 && (
+                    <p className={styles.availabilityTimeslot}>No sessions available for this type.</p>
+                  )}
+                  {sessions
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                    .map((session) => {
+                      const meta = getFieldMeta(session.calendarID);
+                      const dateLabel = formatLondon(session.startTime);
+                      return (
+                        <div key={session.id} className={styles.card}>
+                          <SessionCard
+                            meta={meta}
+                            dateLabel={dateLabel}
+                            price={getPriceForType(selectedType)}
+                            onClick={() => handleBookSession(session)}
+                          />
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </section>

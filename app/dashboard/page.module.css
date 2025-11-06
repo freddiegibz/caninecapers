@@ -232,7 +232,7 @@
   box-shadow: 0 8px 20px rgba(43, 58, 41, 0.08);
   align-items: flex-start;
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .heroContent {
@@ -765,6 +765,157 @@
   width: 100%;
 }
 
+/* Day Cards Grid */
+.dayCardsGrid {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.5rem;
+}
+
+.dayCardsGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.dayCard {
+  flex-shrink: 0;
+  min-width: 100px;
+  background-color: #FAF9F5;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 220, 203, 0.7);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dayCard:hover {
+  transform: translateY(-2px);
+}
+
+.dayCard.selected {
+  border-color: var(--forest);
+  border-width: 2px;
+}
+
+.dayCard.selected:hover {
+  border-color: var(--sage);
+}
+
+.dayName {
+  font-family: var(--font-poppins);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  color: #333333;
+}
+
+.dayDate {
+  font-family: var(--font-lora);
+  font-size: 0.7rem;
+  margin-bottom: 0.4rem;
+  color: #000000;
+}
+
+.daySlots {
+  font-family: var(--font-poppins);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.2rem 0.4rem;
+  color: #4a7c59;
+}
+
+.dayCard.selected .daySlots {
+  color: #2b3a29;
+}
+
+/* Available Times Section */
+.availableTimesSection {
+  margin-top: 0.25rem;
+  padding: 1.5rem 1.5rem 1.5rem 0;
+}
+
+.selectDayTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0.25rem 0 0.25rem 0;
+  text-align: left;
+}
+
+.sectionSubtitle {
+  font-family: var(--font-poppins);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 0.0rem 0;
+  text-align: left;
+}
+
+.availableTimesTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 1rem 0;
+  text-align: left;
+}
+
+.availableTimesList {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.0rem;
+  margin-bottom: 0rem;
+}
+
+.availableTimesList::-webkit-scrollbar {
+  display: none;
+}
+
+.availableTimeItem {
+  background-color: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  border: 1px solid rgba(226, 220, 203, 0.5);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.availableTimeItem:hover {
+  border-color: var(--sage);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.availableTimeTime {
+  font-family: var(--font-poppins);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin-bottom: 0.25rem;
+}
+
+.availableTimeField {
+  font-family: var(--font-lora);
+  font-size: 0.75rem;
+  color: rgba(43, 43, 43, 0.7);
+}
+
+
 
 
 .availabilityTimeslot {
@@ -976,6 +1127,18 @@
     font-size: 1.1875rem;
   }
 
+  .sectionSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .selectDayTitle {
+    font-size: 1rem;
+  }
+
+  .availableTimesTitle {
+    font-size: 1rem;
+  }
+
   .sessionsGrid,
   .availabilityGrid {
     grid-template-columns: 1fr;
@@ -1105,6 +1268,18 @@
 
   .sectionTitle {
     font-size: 1rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1rem;
+  }
+
+  .selectDayTitle {
+    font-size: 0.95rem;
+  }
+
+  .availableTimesTitle {
+    font-size: 0.95rem;
   }
 
   .dashboardSectionTitle {
