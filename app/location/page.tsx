@@ -71,7 +71,13 @@ export default function Location() {
                 onClick={() => setCentralBarkExpanded(!centralBarkExpanded)}
                 aria-expanded={centralBarkExpanded}
               >
-                <span className={styles.directionIcon}>🏕️</span>
+                <Image
+                  src="/locationicon/centralbark.png"
+                  alt="Central Bark"
+                  width={24}
+                  height={24}
+                  className={styles.directionIcon}
+                />
                 <span className={styles.directionFieldName}>Central Bark</span>
                 <span className={styles.directionArrow}>
                   {centralBarkExpanded ? '↑' : '↓'}
@@ -102,7 +108,13 @@ export default function Location() {
                 onClick={() => setHydeBarkExpanded(!hydeBarkExpanded)}
                 aria-expanded={hydeBarkExpanded}
               >
-                <span className={styles.directionIcon}>🌳</span>
+                <Image
+                  src="/locationicon/hydebarki.png"
+                  alt="Hyde Bark"
+                  width={24}
+                  height={24}
+                  className={styles.directionIcon}
+                />
                 <span className={styles.directionFieldName}>Hyde Bark</span>
                 <span className={styles.directionArrow}>
                   {hydeBarkExpanded ? '↑' : '↓'}
@@ -130,7 +142,13 @@ export default function Location() {
           <section className={styles.infoSection}>
             {/* Address */}
             <div className={styles.contactItem}>
-              <span className={styles.contactIcon}>📍</span>
+              <Image
+                src="/location.png"
+                alt="Location"
+                width={20}
+                height={24}
+                className={styles.contactIcon}
+              />
               <div className={styles.contactContent}>
                 <h3 className={styles.infoTitle}>Address</h3>
                 <p className={styles.addressText}>
@@ -142,7 +160,13 @@ export default function Location() {
 
             {/* Phone */}
             <div className={styles.contactItem}>
-              <span className={styles.contactIcon}>📞</span>
+              <Image
+                src="/locationicon/phone.png"
+                alt="Phone"
+                width={24}
+                height={24}
+                className={styles.contactIcon}
+              />
               <div className={styles.contactContent}>
                 <h3 className={styles.infoTitle}>Phone</h3>
                 <a href="tel:+441234567890" className={styles.phoneLink}>+44 1234 567 890</a>

@@ -1,6 +1,6 @@
 // Acuity configuration constants
 export const ACUITY_OWNER_ID = '3e8feaf8'; // Correct Acuity schedule/owner ID
-export const ACUITY_SESSION_FIELD_ID = '17502393'; // Custom Session ID field ID
+export const ACUITY_SESSION_FIELD_ID = '17508305'; // Custom Session ID field ID
 
 export function getAcuityBookingUrl(sessionId: string, calendarId: string, appointmentTypeId: string, date: string, time: string): string {
   // date and time parameters are already in London timezone

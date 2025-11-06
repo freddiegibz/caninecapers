@@ -161,7 +161,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2rem;
-  background-color: #FBFAF7;
+  background: linear-gradient(135deg, #faf9f6 0%, #edebe5 100%);
   font-family: var(--font-lora);
 }
 
@@ -586,6 +586,20 @@
   color: transparent;
 }
 
+.dashboardSectionTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-align: center;
+}
+
 .titleUnderline {
   position: absolute;
   bottom: 0;
@@ -958,6 +972,10 @@
     font-size: 1.125rem;
   }
 
+  .dashboardSectionTitle {
+    font-size: 1.125rem;
+  }
+
   .sessionsGrid,
   .availabilityGrid {
     grid-template-columns: 1fr;
@@ -1086,6 +1104,10 @@
   }
 
   .sectionTitle {
+    font-size: 1rem;
+  }
+
+  .dashboardSectionTitle {
     font-size: 1rem;
   }
 
