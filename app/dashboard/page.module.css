@@ -587,7 +587,7 @@
 }
 
 .dashboardSectionTitle {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.3px;
@@ -973,7 +973,7 @@
   }
 
   .dashboardSectionTitle {
-    font-size: 1.125rem;
+    font-size: 1.1875rem;
   }
 
   .sessionsGrid,
@@ -1108,7 +1108,7 @@
   }
 
   .dashboardSectionTitle {
-    font-size: 1rem;
+    font-size: 1.125rem;
   }
 
   .sessionCard {

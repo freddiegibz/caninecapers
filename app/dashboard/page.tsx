@@ -288,7 +288,7 @@ export default function Dashboard() {
           </section>
 
           {/* Section Title */}
-          <h2 className={styles.dashboardSectionTitle}>Check Your Bookings or See What's Available</h2>
+          <h2 className={styles.dashboardSectionTitle}>Check Your Bookings or See What&apos;s Available</h2>
 
           <div className={styles.sectionToggle}>
             <button
