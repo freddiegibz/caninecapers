@@ -161,7 +161,7 @@
 .container {
   min-height: calc(100vh - 60px);
   padding: 2rem;
-  background: linear-gradient(135deg, #faf9f6 0%, #f0ede8 50%, #edebe5 100%);
+  background: linear-gradient(135deg, #faf9f6 0%, #edebe5 100%);
   font-family: var(--font-lora);
 }
 
