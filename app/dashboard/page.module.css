@@ -884,7 +884,7 @@
 .availableTimeItem {
   background-color: white;
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.25rem;
   border: 1px solid rgba(226, 220, 203, 0.5);
   transition: all 0.2s ease;
   cursor: pointer;

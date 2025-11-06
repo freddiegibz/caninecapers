@@ -63,7 +63,9 @@ export default function Dashboard() {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(selectedType)}`, { cache: "no-store" });
+        // Use selected type if available, otherwise use default (30 min) to load initial data
+        const typeToUse = selectedType || '18525224';
+        const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(typeToUse)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load availability");
         const data: AvailabilityResponseItem[] = await res.json();
 
@@ -119,7 +121,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [selectedType, selectedField]);
+  }, [activeSection, selectedType, selectedField]);
 
   // London timezone formatting utilities are imported above
 
@@ -330,69 +332,14 @@ export default function Dashboard() {
           {activeSection === 'availability' && (
             <section className={styles.section}>
               <h2 className={styles.dashboardSectionTitle}>Available Sessions</h2>
-              <h3 className={styles.sectionSubtitle}>
-                Select Session Length & Field
-              </h3>
 
-              {/* Unified Filter Row */}
-              <div className={styles.unifiedFilterRow}>
-                <div className={styles.filterSection}>
-                  <span className={styles.filterSectionLabel}>Length</span>
-                  <div className={styles.filterChips}>
-                    {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
-                      const checked = selectedType === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                          onClick={() => {
-                            setSelectedType(opt.id);
-                            setSelectedDay(null);
-                            setCurrentPage(1);
-                          }}
-                          disabled={loading}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className={styles.filterSection}>
-                  <span className={styles.filterSectionLabel}>Field</span>
-                  <div className={styles.filterChips}>
-                    {[
-                      { id: 0, label: 'All' },
-                      { id: 4783035, label: 'Central' },
-                      { id: 6255352, label: 'Hyde' }
-                    ].map(field => {
-                      const checked = selectedField === field.id;
-                      return (
-                        <button
-                          key={field.id}
-                          className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                          onClick={() => {
-                          setSelectedField(field.id);
-                          setSelectedDay(null);
-                          setCurrentPage(1);
-                        }}
-                          disabled={loading}
-                        >
-                          {field.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
               {loading && (
                 <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
                   Loading available sessions…
                 </div>
               )}
-              {/* Day cards always visible when field and type are selected */}
-              {selectedType && (
+              {/* Day Selection - Always visible when section is active */}
+              <div>
                 <div>
                   <h3 className={styles.selectDayTitle}>Select Day</h3>
                   <div className={styles.dayCardsGrid}>
@@ -449,8 +396,68 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
-              )}
+              </div>
 
+              {/* Narrow your results - appears after time slots */}
+              {selectedDay && (
+                <div>
+                  <h3 className={styles.sectionSubtitle}>
+                    Narrow your results (optional)
+                  </h3>
+
+                  <div className={styles.unifiedFilterRow}>
+                    <div className={styles.filterSection}>
+                      <span className={styles.filterSectionLabel}>Length</span>
+                      <div className={styles.filterChips}>
+                        {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
+                          const checked = selectedType === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                              onClick={() => {
+                                setSelectedType(opt.id);
+                                // Don't reset selectedDay - keep current day selection
+                                // Don't trigger API call - just filter existing data
+                              }}
+                              disabled={loading}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className={styles.filterSection}>
+                      <span className={styles.filterSectionLabel}>Field</span>
+                      <div className={styles.filterChips}>
+                        {[
+                          { id: 0, label: 'All' },
+                          { id: 4783035, label: 'Central' },
+                          { id: 6255352, label: 'Hyde' }
+                        ].map(field => {
+                          const checked = selectedField === field.id;
+                          return (
+                            <button
+                              key={field.id}
+                              className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
+                              onClick={() => {
+                                setSelectedField(field.id);
+                                // Don't reset selectedDay - keep current day selection
+                                // Don't trigger API call - just filter existing data
+                              }}
+                              disabled={loading}
+                            >
+                              {field.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Show regular session grid when no type filter is applied */}
               {!selectedDay && !selectedType && (
