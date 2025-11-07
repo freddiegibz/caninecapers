@@ -196,6 +196,7 @@
 /* Section Toggle */
 .sectionToggle {
   display: flex;
+  margin-top: 1rem;
   margin-bottom: 1.5rem;
   background-color: rgba(216, 211, 195, 0.08);
   padding: 0.25rem;
@@ -239,64 +240,6 @@
 }
 
 
-/* Compact Hero Section */
-.compactHero {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem 1.5rem 2rem 1.5rem;
-  background-color: #FAF9F5;
-  border-radius: 16px;
-  border: 1px solid rgba(226, 220, 203, 0.9);
-  box-shadow: 0 8px 20px rgba(43, 58, 41, 0.08);
-  align-items: flex-start;
-  overflow: hidden;
-  margin-bottom: 3rem;
-}
-
-.heroContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  position: relative;
-  z-index: 1;
-  align-items: center;
-  width: 100%;
-  max-width: 90%;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.heroGreeting {
-  font-family: var(--font-poppins);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--forest);
-  margin: 0;
-  letter-spacing: 0.3px;
-}
-
-.heroTitle {
-  font-family: var(--font-poppins);
-  font-size: 1.625rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.4px;
-  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  line-height: 1.2;
-}
-
-.heroSubtitle {
-  font-family: var(--font-lora);
-  font-size: 1rem;
-  line-height: 1.4;
-  color: rgba(43, 43, 43, 0.8);
-  margin: 0.25rem 0 0 0;
-  font-weight: 400;
-}
 
 .introContent {
   display: flex;

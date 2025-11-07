@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatLondon } from "../../src/utils/dateTime";
 import { useRouter } from "next/navigation";
+import HeroSection from "../../components/HeroSection";
 import styles from "./page.module.css";
 
 
@@ -161,43 +162,23 @@ export default function Dashboard() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          <section className={styles.compactHero}>
-            <div className={styles.heroContent}>
-              <h2 className={styles.heroTitle}>
-                Your Canine Capers Hub
-              </h2>
-              <p className={styles.heroSubtitle}>
-                Book, manage, and enjoy your sessions.
-              </p>
-            </div>
-
-            <div className={styles.heroImageWrapper}>
-              <Image
-                src="/dogdashboardsection.png"
-                alt="Excited dog enjoying playtime"
-                width={360}
-                height={260}
-                className={styles.heroImage}
-                priority
-              />
-            </div>
-          </section>
-
-          {/* Section Title */}
-          <h2 className={styles.dashboardSectionTitle}>Check Your Bookings or See What&apos;s Available</h2>
+          <HeroSection 
+            onBookSession={() => setActiveSection('availability')}
+            onViewBookings={() => setActiveSection('sessions')}
+          />
 
           <div className={styles.sectionToggle}>
             <button
               className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'availability' ? styles.active : ''}`}
               onClick={() => setActiveSection('availability')}
             >
-              Available Sessions
+              Book A Session
             </button>
             <button
               className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'sessions' ? styles.active : ''}`}
               onClick={() => setActiveSection('sessions')}
             >
-              Your Sessions
+              View My Booking
             </button>
           </div>
 
