@@ -172,8 +172,8 @@ export default function Dashboard() {
             onViewBookings={() => {}}
           />
 
-          {/* Dashboard Content Section - Unified background */}
-          <div className={styles.dashboardContentSection}>
+          {/* Dashboard Content */}
+          <div className={styles.dashboardContent}>
             {/* Next Session Card */}
             <div className={styles.nextSessionCard}>
               <div className={styles.nextSessionHeader}>
@@ -184,9 +184,6 @@ export default function Dashboard() {
                 <span className={styles.nextSessionText}>Central Bark · Fri 7 Nov · 17:15</span>
               </div>
             </div>
-
-            {/* Section Divider */}
-            <div className={styles.sectionDivider}></div>
 
             {/* Available Today Section */}
             <div className={styles.availableTodayContent}>
