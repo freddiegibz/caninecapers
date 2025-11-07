@@ -188,8 +188,10 @@ export default function Dashboard() {
               <div className={styles.nextSessionContent}>
                 <div className={styles.nextSessionDetails}>
                   <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
-                  <div className={styles.nextSessionInfo}>
+                  <div className={styles.nextSessionInfoRow}>
                     <span className={styles.nextSessionField}>Central Bark</span>
+                  </div>
+                  <div className={styles.nextSessionInfoRow}>
                     <span className={styles.nextSessionDate}>Fri 7 Nov</span>
                     <span className={styles.nextSessionTime}>17:15</span>
                   </div>

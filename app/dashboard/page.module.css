@@ -214,16 +214,17 @@
 
 /* Next Session Card - Horizontal */
 .nextSessionCard {
-  background: #FDFBF6;
+  background: #FFFFFF;
   border-radius: 16px;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 1.25rem 1.25rem;
   margin-bottom: 1.125rem;
-  border: none;
+  border: 1px solid rgba(226, 220, 203, 0.5);
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
   max-width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .nextSessionImageWrapper {
@@ -253,7 +254,7 @@
 .nextSessionDetails {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex: 1;
   min-width: 0;
 }
@@ -264,13 +265,13 @@
   font-weight: 600;
   color: #203425;
   margin: 0;
+  line-height: 1.2;
 }
 
-.nextSessionInfo {
+.nextSessionInfoRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
 }
 
 .nextSessionField,
