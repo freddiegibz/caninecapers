@@ -193,14 +193,22 @@
   gap: 1rem;
 }
 
+/* Dashboard Content Section - Unified background for Next Session and Available Today */
+.dashboardContentSection {
+  background: linear-gradient(180deg, #FAF8F2 0%, #FFFFFF 100%);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin: 0 -2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
 /* Next Session Card */
 .nextSessionCard {
   background: white;
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(226, 220, 203, 0.3);
+  margin-bottom: 1rem;
+  border: 1px solid rgba(226, 220, 203, 0.2);
 }
 
 .nextSessionHeader {
@@ -251,17 +259,35 @@
 /* Section Divider */
 .sectionDivider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(226, 220, 203, 0.4) 20%, rgba(226, 220, 203, 0.4) 80%, transparent 100%);
-  margin: 0 0 1.25rem 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(226, 220, 203, 0.3) 20%, rgba(226, 220, 203, 0.3) 80%, transparent 100%);
+  margin: 0 0 1rem 0;
 }
 
-/* Available Today Section */
+/* Available Today Content */
+.availableTodayContent {
+  padding: 0;
+}
+
+.dashboardSectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-bottom: 0.75rem;
+  padding-left: 0;
+  background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-align: left;
+}
+
+/* Available Today Section - Remove old background */
 .availableTodaySection {
-  background: linear-gradient(180deg, #FAF8F2 0%, #FFFFFF 100%);
-  padding: 2rem 0;
-  margin: 0 -2rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding: 0;
+  margin: 0;
+  background: transparent;
 }
 
 /* Section Toggle */
@@ -882,9 +908,7 @@
 /* Available Times Section */
 .availableTimesSection {
   margin-top: 0rem;
-  margin-left: -2rem;
-  margin-right: -2rem;
-  padding: 1.5rem 2rem;
+  padding: 0;
 }
 
 /* Filter Chips Section - Small, pill-shaped, low visual weight */
@@ -1027,8 +1051,7 @@
 .availableTimeItem {
   background-color: white;
   border-radius: 16px;
-  border: 1px solid rgba(226, 220, 203, 0.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 220, 203, 0.2);
   transition: all 0.2s ease;
   overflow: hidden;
   width: 160px;
@@ -1037,7 +1060,6 @@
 
 .availableTimeItem:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border-color: #2F4E3E;
 }
 

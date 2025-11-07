@@ -27,10 +27,10 @@ export default function Dashboard() {
     id: string;
     calendarID: number;
     startTime: string; // ISO
+    appointmentTypeID: string; // Include appointment type
   };
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute
   const [selectedField, setSelectedField] = useState<number>(0); // All fields by default
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -39,18 +39,24 @@ export default function Dashboard() {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        // Use selected type if available, otherwise use default (30 min) to load initial data
-        const typeToUse = selectedType || '18525224';
-        const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(typeToUse)}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed to load availability");
-        const data: AvailabilityResponseItem[] = await res.json();
-
-        let normalized: NormalizedSession[] = data
-          .map((item, idx) => ({
-            id: `${item.calendarID}-${idx}-${item.startTime}`,
+        
+        // Fetch all appointment types
+        const appointmentTypes = ['18525224', '29373489', '18525161']; // 30 min, 45 min, 1 hour
+        
+        const allPromises = appointmentTypes.map(async (typeID) => {
+          const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(typeID)}`, { cache: "no-store" });
+          if (!res.ok) return [];
+          const data: AvailabilityResponseItem[] = await res.json();
+          return data.map((item, idx) => ({
+            id: `${item.calendarID}-${typeID}-${idx}-${item.startTime}`,
             calendarID: Number(item.calendarID),
             startTime: item.startTime,
+            appointmentTypeID: typeID,
           }));
+        });
+
+        const allResults = await Promise.all(allPromises);
+        let normalized: NormalizedSession[] = allResults.flat();
 
         // Filter by selected field if not "All" (0)
         if (selectedField !== 0) {
@@ -76,7 +82,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [selectedType, selectedField]);
+  }, [selectedField]);
 
   // London timezone formatting utilities are imported above
 
@@ -105,10 +111,10 @@ export default function Dashboard() {
 
   const handleBookSession = (session: NormalizedSession) => {
     const meta = getFieldMeta(session.calendarID);
-    const price = getPriceForType(selectedType);
-    const durationText = selectedType === '18525224' ? '30 min' :
-                        selectedType === '29373489' ? '45 min' :
-                        selectedType === '18525161' ? '1 hour' : '30 min';
+    const price = getPriceForType(session.appointmentTypeID);
+    const durationText = session.appointmentTypeID === '18525224' ? '30 min' :
+                        session.appointmentTypeID === '29373489' ? '45 min' :
+                        session.appointmentTypeID === '18525161' ? '1 hour' : '30 min';
 
     // Pass session data via query parameters
     // Extract date and time components for URL params
@@ -126,7 +132,7 @@ export default function Dashboard() {
       price: price,
       calendarID: session.calendarID.toString(),
       startTime: session.startTime,
-      appointmentTypeID: selectedType
+      appointmentTypeID: session.appointmentTypeID
     });
 
     console.log('Navigating to booking page with session data:', {
@@ -166,32 +172,34 @@ export default function Dashboard() {
             onViewBookings={() => {}}
           />
 
-          {/* Next Session Card */}
-          <div className={styles.nextSessionCard}>
-            <div className={styles.nextSessionHeader}>
-              <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
-              <button className={styles.viewDetailsLink}>View Details</button>
-            </div>
-            <div className={styles.nextSessionInfo}>
-              <span className={styles.nextSessionText}>Central Bark · Fri 7 Nov · 17:15</span>
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div className={styles.sectionDivider}></div>
-
-          {/* Available Today Section */}
-          <section className={styles.availableTodaySection}>
-            <h2 className={styles.dashboardSectionTitle}>Available Today</h2>
-
-            {loading && (
-              <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
-                Loading available sessions…
+          {/* Dashboard Content Section - Unified background */}
+          <div className={styles.dashboardContentSection}>
+            {/* Next Session Card */}
+            <div className={styles.nextSessionCard}>
+              <div className={styles.nextSessionHeader}>
+                <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
+                <button className={styles.viewDetailsLink}>View Details</button>
               </div>
-            )}
+              <div className={styles.nextSessionInfo}>
+                <span className={styles.nextSessionText}>Central Bark · Fri 7 Nov · 17:15</span>
+              </div>
+            </div>
 
-            {/* Available Times Section - shows today's sessions */}
-            <div className={styles.availableTimesSection}>
+            {/* Section Divider */}
+            <div className={styles.sectionDivider}></div>
+
+            {/* Available Today Section */}
+            <div className={styles.availableTodayContent}>
+              <h2 className={styles.dashboardSectionTitle}>Available Today</h2>
+
+              {loading && (
+                <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
+                  Loading available sessions…
+                </div>
+              )}
+
+              {/* Available Times Section - shows today's sessions */}
+              <div className={styles.availableTimesSection}>
               <div className={styles.availableTimesList}>
                 {sessions
                   .filter(session => {
@@ -214,11 +222,11 @@ export default function Dashboard() {
                         const timeString = formatLondon(session.startTime);
                         const fieldImage = session.calendarID === 4783035 ? '/centralbark.webp' : '/hydebark.webp';
                         
-                        // Determine duration and price from selectedType
-                        const duration = selectedType === '18525224' ? '30 min' :
-                                        selectedType === '29373489' ? '45 min' :
-                                        selectedType === '18525161' ? '1 hour' : '30 min';
-                        const price = getPriceForType(selectedType);
+                        // Determine duration and price from session's appointmentTypeID
+                        const duration = session.appointmentTypeID === '18525224' ? '30 min' :
+                                        session.appointmentTypeID === '29373489' ? '45 min' :
+                                        session.appointmentTypeID === '18525161' ? '1 hour' : '30 min';
+                        const price = getPriceForType(session.appointmentTypeID);
 
                         return (
                           <div
@@ -255,9 +263,10 @@ export default function Dashboard() {
                         );
                       })
                   )}
+                </div>
               </div>
             </div>
-            </section>
+          </div>
         </main>
       </div>
 
