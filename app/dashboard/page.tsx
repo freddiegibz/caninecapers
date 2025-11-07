@@ -339,8 +339,8 @@ export default function Dashboard() {
                 </div>
               )}
               {/* Day Selection - Always visible when section is active */}
-              <div>
-                <div>
+              <div className={styles.selectDaySection}>
+                <div className={styles.selectDayContent}>
                   <h3 className={styles.selectDayTitle}>Select Day</h3>
                   <div className={styles.dayCardsGrid}>
                     {Object.values(dayGroups)
@@ -427,7 +427,7 @@ export default function Dashboard() {
 
               {/* Narrow your results - appears after time slots */}
               {selectedDay && (
-                <div>
+                <div className={styles.narrowResultsSection}>
                   <h3 className={styles.sectionSubtitle}>
                     Narrow your results (optional)
                   </h3>

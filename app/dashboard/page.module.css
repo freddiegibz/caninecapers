@@ -167,7 +167,6 @@
 
 .main {
   width: 100%;
-  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -765,16 +764,6 @@
   width: 100%;
 }
 
-/* Day Cards Grid */
-.dayCardsGrid {
-  display: flex;
-  gap: 0.75rem;
-  width: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-bottom: 0.5rem;
-}
 
 .dayCardsGrid::-webkit-scrollbar {
   display: none;
@@ -833,11 +822,43 @@
   color: #2b3a29;
 }
 
+/* Select Day Section */
+.selectDaySection {
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding: 0 2rem;
+  width: calc(100% + 4rem);
+}
+
+.selectDayContent {
+  width: 100%;
+}
+
+/* Apply full width to day cards grid */
+.dayCardsGrid {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.5rem;
+  width: 100%;
+}
+
 /* Available Times Section */
-  .availableTimesSection {
-    margin-top: 0rem;
-    padding: 1.5rem;
-  }
+.availableTimesSection {
+  margin-top: 0rem;
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding: 1.5rem 2rem;
+}
+
+/* Narrow Results Section */
+.narrowResultsSection {
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding: 0 2rem;
+}
 
 .selectDayTitle {
   font-family: var(--font-poppins);
