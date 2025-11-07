@@ -187,6 +187,7 @@ export default function Dashboard() {
 
             {/* Available Today Section */}
             <div className={styles.availableTodayContent}>
+              <p className={styles.availableTodayCaption}>Looking to book more?</p>
               <h2 className={styles.dashboardSectionTitle}>Available Today</h2>
 
               {loading && (

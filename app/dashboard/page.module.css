@@ -183,6 +183,19 @@
   padding: 2rem;
   background: #FAF8F2;
   font-family: var(--font-lora);
+  position: relative;
+}
+
+.container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(180deg, transparent 0%, rgba(250, 248, 242, 0.4) 20%, rgba(245, 243, 238, 0.7) 60%, rgba(240, 238, 232, 1) 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .main {
@@ -201,9 +214,10 @@
 
 /* Next Session Card */
 .nextSessionCard {
-  background: transparent;
-  padding: 0;
-  margin-bottom: 1rem;
+  background: #FCFBF8;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
   border: none;
 }
 
@@ -212,7 +226,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.75rem;
-  padding-left: 1.5rem;
+  padding-left: 0;
 }
 
 .nextSessionTitle {
@@ -244,7 +258,7 @@
 .nextSessionInfo {
   display: flex;
   align-items: center;
-  padding-left: 1.5rem;
+  padding-left: 0;
 }
 
 .nextSessionText {
@@ -252,6 +266,16 @@
   font-size: 0.95rem;
   color: #60685D;
   line-height: 1.5;
+}
+
+/* Available Today Caption */
+.availableTodayCaption {
+  font-family: var(--font-lora);
+  font-size: 0.875rem;
+  color: rgba(96, 104, 93, 0.7);
+  margin: 0 0 0.5rem 0;
+  padding-left: 1.5rem;
+  font-style: italic;
 }
 
 /* Section Divider */
@@ -269,7 +293,7 @@
 .dashboardSectionTitle {
   font-size: 1.25rem;
   font-weight: 700;
-  margin: 1.5rem 0 1rem 0;
+  margin: 1.75rem 0 0.75rem 0;
   padding-top: 0;
   padding-left: 1.5rem;
   padding-bottom: 0.75rem;
@@ -911,6 +935,7 @@
 .availableTimesSection {
   margin-top: 0rem;
   padding: 0;
+  padding-left: 1.5rem;
 }
 
 /* Filter Chips Section - Small, pill-shaped, low visual weight */
@@ -1043,8 +1068,7 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding-bottom: 0.5rem;
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .availableTimesList::-webkit-scrollbar {
@@ -1055,7 +1079,7 @@
   background-color: white;
   border-radius: 16px;
   border: 1px solid rgba(226, 220, 203, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all 0.2s ease;
   overflow: hidden;
   width: 160px;
@@ -1064,7 +1088,7 @@
 
 .availableTimeItem:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.02);
   border-color: #2F4E3E;
 }
 
