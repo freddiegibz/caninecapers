@@ -381,14 +381,41 @@ export default function Dashboard() {
                             const meta = getFieldMeta(session.calendarID);
                             const timeString = formatLondon(session.startTime);
 
+                            const fieldImage = session.calendarID === 4783035 ? '/centralbark.webp' : '/hydebark.webp';
+
                             return (
                               <div
                                 key={session.id}
                                 className={styles.availableTimeItem}
-                                onClick={() => handleBookSession(session)}
+                                onClick={(e) => {
+                                  // Only handle click if not clicking the book button
+                                  if (!(e.target as HTMLElement).classList.contains(styles.availableTimeBook)) {
+                                    handleBookSession(session);
+                                  }
+                                }}
                               >
-                                <span className={styles.availableTimeTime}>{timeString}</span>
-                                <span className={styles.availableTimeField}>{meta.name}</span>
+                                <Image
+                                  src={fieldImage}
+                                  alt={`${meta.name} field`}
+                                  width={160}
+                                  height={80}
+                                  className={styles.availableTimeImage}
+                                />
+                                <div className={styles.availableTimeContent}>
+                                  <div className={styles.availableTimeTime}>{timeString}</div>
+                                  <div className={styles.availableTimeLength}>
+                                    {selectedType === '18525224' ? '30 min' :
+                                     selectedType === '29373489' ? '45 min' :
+                                     selectedType === '18525161' ? '1 hour' : '30 min'}
+                                  </div>
+                                  <div className={styles.availableTimeField}>{meta.name}</div>
+                                  <button
+                                    className={styles.availableTimeBook}
+                                    onClick={() => handleBookSession(session)}
+                                  >
+                                    Book
+                                  </button>
+                                </div>
                               </div>
                             );
                           })}
