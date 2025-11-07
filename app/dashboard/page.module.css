@@ -198,7 +198,7 @@
   background: white;
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(226, 220, 203, 0.3);
 }
@@ -246,6 +246,22 @@
   font-size: 0.95rem;
   color: #60685D;
   line-height: 1.5;
+}
+
+/* Section Divider */
+.sectionDivider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(226, 220, 203, 0.4) 20%, rgba(226, 220, 203, 0.4) 80%, transparent 100%);
+  margin: 0 0 1.25rem 0;
+}
+
+/* Available Today Section */
+.availableTodaySection {
+  background: linear-gradient(180deg, #FAF8F2 0%, #FFFFFF 100%);
+  padding: 2rem 0;
+  margin: 0 -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 /* Section Toggle */
@@ -614,7 +630,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-align: center;
+  text-align: left;
 }
 
 .titleUnderline {
@@ -1009,12 +1025,11 @@
 }
 
 .availableTimeItem {
-  background-color: #FAF8F2;
+  background-color: white;
   border-radius: 16px;
   border: 1px solid rgba(226, 220, 203, 0.3);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
-  cursor: pointer;
   overflow: hidden;
   width: 160px;
   flex-shrink: 0;
@@ -1026,51 +1041,83 @@
   border-color: #2F4E3E;
 }
 
+.availableTimeImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+}
+
 .availableTimeImage {
   width: 100%;
-  height: 98px;
+  height: 110px;
   object-fit: cover;
-  border-radius: 12px 12px 0 0;
+  display: block;
+}
+
+.imageGradientOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  pointer-events: none;
 }
 
 .availableTimeContent {
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 
 .availableTimeTime {
   font-family: var(--font-poppins);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #2F4E3E;
   line-height: 1.2;
 }
 
-.availableTimeLength {
+.availableTimeDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
   font-family: var(--font-lora);
-  font-size: 0.7rem;
-  color: rgba(47, 78, 62, 0.7);
-  font-weight: 400;
+  font-size: 0.75rem;
+  color: #60685D;
+  line-height: 1.4;
 }
 
 .availableTimeField {
-  font-family: var(--font-lora);
-  font-size: 0.75rem;
+  font-weight: 500;
   color: #2F4E3E;
+}
+
+.availableTimeSeparator {
+  color: rgba(96, 104, 93, 0.5);
+}
+
+.availableTimeLength {
+  color: #60685D;
+}
+
+.availableTimePrice {
+  color: #60685D;
   font-weight: 500;
 }
 
 .availableTimeBook {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.8rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem 1rem;
   background-color: #2F4E3E;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   font-family: var(--font-poppins);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1080,6 +1127,7 @@
 
 .availableTimeBook:hover {
   background-color: #1a2f24;
+  transform: translateY(-1px);
 }
 
 

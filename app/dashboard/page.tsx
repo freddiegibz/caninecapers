@@ -177,120 +177,86 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Section Divider */}
+          <div className={styles.sectionDivider}></div>
+
           {/* Available Today Section */}
-          <section className={styles.section}>
+          <section className={styles.availableTodaySection}>
             <h2 className={styles.dashboardSectionTitle}>Available Today</h2>
 
-              {loading && (
-                <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
-                  Loading available sessions…
-                </div>
-              )}
-
-              {/* Filter Chips - Above available times */}
-              <div className={styles.filterChipsSection}>
-                <div className={styles.filterChipsRow}>
-                  <div className={styles.filterChipGroup}>
-                    {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
-                      const checked = selectedType === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          className={`${styles.filterChipSmall} ${checked ? styles.activeChipSmall : ''}`}
-                          onClick={() => setSelectedType(opt.id)}
-                          disabled={loading}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className={styles.filterChipGroup}>
-                    {[
-                      { id: 0, label: 'All' },
-                      { id: 4783035, label: 'Central' },
-                      { id: 6255352, label: 'Hyde' }
-                    ].map(field => {
-                      const checked = selectedField === field.id;
-                      return (
-                        <button
-                          key={field.id}
-                          className={`${styles.filterChipSmall} ${checked ? styles.activeChipSmall : ''}`}
-                          onClick={() => setSelectedField(field.id)}
-                          disabled={loading}
-                        >
-                          {field.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            {loading && (
+              <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
+                Loading available sessions…
               </div>
+            )}
 
             {/* Available Times Section - shows today's sessions */}
             <div className={styles.availableTimesSection}>
-                <div className={styles.availableTimesList}>
-                  {sessions
-                    .filter(session => {
-                      const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
-                      return sessionDate === selectedDay;
-                    })
-                    .length === 0 ? (
+              <div className={styles.availableTimesList}>
+                {sessions
+                  .filter(session => {
+                    const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
+                    return sessionDate === selectedDay;
+                  })
+                  .length === 0 ? (
                     <div className={styles.emptyState}>
                       <p>No sessions available for today.</p>
                     </div>
-                    ) : (
-                      sessions
-                        .filter(session => {
-                          const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
-                          return sessionDate === selectedDay;
-                        })
-                        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-                        .map((session) => {
-                            const meta = getFieldMeta(session.calendarID);
-                            const timeString = formatLondon(session.startTime);
+                  ) : (
+                    sessions
+                      .filter(session => {
+                        const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
+                        return sessionDate === selectedDay;
+                      })
+                      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                      .map((session) => {
+                        const meta = getFieldMeta(session.calendarID);
+                        const timeString = formatLondon(session.startTime);
+                        const fieldImage = session.calendarID === 4783035 ? '/centralbark.webp' : '/hydebark.webp';
+                        
+                        // Determine duration and price from selectedType
+                        const duration = selectedType === '18525224' ? '30 min' :
+                                        selectedType === '29373489' ? '45 min' :
+                                        selectedType === '18525161' ? '1 hour' : '30 min';
+                        const price = getPriceForType(selectedType);
 
-                            const fieldImage = session.calendarID === 4783035 ? '/centralbark.webp' : '/hydebark.webp';
-
-                            return (
-                              <div
-                                key={session.id}
-                                className={styles.availableTimeItem}
-                                onClick={(e) => {
-                                  // Only handle click if not clicking the book button
-                                  if (!(e.target as HTMLElement).classList.contains(styles.availableTimeBook)) {
-                                    handleBookSession(session);
-                                  }
-                                }}
-                              >
-                                <Image
-                                  src={fieldImage}
-                                  alt={`${meta.name} field`}
-                                  width={160}
-                                  height={98}
-                                  className={styles.availableTimeImage}
-                                />
-                                <div className={styles.availableTimeContent}>
-                                  <div className={styles.availableTimeTime}>{timeString}</div>
-                                  <div className={styles.availableTimeLength}>
-                                    {selectedType === '18525224' ? '30 min' :
-                                     selectedType === '29373489' ? '45 min' :
-                                     selectedType === '18525161' ? '1 hour' : '30 min'}
-                                  </div>
-                                  <div className={styles.availableTimeField}>{meta.name}</div>
-                                  <button
-                                    className={styles.availableTimeBook}
-                                    onClick={() => handleBookSession(session)}
-                                  >
-                                    Book
-                                  </button>
-                                </div>
+                        return (
+                          <div
+                            key={session.id}
+                            className={styles.availableTimeItem}
+                          >
+                            <div className={styles.availableTimeImageWrapper}>
+                              <Image
+                                src={fieldImage}
+                                alt={`${meta.name} field`}
+                                width={160}
+                                height={110}
+                                className={styles.availableTimeImage}
+                              />
+                              <div className={styles.imageGradientOverlay}></div>
+                            </div>
+                            <div className={styles.availableTimeContent}>
+                              <div className={styles.availableTimeTime}>{timeString}</div>
+                              <div className={styles.availableTimeDetails}>
+                                <span className={styles.availableTimeField}>{meta.name}</span>
+                                <span className={styles.availableTimeSeparator}>·</span>
+                                <span className={styles.availableTimeLength}>{duration}</span>
+                                <span className={styles.availableTimeSeparator}>·</span>
+                                <span className={styles.availableTimePrice}>{price}</span>
                               </div>
-                            );
-                          })
-                    )}
-                </div>
+                              <button
+                                className={styles.availableTimeBook}
+                                onClick={() => handleBookSession(session)}
+                              >
+                                Book
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                  )}
               </div>
+            </div>
             </section>
         </main>
       </div>
