@@ -216,7 +216,7 @@
 .nextSessionCard {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  padding: 1rem 1.25rem 1.5rem 1.25rem;
   margin-bottom: 1.125rem;
   border: 1px solid rgba(226, 220, 203, 0.5);
   display: flex;
@@ -311,7 +311,7 @@
   font-family: var(--font-lora);
   font-size: 0.875rem;
   color: rgba(96, 104, 93, 0.7);
-  margin: 0 0 0.5rem 0;
+  margin: 1rem 0 0.5rem 0;
   padding-left: 1.5rem;
   font-style: italic;
 }
