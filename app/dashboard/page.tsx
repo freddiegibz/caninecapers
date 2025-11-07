@@ -10,7 +10,6 @@ import styles from "./page.module.css";
 
 
 export default function Dashboard() {
-  const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
   const [selectedDay, setSelectedDay] = useState<string>(() => {
     // Initialize to today's date in YYYY-MM-DD format (London time)
     const today = new Date();
@@ -77,7 +76,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [activeSection, selectedType, selectedField]);
+  }, [selectedType, selectedField]);
 
   // London timezone formatting utilities are imported above
 
@@ -163,28 +162,24 @@ export default function Dashboard() {
       <div className={styles.container}>
         <main className={styles.main}>
           <HeroSection 
-            onBookSession={() => setActiveSection('availability')}
-            onViewBookings={() => setActiveSection('sessions')}
+            onBookSession={() => {}}
+            onViewBookings={() => {}}
           />
 
-          <div className={styles.sectionToggle}>
-            <button
-              className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'availability' ? styles.active : ''}`}
-              onClick={() => setActiveSection('availability')}
-            >
-              Book A Session
-            </button>
-            <button
-              className={`${styles.toggleButton} ${styles.tab} ${activeSection === 'sessions' ? styles.active : ''}`}
-              onClick={() => setActiveSection('sessions')}
-            >
-              View My Booking
-            </button>
+          {/* Next Session Card */}
+          <div className={styles.nextSessionCard}>
+            <div className={styles.nextSessionHeader}>
+              <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
+              <button className={styles.viewDetailsLink}>View Details</button>
+            </div>
+            <div className={styles.nextSessionInfo}>
+              <span className={styles.nextSessionText}>Central Bark · Fri 7 Nov · 17:15</span>
+            </div>
           </div>
 
-          {activeSection === 'availability' && (
-            <section className={styles.section}>
-              <h2 className={styles.dashboardSectionTitle}>Available Sessions</h2>
+          {/* Available Today Section */}
+          <section className={styles.section}>
+            <h2 className={styles.dashboardSectionTitle}>Available Today</h2>
 
               {loading && (
                 <div style={{ width: '100%', textAlign: 'center', color: '#2b3a29', marginBottom: '0.75rem', fontWeight: 600 }}>
@@ -232,72 +227,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Day Indicator - Inline above available times */}
-              <div className={styles.dayIndicator}>
-                <span className={styles.dayIndicatorText}>
-                  Showing sessions for{' '}
-                  <span className={styles.dayIndicatorDate}>
-                    {new Date(selectedDay).toLocaleDateString('en-GB', { 
-                      weekday: 'long', 
-                      day: 'numeric', 
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </span>
-                  {' '}
-                  <button 
-                    className={styles.changeDayLink}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Create and trigger date picker
-                      const input = document.createElement('input');
-                      input.type = 'date';
-                      input.value = selectedDay;
-                      input.min = new Date().toISOString().split('T')[0];
-                      
-                      // Style to be hidden but functional
-                      input.style.position = 'absolute';
-                      input.style.opacity = '0';
-                      input.style.pointerEvents = 'none';
-                      
-                      // Handle date selection
-                      input.onchange = (event) => {
-                        const target = event.target as HTMLInputElement;
-                        if (target.value) {
-                          setSelectedDay(target.value);
-                        }
-                        // Clean up
-                        document.body.removeChild(input);
-                      };
-                      
-                      // Handle cancellation (click outside)
-                      input.onblur = () => {
-                        setTimeout(() => {
-                          if (document.body.contains(input)) {
-                            document.body.removeChild(input);
-                          }
-                        }, 100);
-                      };
-                      
-                      // Append to DOM and trigger
-                      document.body.appendChild(input);
-                      // Use showPicker if available (modern browsers), otherwise fallback to click
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const inputWithPicker = input as any;
-                      if (typeof inputWithPicker.showPicker === 'function') {
-                        inputWithPicker.showPicker();
-                      } else {
-                        input.click();
-                      }
-                    }}
-                  >
-                    Change Day
-                  </button>
-                </span>
-              </div>
-
-              {/* Available Times Section - shows immediately filtered to today */}
-              <div className={styles.availableTimesSection}>
+            {/* Available Times Section - shows today's sessions */}
+            <div className={styles.availableTimesSection}>
                 <div className={styles.availableTimesList}>
                   {sessions
                     .filter(session => {
@@ -305,9 +236,9 @@ export default function Dashboard() {
                       return sessionDate === selectedDay;
                     })
                     .length === 0 ? (
-                      <div className={styles.emptyState}>
-                        <p>No sessions available for this day.</p>
-                      </div>
+                    <div className={styles.emptyState}>
+                      <p>No sessions available for today.</p>
+                    </div>
                     ) : (
                       sessions
                         .filter(session => {
@@ -361,84 +292,6 @@ export default function Dashboard() {
                 </div>
               </div>
             </section>
-          )}
-
-          {/* Extended Calendar Section - Only show for Available Sessions */}
-          {activeSection === 'availability' && (
-            <section className={styles.section}>
-              <div style={{
-                borderTop: '1px solid rgba(226, 220, 203, 0.4)',
-                paddingTop: '1.5rem',
-                textAlign: 'center'
-              }}>
-                <Link
-                  href="/book"
-                  style={{
-                    color: 'var(--forest)',
-                    textDecoration: 'underline',
-                    fontSize: '0.9rem',
-                    fontWeight: 500
-                  }}
-                >
-                  Browse Extended Calendar →
-                </Link>
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--text)',
-                  opacity: 0.8,
-                  marginTop: '0.25rem',
-                  marginBottom: 0,
-                  lineHeight: 1.4
-                }}>
-                  View sessions for upcoming months and book further in advance
-                </p>
-              </div>
-            </section>
-          )}
-
-          {activeSection === 'sessions' && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                Your Sessions
-                <span className={styles.titleUnderline}></span>
-              </h2>
-              <div className={styles.sessionsGrid}>
-                <div className={styles.sessionCard}>
-                  <div className={styles.sessionImage}>
-                    <Image
-                      src="/centralbark.webp"
-                      alt="Central Bark"
-                      width={110}
-                      height={110}
-                      className={styles.sessionImageContent}
-                    />
-                  </div>
-                  <div className={styles.sessionContent}>
-                    <span className={styles.sessionFieldName}>Central Bark</span>
-                    <span className={styles.sessionTime}>Wed 23 Oct · 3:00 PM - 3:30 PM</span>
-                    <span className={styles.sessionAddress}>24 Meadow Lane, London NW1</span>
-                  </div>
-                </div>
-
-                <div className={styles.sessionCard}>
-                  <div className={styles.sessionImage}>
-                    <Image
-                      src="/hydebark.webp"
-                      alt="Hyde Bark"
-                      width={110}
-                      height={110}
-                      className={styles.sessionImageContent}
-                    />
-                  </div>
-                  <div className={styles.sessionContent}>
-                    <span className={styles.sessionFieldName}>Hyde Bark</span>
-                    <span className={styles.sessionTime}>Fri 25 Oct · 10:00 AM - 11:00 AM</span>
-                    <span className={styles.sessionAddress}>89 Hillcrest Road, Bristol BS8</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
         </main>
       </div>
 

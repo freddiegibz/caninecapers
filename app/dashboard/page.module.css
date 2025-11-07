@@ -193,6 +193,61 @@
   gap: 1rem;
 }
 
+/* Next Session Card */
+.nextSessionCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 220, 203, 0.3);
+}
+
+.nextSessionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.nextSessionTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #203425;
+  margin: 0;
+}
+
+.viewDetailsLink {
+  font-family: var(--font-poppins);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2F4E3E;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.viewDetailsLink:hover {
+  opacity: 0.7;
+}
+
+.nextSessionInfo {
+  display: flex;
+  align-items: center;
+}
+
+.nextSessionText {
+  font-family: var(--font-lora);
+  font-size: 0.95rem;
+  color: #60685D;
+  line-height: 1.5;
+}
+
 /* Section Toggle */
 .sectionToggle {
   display: flex;
