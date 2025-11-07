@@ -385,6 +385,68 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Day Indicator - Inline above available times */}
+              <div className={styles.dayIndicator}>
+                <span className={styles.dayIndicatorText}>
+                  Showing sessions for{' '}
+                  <span className={styles.dayIndicatorDate}>
+                    {new Date(selectedDay).toLocaleDateString('en-GB', { 
+                      weekday: 'long', 
+                      day: 'numeric', 
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  {' '}
+                  <button 
+                    className={styles.changeDayLink}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Create and trigger date picker
+                      const input = document.createElement('input');
+                      input.type = 'date';
+                      input.value = selectedDay;
+                      input.min = new Date().toISOString().split('T')[0];
+                      
+                      // Style to be hidden but functional
+                      input.style.position = 'absolute';
+                      input.style.opacity = '0';
+                      input.style.pointerEvents = 'none';
+                      
+                      // Handle date selection
+                      input.onchange = (event) => {
+                        const target = event.target as HTMLInputElement;
+                        if (target.value) {
+                          setSelectedDay(target.value);
+                        }
+                        // Clean up
+                        document.body.removeChild(input);
+                      };
+                      
+                      // Handle cancellation (click outside)
+                      input.onblur = () => {
+                        setTimeout(() => {
+                          if (document.body.contains(input)) {
+                            document.body.removeChild(input);
+                          }
+                        }, 100);
+                      };
+                      
+                      // Append to DOM and trigger
+                      document.body.appendChild(input);
+                      // Use showPicker if available (modern browsers), otherwise fallback to click
+                      if (typeof (input as any).showPicker === 'function') {
+                        (input as any).showPicker();
+                      } else {
+                        input.click();
+                      }
+                    }}
+                  >
+                    Change Day
+                  </button>
+                </span>
+              </div>
+
               {/* Available Times Section - shows immediately filtered to today */}
               <div className={styles.availableTimesSection}>
                 <div className={styles.availableTimesList}>
@@ -425,7 +487,7 @@ export default function Dashboard() {
                                   src={fieldImage}
                                   alt={`${meta.name} field`}
                                   width={160}
-                                  height={80}
+                                  height={98}
                                   className={styles.availableTimeImage}
                                 />
                                 <div className={styles.availableTimeContent}>
@@ -447,40 +509,6 @@ export default function Dashboard() {
                             );
                           })
                     )}
-                </div>
-
-                {/* Day Indicator - Below available times */}
-                <div className={styles.dayIndicator}>
-                  <span className={styles.dayIndicatorText}>
-                    Showing sessions for{' '}
-                    <span className={styles.dayIndicatorDate}>
-                      {new Date(selectedDay).toLocaleDateString('en-GB', { 
-                        weekday: 'long', 
-                        day: 'numeric', 
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </span>
-                  </span>
-                  <button 
-                    className={styles.changeDayButton}
-                    onClick={() => {
-                      // Simple date picker - could be enhanced with a modal later
-                      const input = document.createElement('input');
-                      input.type = 'date';
-                      input.value = selectedDay;
-                      input.min = new Date().toISOString().split('T')[0];
-                      input.onchange = (e) => {
-                        const target = e.target as HTMLInputElement;
-                        if (target.value) {
-                          setSelectedDay(target.value);
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    Change Day
-                  </button>
                 </div>
               </div>
             </section>
