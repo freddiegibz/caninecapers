@@ -181,7 +181,9 @@ export default function Dashboard() {
                 <button className={styles.viewDetailsLink}>View Details</button>
               </div>
               <div className={styles.nextSessionInfo}>
-                <span className={styles.nextSessionText}>Central Bark · Fri 7 Nov · 17:15</span>
+                <span className={styles.nextSessionText}>
+                  <span className={styles.nextSessionField}>Central Bark</span> · Fri 7 Nov · <span className={styles.nextSessionTime}>17:15</span>
+                </span>
               </div>
             </div>
 
@@ -324,14 +326,6 @@ export default function Dashboard() {
           <span className={styles.footerLabel}>Settings</span>
         </Link>
       </footer>
-
-      {/* Branded Footer Note */}
-      <div className={styles.brandedFooter}>
-        <div className={styles.footerDivider}>🐾──────────────</div>
-        <div className={styles.footerNote}>
-          Canine Capers is proudly local — <span>thank you for supporting your community.</span>
-        </div>
-      </div>
 
     </>
   );
