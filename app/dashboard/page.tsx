@@ -5,22 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatLondon } from "../../src/utils/dateTime";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../src/lib/supabaseClient";
-import SessionCard from "../../components/SessionCard";
 import styles from "./page.module.css";
 
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
-  const [userName, setUserName] = useState<string>('');
-  const [userNameLoading, setUserNameLoading] = useState<boolean>(true);
   const [selectedDay, setSelectedDay] = useState<string>(() => {
     // Initialize to today's date in YYYY-MM-DD format (London time)
     const today = new Date();
     const londonDate = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/London' }));
     return londonDate.toISOString().split('T')[0];
   });
-  const [dayGroups, setDayGroups] = useState<Record<string, { date: string; dayName: string; count: number; sessions: NormalizedSession[] }>>({});
   const router = useRouter();
 
   type AvailabilityResponseItem = {
@@ -38,30 +33,6 @@ export default function Dashboard() {
   const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute
   const [selectedField, setSelectedField] = useState<number>(0); // All fields by default
   const [loading, setLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 5;
-
-  useEffect(() => {
-    // Load user name on component mount
-    loadUserName();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      async (event, _session) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await loadUserName();
-        } else if (event === 'SIGNED_OUT') {
-          setUserName('');
-          setUserNameLoading(false);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -88,29 +59,8 @@ export default function Dashboard() {
 
         normalized = normalized.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
-        // Group by date and count slots when field and type are selected
-        const dayGroups: Record<string, { date: string; dayName: string; count: number; sessions: NormalizedSession[] }> = {};
-        normalized.forEach(session => {
-          const date = new Date(session.startTime);
-          const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD format
-          const dayName = date.toLocaleDateString('en-GB', { weekday: 'long' });
-
-          if (!dayGroups[dateKey]) {
-            dayGroups[dateKey] = {
-              date: dateKey,
-              dayName,
-              count: 0,
-              sessions: []
-            };
-          }
-          dayGroups[dateKey].count++;
-          dayGroups[dateKey].sessions.push(session);
-        });
-
         if (isMounted) {
           setSessions(normalized);
-          setDayGroups(dayGroups);
-          setCurrentPage(1);
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_error: unknown) {
@@ -188,90 +138,6 @@ export default function Dashboard() {
     });
 
     router.push(`/book/${session.id}?${queryParams.toString()}`);
-  };
-
-  const loadUserName = async () => {
-    try {
-      console.log('Loading user name...');
-      const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error('Error fetching user:', error);
-        setUserName('Guest');
-        setUserNameLoading(false);
-        return;
-      }
-
-      console.log('User object:', user);
-      console.log('User ID:', user?.id);
-      console.log('User email:', user?.email);
-      console.log('User metadata:', user?.user_metadata);
-
-      if (user) {
-        // Try multiple ways to get the name
-        let name = null;
-
-        // 1. Check user metadata for name
-        name = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.display_name;
-        console.log('Name from metadata:', name);
-
-        // 2. Check user metadata for first/last name combination
-        if (!name && user.user_metadata) {
-          const firstName = user.user_metadata.first_name || user.user_metadata.given_name;
-          const lastName = user.user_metadata.last_name || user.user_metadata.family_name;
-          if (firstName || lastName) {
-            name = [firstName, lastName].filter(Boolean).join(' ');
-            console.log('Name from first/last name:', name);
-          }
-        }
-
-        // 3. Try to fetch from profiles table
-        if (!name) {
-          console.log('Name not in metadata, checking profiles table...');
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('name, first_name, last_name, full_name')
-              .eq('id', user.id)
-              .single();
-
-            console.log('Profile query result:', { profile, profileError });
-
-            if (!profileError && profile) {
-              // Try different name fields from profiles table
-              name = profile.name || profile.full_name ||
-                     (profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : null) ||
-                     profile.first_name || profile.last_name;
-
-              console.log('Name from profiles table:', name);
-            } else {
-              console.log('Profile query failed:', profileError?.message);
-            }
-          } catch (profileErr) {
-            console.error('Error querying profiles table:', profileErr);
-          }
-        }
-
-        // 4. Fallback to email username
-        if (!name && user.email) {
-          name = user.email.split('@')[0];
-          console.log('Using email username:', name);
-        }
-
-        const finalName = name || 'Guest';
-        console.log('Final name to display:', finalName);
-        setUserName(finalName);
-        setUserNameLoading(false);
-      } else {
-        console.log('No authenticated user found');
-        setUserName('Guest');
-        setUserNameLoading(false);
-      }
-    } catch (error) {
-      console.error('Error loading user name:', error);
-      setUserName('Guest');
-      setUserNameLoading(false);
-    }
   };
 
   return (
@@ -435,8 +301,10 @@ export default function Dashboard() {
                       // Append to DOM and trigger
                       document.body.appendChild(input);
                       // Use showPicker if available (modern browsers), otherwise fallback to click
-                      if (typeof (input as any).showPicker === 'function') {
-                        (input as any).showPicker();
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const inputWithPicker = input as any;
+                      if (typeof inputWithPicker.showPicker === 'function') {
+                        inputWithPicker.showPicker();
                       } else {
                         input.click();
                       }
