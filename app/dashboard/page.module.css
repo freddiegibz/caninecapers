@@ -22,9 +22,29 @@
 
 .greeting {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.75rem;
   flex: 1;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.brandTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+  letter-spacing: 0.3px;
 }
 
 .navActions {
@@ -853,11 +873,104 @@
   padding: 1.5rem 2rem;
 }
 
-/* Narrow Results Section */
-.narrowResultsSection {
-  margin-left: -2rem;
-  margin-right: -2rem;
-  padding: 0 2rem;
+/* Filter Chips Section - Small, pill-shaped, low visual weight */
+.filterChipsSection {
+  margin-bottom: 1rem;
+  padding: 0 0 0.5rem 0;
+}
+
+.filterChipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.filterChipGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filterChipSmall {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: var(--font-poppins);
+  color: rgba(47, 78, 62, 0.7);
+  background-color: transparent;
+  border: 1px solid rgba(47, 78, 62, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filterChipSmall:hover:not(:disabled) {
+  border-color: rgba(47, 78, 62, 0.4);
+  color: rgba(47, 78, 62, 0.9);
+  background-color: rgba(47, 78, 62, 0.03);
+}
+
+.filterChipSmall.activeChipSmall {
+  background-color: rgba(47, 78, 62, 0.1);
+  border-color: rgba(47, 78, 62, 0.4);
+  color: #2F4E3E;
+  font-weight: 600;
+}
+
+.filterChipSmall:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Day Indicator */
+.dayIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(47, 78, 62, 0.1);
+}
+
+.dayIndicatorText {
+  font-family: var(--font-lora);
+  font-size: 0.875rem;
+  color: rgba(47, 78, 62, 0.7);
+}
+
+.dayIndicatorDate {
+  font-weight: 500;
+  color: rgba(47, 78, 62, 0.9);
+}
+
+.changeDayButton {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: var(--font-poppins);
+  color: rgba(47, 78, 62, 0.8);
+  background-color: transparent;
+  border: 1px solid rgba(47, 78, 62, 0.25);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changeDayButton:hover {
+  border-color: rgba(47, 78, 62, 0.4);
+  color: #2F4E3E;
+  background-color: rgba(47, 78, 62, 0.05);
+}
+
+.emptyState {
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: rgba(47, 78, 62, 0.6);
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
 }
 
 .selectDayTitle {

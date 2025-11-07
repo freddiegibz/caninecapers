@@ -14,7 +14,12 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<'availability' | 'sessions'>('availability');
   const [userName, setUserName] = useState<string>('');
   const [userNameLoading, setUserNameLoading] = useState<boolean>(true);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string>(() => {
+    // Initialize to today's date in YYYY-MM-DD format (London time)
+    const today = new Date();
+    const londonDate = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/London' }));
+    return londonDate.toISOString().split('T')[0];
+  });
   const [dayGroups, setDayGroups] = useState<Record<string, { date: string; dayName: string; count: number; sessions: NormalizedSession[] }>>({});
   const router = useRouter();
 
@@ -273,12 +278,18 @@ export default function Dashboard() {
     <>
       <header className={styles.navbar}>
         <div className={styles.navbarContent}>
-          {!userNameLoading && userName && (
-            <div className={styles.greeting}>
-              <h1 className={styles.greetingName}>Hello, {userName}</h1>
-              <p className={styles.greetingSubtitle}>Welcome to Canine Capers</p>
-            </div>
-          )}
+          <div className={styles.greeting}>
+            <Link href="/dashboard" className={styles.logoLink}>
+              <Image
+                src="/caninecaperslogosymbol.png"
+                alt="Canine Capers"
+                width={32}
+                height={32}
+                className={styles.logoIcon}
+              />
+            </Link>
+            <h1 className={styles.brandTitle}>Canine Capers</h1>
+          </div>
         </div>
       </header>
 
@@ -286,11 +297,6 @@ export default function Dashboard() {
         <main className={styles.main}>
           <section className={styles.compactHero}>
             <div className={styles.heroContent}>
-              {!userNameLoading && userName && (
-                <h1 className={styles.heroGreeting}>
-                  Welcome back, {userName}
-                </h1>
-              )}
               <h2 className={styles.heroTitle}>
                 Your Canine Capers Hub
               </h2>
@@ -338,46 +344,67 @@ export default function Dashboard() {
                   Loading available sessions…
                 </div>
               )}
-              {/* Day Selection - Always visible when section is active */}
-              <div className={styles.selectDaySection}>
-                <div className={styles.selectDayContent}>
-                  <h3 className={styles.selectDayTitle}>Select Day</h3>
-                  <div className={styles.dayCardsGrid}>
-                    {Object.values(dayGroups)
-                      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                      .map((dayGroup) => {
-                        const dateObj = new Date(dayGroup.date);
-                        const day = dateObj.getDate();
-                        const month = dateObj.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
 
-                        return (
-                        <div
-                          key={dayGroup.date}
-                          className={`${styles.dayCard} ${selectedDay === dayGroup.date ? styles.selected : ''}`}
-                          onClick={() => setSelectedDay(selectedDay === dayGroup.date ? null : dayGroup.date)}
+              {/* Filter Chips - Above available times */}
+              <div className={styles.filterChipsSection}>
+                <div className={styles.filterChipsRow}>
+                  <div className={styles.filterChipGroup}>
+                    {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
+                      const checked = selectedType === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          className={`${styles.filterChipSmall} ${checked ? styles.activeChipSmall : ''}`}
+                          onClick={() => setSelectedType(opt.id)}
+                          disabled={loading}
                         >
-                            <div className={styles.dayName}>{dayGroup.dayName}</div>
-                            <div className={styles.dayDate}>{day} {month}</div>
-                            <div className={styles.daySlots}>
-                              {dayGroup.count} slot{dayGroup.count !== 1 ? 's' : ''}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
+                  <div className={styles.filterChipGroup}>
+                    {[
+                      { id: 0, label: 'All' },
+                      { id: 4783035, label: 'Central' },
+                      { id: 6255352, label: 'Hyde' }
+                    ].map(field => {
+                      const checked = selectedField === field.id;
+                      return (
+                        <button
+                          key={field.id}
+                          className={`${styles.filterChipSmall} ${checked ? styles.activeChipSmall : ''}`}
+                          onClick={() => setSelectedField(field.id)}
+                          disabled={loading}
+                        >
+                          {field.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
 
-                  {/* Available Times Section - appears below day cards when a day is selected */}
-                  {selectedDay && (
-                    <div className={styles.availableTimesSection}>
-                      <h3 className={styles.availableTimesTitle}>Available Times</h3>
-                      <div className={styles.availableTimesList}>
-                        {sessions
-                          .filter(session => {
-                            const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
-                            return sessionDate === selectedDay;
-                          })
-                          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-                          .map((session) => {
+              {/* Available Times Section - shows immediately filtered to today */}
+              <div className={styles.availableTimesSection}>
+                <div className={styles.availableTimesList}>
+                  {sessions
+                    .filter(session => {
+                      const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
+                      return sessionDate === selectedDay;
+                    })
+                    .length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <p>No sessions available for this day.</p>
+                      </div>
+                    ) : (
+                      sessions
+                        .filter(session => {
+                          const sessionDate = new Date(session.startTime).toISOString().split('T')[0];
+                          return sessionDate === selectedDay;
+                        })
+                        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                        .map((session) => {
                             const meta = getFieldMeta(session.calendarID);
                             const timeString = formatLondon(session.startTime);
 
@@ -418,98 +445,44 @@ export default function Dashboard() {
                                 </div>
                               </div>
                             );
-                          })}
-                      </div>
-                    </div>
-                  )}
+                          })
+                    )}
+                </div>
+
+                {/* Day Indicator - Below available times */}
+                <div className={styles.dayIndicator}>
+                  <span className={styles.dayIndicatorText}>
+                    Showing sessions for{' '}
+                    <span className={styles.dayIndicatorDate}>
+                      {new Date(selectedDay).toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  </span>
+                  <button 
+                    className={styles.changeDayButton}
+                    onClick={() => {
+                      // Simple date picker - could be enhanced with a modal later
+                      const input = document.createElement('input');
+                      input.type = 'date';
+                      input.value = selectedDay;
+                      input.min = new Date().toISOString().split('T')[0];
+                      input.onchange = (e) => {
+                        const target = e.target as HTMLInputElement;
+                        if (target.value) {
+                          setSelectedDay(target.value);
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    Change Day
+                  </button>
                 </div>
               </div>
-
-              {/* Narrow your results - appears after time slots */}
-              {selectedDay && (
-                <div className={styles.narrowResultsSection}>
-                  <h3 className={styles.sectionSubtitle}>
-                    Narrow your results (optional)
-                  </h3>
-
-                  <div className={styles.unifiedFilterRow}>
-                    <div className={styles.filterSection}>
-                      <span className={styles.filterSectionLabel}>Length</span>
-                      <div className={styles.filterChips}>
-                        {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
-                          const checked = selectedType === opt.id;
-                          return (
-                            <button
-                              key={opt.id}
-                              className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                              onClick={() => {
-                                setSelectedType(opt.id);
-                                // Don't reset selectedDay - keep current day selection
-                                // Don't trigger API call - just filter existing data
-                              }}
-                              disabled={loading}
-                            >
-                              {opt.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className={styles.filterSection}>
-                      <span className={styles.filterSectionLabel}>Field</span>
-                      <div className={styles.filterChips}>
-                        {[
-                          { id: 0, label: 'All' },
-                          { id: 4783035, label: 'Central' },
-                          { id: 6255352, label: 'Hyde' }
-                        ].map(field => {
-                          const checked = selectedField === field.id;
-                          return (
-                            <button
-                              key={field.id}
-                              className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                              onClick={() => {
-                                setSelectedField(field.id);
-                                // Don't reset selectedDay - keep current day selection
-                                // Don't trigger API call - just filter existing data
-                              }}
-                              disabled={loading}
-                            >
-                              {field.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Show regular session grid when no type filter is applied */}
-              {!selectedDay && !selectedType && (
-                <div className={styles.availabilityGrid}>
-                  {sessions.length === 0 && (
-                    <p className={styles.availabilityTimeslot}>No sessions available for this type.</p>
-                  )}
-                  {sessions
-                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                    .map((session) => {
-                      const meta = getFieldMeta(session.calendarID);
-                      const dateLabel = formatLondon(session.startTime);
-                      return (
-                        <div key={session.id} className={styles.card}>
-                          <SessionCard
-                            meta={meta}
-                            dateLabel={dateLabel}
-                            price={getPriceForType(selectedType)}
-                            onClick={() => handleBookSession(session)}
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
             </section>
           )}
 
