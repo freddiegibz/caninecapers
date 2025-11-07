@@ -176,14 +176,27 @@ export default function Dashboard() {
           <div className={styles.dashboardContent}>
             {/* Next Session Card */}
             <div className={styles.nextSessionCard}>
-              <div className={styles.nextSessionHeader}>
-                <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
-                <button className={styles.viewDetailsLink}>View Details</button>
+              <div className={styles.nextSessionImageWrapper}>
+                <Image
+                  src="/centralbark.webp"
+                  alt="Central Bark field"
+                  width={80}
+                  height={80}
+                  className={styles.nextSessionImage}
+                />
               </div>
-              <div className={styles.nextSessionInfo}>
-                <span className={styles.nextSessionText}>
-                  <span className={styles.nextSessionField}>Central Bark</span> · Fri 7 Nov · <span className={styles.nextSessionTime}>17:15</span>
-                </span>
+              <div className={styles.nextSessionContent}>
+                <div className={styles.nextSessionDetails}>
+                  <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
+                  <div className={styles.nextSessionInfo}>
+                    <span className={styles.nextSessionField}>Central Bark</span>
+                    <span className={styles.nextSessionDate}>Fri 7 Nov</span>
+                    <span className={styles.nextSessionTime}>17:15</span>
+                  </div>
+                </div>
+                <Link href="/my-sessions" className={styles.viewDetailsLink}>
+                  View Details →
+                </Link>
               </div>
             </div>
 

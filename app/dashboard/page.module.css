@@ -212,29 +212,82 @@
   margin-top: 0;
 }
 
-/* Next Session Card */
+/* Next Session Card - Horizontal */
 .nextSessionCard {
   background: #FDFBF6;
   border-radius: 16px;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   margin-bottom: 1.125rem;
   border: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
 }
 
-.nextSessionHeader {
+.nextSessionImageWrapper {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(226, 220, 203, 0.4);
+}
+
+.nextSessionImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nextSessionContent {
+  flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding-left: 0;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.nextSessionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .nextSessionTitle {
   font-family: var(--font-poppins);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #203425;
   margin: 0;
+}
+
+.nextSessionInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nextSessionField,
+.nextSessionDate,
+.nextSessionTime {
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
+  color: #60685D;
+}
+
+.nextSessionField {
+  font-weight: 600;
+  color: #2F4E3E;
+}
+
+.nextSessionTime {
+  font-weight: 500;
 }
 
 .viewDetailsLink {
@@ -242,36 +295,14 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #2F4E3E;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  white-space: nowrap;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .viewDetailsLink:hover {
   opacity: 0.7;
-}
-
-.nextSessionInfo {
-  display: flex;
-  align-items: center;
-  padding-left: 0;
-}
-
-.nextSessionText {
-  font-family: var(--font-lora);
-  font-size: 0.95rem;
-  color: #60685D;
-  line-height: 1.5;
-}
-
-.nextSessionField,
-.nextSessionTime {
-  font-weight: 600;
-  color: #2F4E3E;
 }
 
 /* Available Today Caption */
@@ -1331,6 +1362,30 @@
   .main {
     gap: 1rem;
     margin-bottom: 8rem;
+  }
+
+  .nextSessionCard {
+    padding: 0.875rem 1rem;
+    gap: 0.875rem;
+  }
+
+  .nextSessionImageWrapper {
+    width: 70px;
+    height: 70px;
+  }
+
+  .nextSessionTitle {
+    font-size: 0.95rem;
+  }
+
+  .nextSessionField,
+  .nextSessionDate,
+  .nextSessionTime {
+    font-size: 0.85rem;
+  }
+
+  .viewDetailsLink {
+    font-size: 0.8rem;
   }
 
   .sectionToggle {
