@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatLondon } from "../../src/utils/dateTime";
@@ -33,6 +33,8 @@ export default function Dashboard() {
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
   const [selectedField, setSelectedField] = useState<number>(0); // All fields by default
   const [loading, setLoading] = useState<boolean>(false);
+  const quickActionsRef = useRef<HTMLDivElement>(null);
+  const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);
 
   useEffect(() => {
     let isMounted = true;
@@ -146,6 +148,33 @@ export default function Dashboard() {
     router.push(`/book/${session.id}?${queryParams.toString()}`);
   };
 
+  const handleQuickActionKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (!quickActionsRef.current) return;
+
+    const buttons = Array.from(quickActionsRef.current.querySelectorAll('[role="button"]')) as HTMLElement[];
+    const totalButtons = buttons.length;
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const nextIndex = (index + 1) % totalButtons;
+      setFocusedActionIndex(nextIndex);
+      setTimeout(() => buttons[nextIndex]?.focus(), 0);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prevIndex = (index - 1 + totalButtons) % totalButtons;
+      setFocusedActionIndex(prevIndex);
+      setTimeout(() => buttons[prevIndex]?.focus(), 0);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      setFocusedActionIndex(0);
+      setTimeout(() => buttons[0]?.focus(), 0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      setFocusedActionIndex(totalButtons - 1);
+      setTimeout(() => buttons[totalButtons - 1]?.focus(), 0);
+    }
+  };
+
   return (
     <>
       <header className={styles.navbar}>
@@ -204,43 +233,79 @@ export default function Dashboard() {
 
             {/* Quick Actions Row */}
             <div className={styles.quickActionsContainer}>
-              <div className={styles.quickActionsScroll}>
-                <Link href="/book" className={styles.quickActionButton}>
+              <div className={styles.quickActionsSeparator}></div>
+              <div className={styles.quickActionsLabel}>Quick Actions</div>
+              <div className={styles.quickActionsScroll} ref={quickActionsRef} role="toolbar" aria-label="Quick actions">
+                <Link 
+                  href="/book" 
+                  className={styles.quickActionButton}
+                  role="button"
+                  aria-label="Book again"
+                  tabIndex={focusedActionIndex === -1 ? 0 : focusedActionIndex === 0 ? 0 : -1}
+                  onKeyDown={(e) => handleQuickActionKeyDown(e, 0)}
+                  onFocus={() => setFocusedActionIndex(0)}
+                >
                   <div className={styles.quickActionIcon}>
                     <Image
                       src="/booksession.png"
-                      alt="Book Again"
+                      alt=""
                       width={24}
                       height={24}
+                      aria-hidden="true"
                     />
                   </div>
                   <span className={styles.quickActionLabel}>Book Again</span>
                 </Link>
-                <Link href="/my-sessions" className={styles.quickActionButton}>
+                <Link 
+                  href="/my-sessions" 
+                  className={styles.quickActionButton}
+                  role="button"
+                  aria-label="View bookings"
+                  tabIndex={focusedActionIndex === -1 ? 0 : focusedActionIndex === 1 ? 0 : -1}
+                  onKeyDown={(e) => handleQuickActionKeyDown(e, 1)}
+                  onFocus={() => setFocusedActionIndex(1)}
+                >
                   <div className={styles.quickActionIcon}>
                     <Image
                       src="/viewsessions.png"
-                      alt="View Bookings"
+                      alt=""
                       width={24}
                       height={24}
+                      aria-hidden="true"
                     />
                   </div>
                   <span className={styles.quickActionLabel}>View Bookings</span>
                 </Link>
-                <Link href="/location" className={styles.quickActionButton}>
+                <Link 
+                  href="/location" 
+                  className={styles.quickActionButton}
+                  role="button"
+                  aria-label="Directions"
+                  tabIndex={focusedActionIndex === -1 ? 0 : focusedActionIndex === 2 ? 0 : -1}
+                  onKeyDown={(e) => handleQuickActionKeyDown(e, 2)}
+                  onFocus={() => setFocusedActionIndex(2)}
+                >
                   <div className={styles.quickActionIcon}>
                     <Image
                       src="/location.png"
-                      alt="Directions"
+                      alt=""
                       width={24}
                       height={24}
+                      aria-hidden="true"
                     />
                   </div>
                   <span className={styles.quickActionLabel}>Directions</span>
                 </Link>
-                <button className={styles.quickActionButton}>
+                <button 
+                  className={styles.quickActionButton}
+                  role="button"
+                  aria-label="Loyalty"
+                  tabIndex={focusedActionIndex === -1 ? 0 : focusedActionIndex === 3 ? 0 : -1}
+                  onKeyDown={(e) => handleQuickActionKeyDown(e, 3)}
+                  onFocus={() => setFocusedActionIndex(3)}
+                >
                   <div className={styles.quickActionIcon}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#2F4E3E"/>
                     </svg>
                   </div>

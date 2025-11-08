@@ -216,15 +216,15 @@
 .nextSessionCard {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: 1rem 1.25rem 1.5rem 1.25rem;
-  margin-bottom: 1.125rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  margin-bottom: 0.5rem;
   border: 1px solid rgba(226, 220, 203, 0.5);
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
   max-width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--elev-1);
 }
 
 .nextSessionImageWrapper {
@@ -310,6 +310,24 @@
 .quickActionsContainer {
   margin-bottom: 1.125rem;
   padding: 0;
+  padding-left: 1.5rem;
+}
+
+.quickActionsSeparator {
+  height: 1px;
+  background: rgba(47, 78, 62, 0.08);
+  margin-bottom: 0.75rem;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+}
+
+.quickActionsLabel {
+  font-family: var(--font-poppins);
+  font-size: 13px;
+  font-weight: 500;
+  color: #7B8A80;
+  margin-bottom: 0.75rem;
+  padding-left: 0;
 }
 
 .quickActionsScroll {
@@ -320,7 +338,8 @@
   -ms-overflow-style: none;
   padding-bottom: 0.5rem;
   padding-left: 0;
-  padding-right: 0;
+  padding-right: 1.5rem;
+  scroll-snap-type: x mandatory;
 }
 
 .quickActionsScroll::-webkit-scrollbar {
@@ -331,10 +350,10 @@
   flex-shrink: 0;
   width: 64px;
   height: 64px;
-  background-color: #FDFBF6;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 220, 203, 0.4);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  background-color: var(--cc-tile);
+  border-radius: 16px;
+  border: none;
+  box-shadow: var(--elev-1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -347,19 +366,29 @@
   position: relative;
   font-family: inherit;
   margin: 0;
+  scroll-snap-align: start;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .quickActionButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: rgba(47, 78, 62, 0.3);
-  background-color: #FAF9F5;
+  background-color: #EDE8DF;
+}
+
+.quickActionButton:hover .quickActionLabel {
+  opacity: 1;
+}
+
+.quickActionButton:focus-visible {
+  outline: 2px solid var(--cc-ink);
+  outline-offset: 4px;
+  border-radius: 16px;
 }
 
 .quickActionButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  background-color: rgba(47, 78, 62, 0.05);
+  transform: scale(0.995);
+  box-shadow: var(--elev-1), inset 0 1px 0 rgba(0, 0, 0, 0.06);
+  background-color: #EDE8DF;
 }
 
 .quickActionIcon {
@@ -382,17 +411,23 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  display: block;
 }
 
 .quickActionLabel {
   font-family: var(--font-poppins);
-  font-size: 0.7rem;
+  font-size: 12px;
   font-weight: 500;
-  color: #2F4E3E;
+  color: var(--cc-ink);
+  opacity: 0.8;
   text-align: center;
   line-height: 1.1;
-  letter-spacing: 0.2px;
-  margin-top: 0.125rem;
+  letter-spacing: 0;
+  margin-top: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 /* Available Today Caption */
@@ -1480,20 +1515,27 @@
 
   .quickActionsContainer {
     margin-bottom: 1rem;
+    padding-left: 1rem;
+  }
+
+  .quickActionsSeparator {
+    margin-left: -1rem;
+    margin-right: -1rem;
   }
 
   .quickActionsScroll {
-    gap: 0.625rem;
+    gap: 0.75rem;
+    padding-right: 1rem;
   }
 
   .quickActionButton {
     width: 64px;
     height: 64px;
-    border-radius: 12px;
+    border-radius: 16px;
   }
 
   .quickActionLabel {
-    font-size: 0.65rem;
+    font-size: 12px;
   }
 
   .sectionToggle {
@@ -1626,6 +1668,32 @@
 
   .mobileFooter {
     display: flex;
+  }
+}
+
+@media (max-width: 360px) {
+  .quickActionsContainer {
+    padding-left: 1rem;
+  }
+
+  .quickActionsScroll {
+    gap: 12px;
+  }
+
+  .quickActionButton {
+    width: 56px;
+    height: 56px;
+  }
+
+  .quickActionIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .quickActionIcon img,
+  .quickActionIcon svg {
+    width: 22px;
+    height: 22px;
   }
 }
 

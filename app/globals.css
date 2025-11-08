@@ -11,6 +11,13 @@
   --stone: #d8d3c3;
   --text: #2b2b2b;
   --border: #e2dccb;
+
+  /* Dashboard tokens */
+  --cc-bg: #FAF8F2;
+  --cc-ink: #2F4E3E;
+  --cc-ink-muted: rgba(47,78,62,.72);
+  --cc-tile: #F7F4EE;
+  --elev-1: 0 2px 8px rgba(0,0,0,.08);
 }
 
 @media (prefers-color-scheme: dark) {
