@@ -1,22 +1,24 @@
 // Test Acuity booking URL generation
 const { getAcuityBookingUrl } = require('./src/utils/acuity.ts');
 
-console.log('Testing Acuity booking URL generation (/datetime/ path format)...');
+console.log('Testing Acuity booking URL generation (/datetime/ path format with raw UI values)...');
 
-// Test with example data
+// Test with example data (raw UI values - no conversions)
 const testSessionId = 'test-session-uuid-123';
 const testCalendarId = '6255352';
 const testAppointmentTypeId = '18525224';
-const testStartTimeISO = '2025-11-05T17:00:00.000Z'; // ISO string for timezone conversion
+const testSelectedDate = '2025-11-05'; // YYYY-MM-DD from UI
+const testSelectedTime = '17:00'; // HH:MM from UI (London-correct)
 
-console.log('Input parameters:');
+console.log('Input parameters (raw UI values):');
 console.log('  sessionId:', testSessionId);
 console.log('  calendarId:', testCalendarId);
 console.log('  appointmentTypeId:', testAppointmentTypeId);
-console.log('  startTimeISO:', testStartTimeISO);
+console.log('  selectedDate (UI):', testSelectedDate);
+console.log('  selectedTime (UI):', testSelectedTime);
 console.log('');
 
-const generatedUrl = getAcuityBookingUrl(testSessionId, testCalendarId, testAppointmentTypeId, testStartTimeISO);
+const generatedUrl = getAcuityBookingUrl(testSessionId, testCalendarId, testAppointmentTypeId, testSelectedDate, testSelectedTime);
 console.log('Generated URL:');
 console.log(generatedUrl);
 console.log('');
@@ -36,3 +38,5 @@ console.log('');
 
 console.log('Expected format:');
 console.log('  https://caninecapers.as.me/schedule/3e8feaf8/appointment/{appointmentTypeId}/calendar/{calendarId}/datetime/{encodedDateTime}?appointmentTypeIds[]={appointmentTypeId}&calendarIds={calendarId}&field:17517976={sessionID}');
+console.log('');
+console.log('Note: Uses raw UI date/time values without any conversions');

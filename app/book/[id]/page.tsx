@@ -123,19 +123,20 @@ export default function BookingPage() {
       localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
       console.log('Saved booking data to localStorage:', bookingData);
 
-      // Generate Acuity booking URL using the unified utility function
-      // Convert session.startTime to London timezone for accurate datetime path
-      const startTimeISO = session.startTime; // ISO string (e.g., "2025-11-05T17:00:00.000Z")
+      // Generate Acuity booking URL using raw UI date/time values
+      // Use session.date and session.time exactly as selected (no conversions)
+      const selectedDate = session.date; // Already in YYYY-MM-DD format from UI
+      const selectedTime = session.time; // Already in HH:MM format from UI (London-correct)
 
       const bookingUrl = getAcuityBookingUrl(
         sessionId,
         session.calendarID.toString(),
         session.appointmentTypeID.toString(),
-        startTimeISO
+        selectedDate,
+        selectedTime
       );
 
       // Validate URL structure before redirect
-      console.log("🔗 Final booking URL:", bookingUrl);
       console.log('✅ Session ID prefill validation:', {
         format: '/datetime/ path',
         fieldId: '17517976',
@@ -144,7 +145,9 @@ export default function BookingPage() {
         urlContainsDatetimePath: bookingUrl.includes('/datetime/'),
         urlContainsField: bookingUrl.includes('field:17517976='),
         urlContainsSessionId: bookingUrl.includes(encodeURIComponent(sessionId)),
-        urlFormat: bookingUrl.includes('/schedule/') && bookingUrl.includes('/datetime/') ? 'datetime path (correct)' : 'incorrect format'
+        urlFormat: bookingUrl.includes('/schedule/') && bookingUrl.includes('/datetime/') ? 'datetime path (correct)' : 'incorrect format',
+        noDateParam: !bookingUrl.includes('date='),
+        noTimeParam: !bookingUrl.includes('time=')
       });
 
       // Add a brief delay for user feedback before redirecting
@@ -154,16 +157,32 @@ export default function BookingPage() {
     } catch (error) {
       console.error('Failed to create session:', error);
       // Fallback: redirect without session tracking (can't pre-fill session ID since creation failed)
-      // Convert to London timezone for datetime path
-      const startTimeISO = session.startTime;
-      const londonTime = new Date(startTimeISO).toLocaleString("en-GB", { timeZone: "Europe/London" });
-      const londonDate = new Date(londonTime);
-      const isoDateTime = londonDate.toISOString().split(".")[0] + "+00:00";
-      const encodedDateTime = encodeURIComponent(isoDateTime);
+      // Use raw UI date/time values (no conversions)
+      const selectedDate = session.date; // Already in YYYY-MM-DD format from UI
+      const selectedTime = session.time; // Already in HH:MM format from UI (London-correct)
+      
+      // Import getLondonOffset function logic inline for fallback
+      const [y, m, d] = selectedDate.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+      const fmt = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        timeZoneName: "shortOffset"
+      });
+      const parts = fmt.formatToParts(dt);
+      const offset = (parts.find(p => p.type === "timeZoneName")?.value || "+00:00")
+        .replace("UTC", "+00:00")
+        .replace("GMT", "+00:00");
+      
+      // Build ISO datetime string WITHOUT altering the hour
+      const isoNaive = `${selectedDate}T${selectedTime}:00${offset}`;
+      const encodedDateTime = encodeURIComponent(isoNaive);
 
       // Use /datetime/ path format for fallback (without session ID prefill)
       const bookingUrl = `https://caninecapers.as.me/schedule/3e8feaf8/appointment/${session.appointmentTypeID}/calendar/${session.calendarID}/datetime/${encodedDateTime}?appointmentTypeIds[]=${session.appointmentTypeID}&calendarIds=${session.calendarID}`;
 
+      console.log("🗓 selectedDate (UI):", selectedDate);
+      console.log("⏰ selectedTime (UI):", selectedTime);
+      console.log("🕰 London offset:", offset);
       console.log("🔗 Final booking URL:", bookingUrl);
 
       // Save basic booking data
