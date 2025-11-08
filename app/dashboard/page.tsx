@@ -202,6 +202,53 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Quick Actions Row */}
+            <div className={styles.quickActionsContainer}>
+              <div className={styles.quickActionsScroll}>
+                <Link href="/book" className={styles.quickActionButton}>
+                  <div className={styles.quickActionIcon}>
+                    <Image
+                      src="/booksession.png"
+                      alt="Book Again"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                  <span className={styles.quickActionLabel}>Book Again</span>
+                </Link>
+                <Link href="/my-sessions" className={styles.quickActionButton}>
+                  <div className={styles.quickActionIcon}>
+                    <Image
+                      src="/viewsessions.png"
+                      alt="View Bookings"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                  <span className={styles.quickActionLabel}>View Bookings</span>
+                </Link>
+                <Link href="/location" className={styles.quickActionButton}>
+                  <div className={styles.quickActionIcon}>
+                    <Image
+                      src="/location.png"
+                      alt="Directions"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                  <span className={styles.quickActionLabel}>Directions</span>
+                </Link>
+                <button className={styles.quickActionButton}>
+                  <div className={styles.quickActionIcon}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#2F4E3E"/>
+                    </svg>
+                  </div>
+                  <span className={styles.quickActionLabel}>Loyalty</span>
+                </button>
+              </div>
+            </div>
+
             {/* Available Today Section */}
             <div className={styles.availableTodayContent}>
               <p className={styles.availableTodayCaption}>Looking to book more?</p>

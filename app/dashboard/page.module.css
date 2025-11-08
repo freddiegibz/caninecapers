@@ -306,6 +306,95 @@
   opacity: 0.7;
 }
 
+/* Quick Actions Row */
+.quickActionsContainer {
+  margin-bottom: 1.125rem;
+  padding: 0;
+}
+
+.quickActionsScroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.5rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.quickActionsScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.quickActionButton {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background-color: #FDFBF6;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 220, 203, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  position: relative;
+  font-family: inherit;
+  margin: 0;
+}
+
+.quickActionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(47, 78, 62, 0.3);
+  background-color: #FAF9F5;
+}
+
+.quickActionButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background-color: rgba(47, 78, 62, 0.05);
+}
+
+.quickActionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.quickActionIcon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(25%) saturate(800%) hue-rotate(100deg) brightness(0.85) contrast(1.1);
+}
+
+.quickActionIcon svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.quickActionLabel {
+  font-family: var(--font-poppins);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #2F4E3E;
+  text-align: center;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+  margin-top: 0.125rem;
+}
+
 /* Available Today Caption */
 .availableTodayCaption {
   font-family: var(--font-lora);
@@ -1387,6 +1476,24 @@
 
   .viewDetailsLink {
     font-size: 0.8rem;
+  }
+
+  .quickActionsContainer {
+    margin-bottom: 1rem;
+  }
+
+  .quickActionsScroll {
+    gap: 0.625rem;
+  }
+
+  .quickActionButton {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
+
+  .quickActionLabel {
+    font-size: 0.65rem;
   }
 
   .sectionToggle {
