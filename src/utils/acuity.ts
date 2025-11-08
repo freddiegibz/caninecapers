@@ -1,21 +1,36 @@
 // Acuity configuration constants
-export const ACUITY_OWNER_ID = '3e8feaf8'; // Correct Acuity schedule/owner ID
-export const ACUITY_SESSION_FIELD_ID = '17508305'; // Custom Session ID field ID
+export const ACUITY_OWNER_ID = '3e8feaf8'; // Acuity schedule/owner ID
+export const ACUITY_SESSION_FIELD_ID = '17517976'; // Custom Session ID field ID
 
-export function getAcuityBookingUrl(sessionId: string, calendarId: string, appointmentTypeId: string, date: string, time: string): string {
-  // date and time parameters are already in London timezone
-  // Determine if it's BST (March-October) or GMT
-  const dateObj = new Date(`${date}T${time}:00Z`);
-  const month = dateObj.getMonth() + 1; // getMonth() returns 0-11
-  const isBST = month >= 3 && month <= 10; // Simplified BST check
-  const timezoneOffset = isBST ? '+01:00' : '+00:00';
+/**
+ * Generate Acuity booking URL using .as.me domain with /datetime/ path segment
+ * @param sessionId - The session ID to prefill in the form
+ * @param calendarId - Acuity calendar ID
+ * @param appointmentTypeId - Acuity appointment type ID
+ * @param startTimeISO - ISO string for accurate timezone conversion (e.g., "2025-11-05T17:00:00.000Z")
+ * @returns Formatted booking URL with datetime path for direct slot preselection and session ID prefill
+ */
+export function getAcuityBookingUrl(
+  sessionId: string, 
+  calendarId: string, 
+  appointmentTypeId: string, 
+  startTimeISO: string
+): string {
+  // URL-encode sessionId to handle special characters safely
+  const encodedSessionId = encodeURIComponent(sessionId);
 
-  // Create ISO datetime string with proper London timezone offset
-  const isoDateTime = `${date}T${time}:00${timezoneOffset}`;
+  // Convert to London timezone and create ISO datetime string
+  const londonTime = new Date(startTimeISO).toLocaleString("en-GB", { timeZone: "Europe/London" });
+  const londonDate = new Date(londonTime);
+  const isoDateTime = londonDate.toISOString().split(".")[0] + "+00:00";
   const encodedDateTime = encodeURIComponent(isoDateTime);
 
-  // Use canonical Acuity URL format with datetime segment
-  const baseUrl = `https://app.acuityscheduling.com/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}/datetime/${encodedDateTime}?appointmentTypeIds[]=${appointmentTypeId}&calendarIds=${calendarId}&date=${date}&time=${time}&field:${ACUITY_SESSION_FIELD_ID}=${sessionId}`;
+  // Use /datetime/ path format for direct slot preselection
+  // Remove date= and time= parameters - Acuity ignores them when /datetime/ is present
+  const bookingUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}/datetime/${encodedDateTime}?appointmentTypeIds[]=${appointmentTypeId}&calendarIds=${calendarId}&field:${ACUITY_SESSION_FIELD_ID}=${encodedSessionId}`;
 
-  return baseUrl;
+  // Log final generated URL for verification
+  console.log("🔗 Final booking URL:", bookingUrl);
+
+  return bookingUrl;
 }

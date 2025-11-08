@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { supabase } from '../../../src/lib/supabaseClient';
-import { getAcuityBookingUrl, ACUITY_OWNER_ID } from '../../../src/utils/acuity';
+import { getAcuityBookingUrl } from '../../../src/utils/acuity';
 import { formatLondon } from '../../../src/utils/dateTime';
 import styles from './page.module.css';
 
@@ -124,19 +124,28 @@ export default function BookingPage() {
       console.log('Saved booking data to localStorage:', bookingData);
 
       // Generate Acuity booking URL using the unified utility function
-      // session.startTime is already GMT London ISO string (e.g., "2025-11-05T17:00:00.000Z")
-      const formattedDate = session.startTime.split('T')[0]; // YYYY-MM-DD from London time
-      const formattedTime = session.startTime.split('T')[1].slice(0, 5); // HH:MM from London time
+      // Convert session.startTime to London timezone for accurate datetime path
+      const startTimeISO = session.startTime; // ISO string (e.g., "2025-11-05T17:00:00.000Z")
 
       const bookingUrl = getAcuityBookingUrl(
         sessionId,
         session.calendarID.toString(),
         session.appointmentTypeID.toString(),
-        formattedDate,
-        formattedTime
+        startTimeISO
       );
 
-      console.log('Redirecting to Acuity Scheduling:', bookingUrl);
+      // Validate URL structure before redirect
+      console.log("🔗 Final booking URL:", bookingUrl);
+      console.log('✅ Session ID prefill validation:', {
+        format: '/datetime/ path',
+        fieldId: '17517976',
+        sessionId: sessionId,
+        encodedSessionId: encodeURIComponent(sessionId),
+        urlContainsDatetimePath: bookingUrl.includes('/datetime/'),
+        urlContainsField: bookingUrl.includes('field:17517976='),
+        urlContainsSessionId: bookingUrl.includes(encodeURIComponent(sessionId)),
+        urlFormat: bookingUrl.includes('/schedule/') && bookingUrl.includes('/datetime/') ? 'datetime path (correct)' : 'incorrect format'
+      });
 
       // Add a brief delay for user feedback before redirecting
       setTimeout(() => {
@@ -145,14 +154,17 @@ export default function BookingPage() {
     } catch (error) {
       console.error('Failed to create session:', error);
       // Fallback: redirect without session tracking (can't pre-fill session ID since creation failed)
-      // session.startTime is already GMT London ISO string (e.g., "2025-11-05T17:00:00.000Z")
-      const formattedDate = session.startTime.split('T')[0]; // YYYY-MM-DD from London time
-      const formattedTime = session.startTime.split('T')[1].slice(0, 5); // HH:MM from London time
+      // Convert to London timezone for datetime path
+      const startTimeISO = session.startTime;
+      const londonTime = new Date(startTimeISO).toLocaleString("en-GB", { timeZone: "Europe/London" });
+      const londonDate = new Date(londonTime);
+      const isoDateTime = londonDate.toISOString().split(".")[0] + "+00:00";
+      const encodedDateTime = encodeURIComponent(isoDateTime);
 
-      // Use the same owner ID as getAcuityBookingUrl for consistency
-      const bookingUrl = `https://app.acuityscheduling.com/schedule.php?owner=${ACUITY_OWNER_ID}&calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${formattedDate}&time=${formattedTime}&source=app`;
+      // Use /datetime/ path format for fallback (without session ID prefill)
+      const bookingUrl = `https://caninecapers.as.me/schedule/3e8feaf8/appointment/${session.appointmentTypeID}/calendar/${session.calendarID}/datetime/${encodedDateTime}?appointmentTypeIds[]=${session.appointmentTypeID}&calendarIds=${session.calendarID}`;
 
-      console.log('Redirecting to Acuity (fallback):', bookingUrl);
+      console.log("🔗 Final booking URL:", bookingUrl);
 
       // Save basic booking data
       const bookingData = {

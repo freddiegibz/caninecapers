@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Test script for Acuity Session ID pre-filling using field ID 17502393
+# Test script for Acuity Session ID pre-filling using field ID 17517976
 # Usage: ./test-acuity-session-id.sh
 
-echo "🧪 Testing Acuity Session ID Pre-filling with Field ID 17502393..."
+echo "🧪 Testing Acuity Session ID Pre-filling with Field ID 17517976..."
 echo
 
 # Test 1: Create session and check booking URL format with timezone conversion
@@ -29,27 +29,29 @@ echo
 
 # Test 2: Verify booking URL format with all parameters
 echo "📤 Test 2: Verify booking URL format"
-if [[ "$BOOKING_URL" == *"schedule/3e8feaf8"* ]] && [[ "$BOOKING_URL" == *"appointment/"* ]] && [[ "$BOOKING_URL" == *"calendar/"* ]] && [[ "$BOOKING_URL" == *"datetime/"* ]] && [[ "$BOOKING_URL" == *"appointmentTypeIds"* ]] && [[ "$BOOKING_URL" == *"calendarIds"* ]] && [[ "$BOOKING_URL" == *"date="* ]] && [[ "$BOOKING_URL" == *"time="* ]] && [[ "$BOOKING_URL" == *"field:17502393=$SESSION_ID"* ]]; then
+ENCODED_SESSION_ID=$(echo -n "$SESSION_ID" | jq -sRr @uri)
+if [[ "$BOOKING_URL" == *"schedule/3e8feaf8"* ]] && [[ "$BOOKING_URL" == *"appointment/"* ]] && [[ "$BOOKING_URL" == *"calendar/"* ]] && [[ "$BOOKING_URL" == *"datetime/"* ]] && [[ "$BOOKING_URL" == *"appointmentTypeIds"* ]] && [[ "$BOOKING_URL" == *"calendarIds"* ]] && [[ "$BOOKING_URL" == *"date="* ]] && [[ "$BOOKING_URL" == *"time="* ]] && [[ "$BOOKING_URL" == *"field:17517976="* ]]; then
   echo "✅ Booking URL format is correct!"
   echo "  - Uses correct owner ID: 3e8feaf8"
   echo "  - Uses canonical datetime format: schedule/.../datetime/..."
   echo "  - Contains encoded ISO datetime with timezone offset"
   echo "  - Contains appointmentTypeIds and calendarIds arrays"
   echo "  - Contains date and time parameters"
-  echo "  - Contains Session ID field: field:17502393=$SESSION_ID"
+  echo "  - Contains Session ID field: field:17517976=$SESSION_ID"
+  echo "  - Session ID is URL-encoded: $ENCODED_SESSION_ID"
 else
   echo "❌ Booking URL format is incorrect"
-  echo "Expected: https://app.acuityscheduling.com/schedule/3e8feaf8/appointment/.../calendar/.../datetime/...?appointmentTypeIds[]=...&calendarIds=...&date=...&time=...&field:17502393=<UUID>"
+  echo "Expected: https://app.acuityscheduling.com/schedule/3e8feaf8/appointment/.../calendar/.../datetime/...?appointmentTypeIds[]=...&calendarIds=...&date=...&time=...&field:17517976=<UUID>"
   echo "Actual: $BOOKING_URL"
 fi
 echo
 
 # Test 3: Test webhook with simulated Acuity form data using field ID
-echo "📤 Test 3: Test webhook with Session ID in form field 17502393"
-# This simulates what Acuity would send with the Session ID field (ID: 17502393) populated
+echo "📤 Test 3: Test webhook with Session ID in form field 17517976"
+# This simulates what Acuity would send with the Session ID field (ID: 17517976) populated
 WEBHOOK_RESPONSE=$(curl -s -X POST https://caninecapers.vercel.app/api/acuity/webhook \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "action=scheduled&appointment[id]=12345&appointment[datetime]=2025-11-04T14:30:00-0000&appointment[calendarID]=4783035&appointment[client][email]=test@example.com&appointment[forms][0][id]=17502393&appointment[forms][0][value]=$SESSION_ID&source=app")
+  -d "action=scheduled&appointment[id]=12345&appointment[datetime]=2025-11-04T14:30:00-0000&appointment[calendarID]=4783035&appointment[client][email]=test@example.com&appointment[forms][0][id]=17517976&appointment[forms][0][value]=$SESSION_ID&source=app")
 
 if [[ "$WEBHOOK_RESPONSE" == *"OK"* ]]; then
   echo "✅ Webhook processed successfully"
@@ -60,4 +62,4 @@ fi
 echo
 
 echo "✅ Session ID pre-filling test completed!"
-echo "The booking URL now uses field ID 17502393 to automatically populate your custom Session ID field in Acuity."
+echo "The booking URL now uses field ID 17517976 to automatically populate your custom Session ID field in Acuity."

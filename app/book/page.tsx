@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
-import { ACUITY_OWNER_ID } from "../../src/utils/acuity";
 import SessionCard from "../../components/SessionCard";
 import styles from "./page.module.css";
 
@@ -267,7 +266,7 @@ export default function Book() {
               {selectedField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
-                    src={`https://app.acuityscheduling.com/schedule.php?owner=${ACUITY_OWNER_ID}&calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
+                    src={`https://caninecapers.as.me/?calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
                     title="Schedule Appointment"
                     width="100%"
                     height="600"
