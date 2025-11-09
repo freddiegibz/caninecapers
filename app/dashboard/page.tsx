@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 
 export default function Dashboard() {
-  const [selectedDay, setSelectedDay] = useState<string>(() => {
+  const [selectedDay] = useState<string>(() => {
     // Initialize to today's date in YYYY-MM-DD format (London time)
     const today = new Date();
     const londonDate = new Date(today.toLocaleString('en-US', { timeZone: 'Europe/London' }));
@@ -31,7 +31,7 @@ export default function Dashboard() {
   };
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
-  const [selectedField, setSelectedField] = useState<number>(0); // All fields by default
+  const [selectedField] = useState<number>(0); // All fields by default
   const [loading, setLoading] = useState<boolean>(false);
   const quickActionsRef = useRef<HTMLDivElement>(null);
   const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);

@@ -52,8 +52,22 @@ function formatDate(datetime: string): string {
   return d.toISOString();
 }
 
+// Types for Acuity API response (minimal shape we need)
+interface AcuityFormAnswer {
+  id?: number;
+  fieldID?: number;
+  value?: string;
+}
+
+interface AcuityAppointment {
+  id?: number;
+  calendarID?: number;
+  datetime?: string;
+  forms?: AcuityFormAnswer[];
+}
+
 // Helper: fetch full appointment details from Acuity API (to access intake forms)
-async function fetchAcuityAppointmentById(appointmentId: string): Promise<any | null> {
+async function fetchAcuityAppointmentById(appointmentId: string): Promise<AcuityAppointment | null> {
   try {
     const userId = process.env.ACUITY_USER_ID;
     const apiKey = process.env.ACUITY_API_KEY;
@@ -81,7 +95,7 @@ async function fetchAcuityAppointmentById(appointmentId: string): Promise<any | 
       return null;
     }
 
-    const json = await res.json();
+    const json = (await res.json()) as AcuityAppointment;
     console.log('📥 Fetched appointment from Acuity API (truncated):', {
       id: json?.id,
       calendarID: json?.calendarID,
@@ -218,7 +232,7 @@ export async function POST(request: Request) {
       console.log('🔎 No sessionId in webhook; fetching appointment details from Acuity API…');
       const appt = await fetchAcuityAppointmentById(appointmentId);
       if (appt && Array.isArray(appt.forms)) {
-        const matched = appt.forms.find((f: any) => String(f?.id) === ACUITY_SESSION_FIELD_ID || String(f?.fieldID) === ACUITY_SESSION_FIELD_ID);
+        const matched = appt.forms.find((f: AcuityFormAnswer) => String(f?.id) === ACUITY_SESSION_FIELD_ID || String(f?.fieldID) === ACUITY_SESSION_FIELD_ID);
         if (matched?.value) {
           sessionId = String(matched.value);
           console.log('✅ Extracted sessionId from Acuity API forms:', sessionId);

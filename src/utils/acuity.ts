@@ -3,30 +3,6 @@ export const ACUITY_OWNER_ID = '3e8feaf8'; // Acuity schedule/owner ID
 export const ACUITY_SESSION_FIELD_ID = '17517976'; // Custom Session ID field ID
 
 /**
- * Get London timezone offset for a given date (handles DST)
- * @param dateStr - Date string in YYYY-MM-DD format
- * @returns Timezone offset string like "+00:00" or "+01:00"
- */
-function getLondonOffset(dateStr: string): string {
-  // dateStr: "YYYY-MM-DD"
-  const [y, m, d] = dateStr.split("-").map(Number);
-
-  // Use a fixed 12:00 time to avoid DST boundary oddities
-  const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
-
-  const fmt = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    timeZoneName: "shortOffset"
-  });
-
-  const parts = fmt.formatToParts(dt);
-  const off = parts.find(p => p.type === "timeZoneName")?.value || "+00:00";
-
-  // Normalize to +HH:MM or -HH:MM
-  return off.replace("UTC", "+00:00").replace("GMT", "+00:00");
-}
-
-/**
  * Generate Acuity booking URL using root query format
  * Uses raw UI date/time values without any conversions
  * This format opens the calendar view (not specific slot) AND prefills session ID field
