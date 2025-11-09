@@ -296,6 +296,26 @@ export default function Dashboard() {
                   </div>
                   <span className={styles.quickActionLabel}>Directions</span>
                 </Link>
+                <a 
+                  href="tel:+441234567890" 
+                  className={styles.quickActionButton}
+                  role="button"
+                  aria-label="Contact us"
+                  tabIndex={focusedActionIndex === -1 ? 0 : focusedActionIndex === 3 ? 0 : -1}
+                  onKeyDown={(e) => handleQuickActionKeyDown(e, 3)}
+                  onFocus={() => setFocusedActionIndex(3)}
+                >
+                  <div className={styles.quickActionIcon}>
+                    <Image
+                      src="/locationicon/phone.png"
+                      alt=""
+                      width={28}
+                      height={28}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <span className={styles.quickActionLabel}>Contact Us</span>
+                </a>
               </div>
             </div>
 

@@ -138,16 +138,16 @@ export default function BookingPage() {
 
       // Validate URL structure before redirect
       console.log('✅ Session ID prefill validation:', {
-        format: '/datetime/ path',
+        format: 'Root query format (calendar view + session ID prefill)',
         fieldId: '17517976',
         sessionId: sessionId,
         encodedSessionId: encodeURIComponent(sessionId),
-        urlContainsDatetimePath: bookingUrl.includes('/datetime/'),
+        urlUsesRootFormat: bookingUrl.startsWith('https://caninecapers.as.me/?'),
         urlContainsField: bookingUrl.includes('field:17517976='),
         urlContainsSessionId: bookingUrl.includes(encodeURIComponent(sessionId)),
-        urlFormat: bookingUrl.includes('/schedule/') && bookingUrl.includes('/datetime/') ? 'datetime path (correct)' : 'incorrect format',
-        noDateParam: !bookingUrl.includes('date='),
-        noTimeParam: !bookingUrl.includes('time=')
+        urlContainsDate: bookingUrl.includes('date='),
+        urlContainsTime: bookingUrl.includes('time='),
+        urlFormat: bookingUrl.startsWith('https://caninecapers.as.me/?') && bookingUrl.includes('field:17517976=') ? 'Correct format (root query + field param, opens calendar view)' : 'incorrect format'
       });
 
       // Add a brief delay for user feedback before redirecting
@@ -160,30 +160,13 @@ export default function BookingPage() {
       // Use raw UI date/time values (no conversions)
       const selectedDate = session.date; // Already in YYYY-MM-DD format from UI
       const selectedTime = session.time; // Already in HH:MM format from UI (London-correct)
-      
-      // Import getLondonOffset function logic inline for fallback
-      const [y, m, d] = selectedDate.split("-").map(Number);
-      const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
-      const fmt = new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Europe/London",
-        timeZoneName: "shortOffset"
-      });
-      const parts = fmt.formatToParts(dt);
-      const offset = (parts.find(p => p.type === "timeZoneName")?.value || "+00:00")
-        .replace("UTC", "+00:00")
-        .replace("GMT", "+00:00");
-      
-      // Build ISO datetime string WITHOUT altering the hour
-      const isoNaive = `${selectedDate}T${selectedTime}:00${offset}`;
-      const encodedDateTime = encodeURIComponent(isoNaive);
 
-      // Use /datetime/ path format for fallback (without session ID prefill)
-      const bookingUrl = `https://caninecapers.as.me/schedule/3e8feaf8/appointment/${session.appointmentTypeID}/calendar/${session.calendarID}/datetime/${encodedDateTime}?appointmentTypeIds[]=${session.appointmentTypeID}&calendarIds=${session.calendarID}`;
+      // Use root query format for fallback (without session ID prefill)
+      const bookingUrl = `https://caninecapers.as.me/?calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${selectedDate}&time=${selectedTime}`;
 
       console.log("🗓 selectedDate (UI):", selectedDate);
       console.log("⏰ selectedTime (UI):", selectedTime);
-      console.log("🕰 London offset:", offset);
-      console.log("🔗 Final booking URL:", bookingUrl);
+      console.log("🔗 Final booking URL (fallback - no session ID):", bookingUrl);
 
       // Save basic booking data
       const bookingData = {

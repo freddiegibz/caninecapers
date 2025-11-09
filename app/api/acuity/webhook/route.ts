@@ -52,6 +52,49 @@ function formatDate(datetime: string): string {
   return d.toISOString();
 }
 
+// Helper: fetch full appointment details from Acuity API (to access intake forms)
+async function fetchAcuityAppointmentById(appointmentId: string): Promise<any | null> {
+  try {
+    const userId = process.env.ACUITY_USER_ID;
+    const apiKey = process.env.ACUITY_API_KEY;
+
+    if (!userId || !apiKey) {
+      console.warn('⚠️ Missing ACUITY_USER_ID or ACUITY_API_KEY env vars; cannot fetch appointment details');
+      return null;
+    }
+
+    const auth = Buffer.from(`${userId}:${apiKey}`).toString('base64');
+    const url = `https://acuityscheduling.com/api/v1/appointments/${encodeURIComponent(appointmentId)}`;
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Accept': 'application/json'
+      },
+      // Node runtime; Next.js route can await fetch server-side
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      console.error('❌ Failed to fetch appointment from Acuity:', res.status, res.statusText);
+      return null;
+    }
+
+    const json = await res.json();
+    console.log('📥 Fetched appointment from Acuity API (truncated):', {
+      id: json?.id,
+      calendarID: json?.calendarID,
+      hasForms: Array.isArray(json?.forms),
+      formsCount: Array.isArray(json?.forms) ? json.forms.length : 0
+    });
+    return json;
+  } catch (err) {
+    console.error('❌ Error fetching Acuity appointment:', err);
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Parse Acuity's form-encoded payload
@@ -77,14 +120,48 @@ export async function POST(request: Request) {
     const datetime = formData['appointment[datetime]'] || formData['datetime'];
     const calendarId = formData['appointment[calendarID]'] || formData['calendarID'];
 
-    // Handle session parameters (only present for app-generated bookings)
-    const sessionId = formData['sessionId'];
+    // Extract session ID from Acuity custom field format: appointment[forms][N][id]=17517976 & appointment[forms][N][value]=<sessionId>
+    // Acuity sends custom fields as: appointment[forms][0][id]=17517976&appointment[forms][0][value]=<sessionId>
+    let sessionId: string | undefined;
+    const ACUITY_SESSION_FIELD_ID = '17517976';
+    
+    // Log all form field keys to help debug
+    const formFieldKeys = Object.keys(formData).filter(key => key.includes('forms'));
+    console.log('📋 Form field keys found:', formFieldKeys);
+    
+    // Find the index where the field ID matches our session field ID
+    for (let i = 0; i < 100; i++) { // Check up to 100 form fields (should be more than enough)
+      const fieldIdKey = `appointment[forms][${i}][id]`;
+      const fieldValueKey = `appointment[forms][${i}][value]`;
+      
+      // Log what we're checking
+      if (formData[fieldIdKey]) {
+        console.log(`📋 Checking form field ${i}: id=${formData[fieldIdKey]}, value=${formData[fieldValueKey]}`);
+      }
+      
+      if (formData[fieldIdKey] === ACUITY_SESSION_FIELD_ID) {
+        sessionId = formData[fieldValueKey];
+        console.log(`✅ Found session ID in custom field at index ${i}:`, sessionId);
+        break;
+      }
+    }
+    
+    // Fallback: also check direct sessionId parameter (for backwards compatibility)
+    if (!sessionId) {
+      sessionId = formData['sessionId'];
+      if (sessionId) {
+        console.log('📋 Found session ID in direct parameter:', sessionId);
+      } else {
+        console.log('⚠️ No session ID found in custom fields or direct parameter');
+      }
+    }
+    
     const sessionToken = formData['sessionToken'];
 
-    // Check for app-generated booking validation
+    // Check for app-generated booking validation (for logging only - we rely on sessionId presence instead)
     const source = formData['source'];
     const isAppGenerated = source === 'app' || formData['app_generated'] === 'true';
-    console.log('📄 Booking source validation:', { source, isAppGenerated });
+    console.log('📄 Booking source validation:', { source, isAppGenerated, hasSessionId: !!sessionId });
 
     // Handle client email field - try multiple possible formats
     let clientEmail = formData['appointment[client][email]'] || formData['email'];
@@ -119,7 +196,7 @@ export async function POST(request: Request) {
     }
 
     console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail, sessionId, sessionToken });
-    console.log('📄 Session matching condition check:', { isAppGenerated, sessionId: !!sessionId, sessionToken: !!sessionToken });
+    console.log('📄 Session matching condition check:', { hasSessionId: !!sessionId, hasSessionToken: !!sessionToken });
 
     // Validate minimum required fields - be flexible for different Acuity webhook events
     if (!appointmentId) {
@@ -133,19 +210,28 @@ export async function POST(request: Request) {
       hasDatetime: !!datetime,
       hasCalendarId: !!calendarId,
       hasClientEmail: !!clientEmail,
-      isAppGenerated
+      hasSessionId: !!sessionId
     });
 
-    // Only require full data for app-generated bookings
-    if (isAppGenerated && (!datetime || !calendarId || !clientEmail)) {
-      console.error('❌ App-generated booking missing required fields:', { appointmentId, datetime, calendarId, clientEmail });
-      return NextResponse.json({ message: 'OK' }, { status: 200 });
+    // If session ID missing in webhook payload, fetch appointment details from Acuity API and try to read intake forms
+    if (!sessionId && appointmentId) {
+      console.log('🔎 No sessionId in webhook; fetching appointment details from Acuity API…');
+      const appt = await fetchAcuityAppointmentById(appointmentId);
+      if (appt && Array.isArray(appt.forms)) {
+        const matched = appt.forms.find((f: any) => String(f?.id) === ACUITY_SESSION_FIELD_ID || String(f?.fieldID) === ACUITY_SESSION_FIELD_ID);
+        if (matched?.value) {
+          sessionId = String(matched.value);
+          console.log('✅ Extracted sessionId from Acuity API forms:', sessionId);
+        } else {
+          console.log('⚠️ No matching session form field found in Acuity API response');
+        }
+      } else {
+        console.log('⚠️ Appointment details unavailable or forms array missing from Acuity API response');
+      }
     }
 
-    // For external bookings, we can work with partial data
-    if (!isAppGenerated) {
-      console.log('ℹ️ External booking with partial data - processing what we can');
-    }
+    // Process bookings with session ID (from custom field/API)
+    // If still no session ID, treat as external booking and log only
 
     // Parse and validate calendar ID (skip for external bookings with missing data)
     let calendarNum: number | null = null;
@@ -165,11 +251,11 @@ export async function POST(request: Request) {
       date = formatDate(datetime);
     }
 
-    // Handle session-based matching for app-generated bookings
-    if (isAppGenerated && sessionId && sessionToken) {
-      console.log('🎯 App-generated booking with session ID - attempting session matching');
+    // Handle session-based matching for bookings with session ID (from custom field or API)
+    if (sessionId) {
+      console.log('🎯 Booking with session ID - attempting session matching');
 
-      // Find the incomplete session by ID and validate token
+      // Find the incomplete session by ID (token validation optional - session ID is sufficient)
       const { data: existingSession, error: sessionErr } = await supabase
         .from('sessions')
         .select('id, session_token, user_id')
@@ -181,8 +267,13 @@ export async function POST(request: Request) {
         console.error('❌ Session lookup error:', sessionErr);
       }
 
-      if (existingSession && existingSession.session_token === sessionToken) {
+      if (existingSession) {
         // Valid session found - mark as complete
+        // Optionally validate token if provided, but don't require it
+        if (sessionToken && existingSession.session_token !== sessionToken) {
+          console.log(`⚠️ Session ${sessionId} token mismatch, but continuing with session ID match`);
+        }
+
         const updateData: SessionUpdateData = {
           status: 'complete',
           acuity_appointment_id: parseInt(appointmentId, 10),
@@ -203,15 +294,18 @@ export async function POST(request: Request) {
         } else {
           console.log(`✅ Marked session ${sessionId} as complete with appointment ${appointmentId}`);
         }
-    } else {
-        console.log(`⚠️ Session ${sessionId} not found or token mismatch - treating as external booking`);
+        
+        // Return success after updating session
+        return NextResponse.json({ message: 'OK' }, { status: 200 });
+      } else {
+        console.log(`⚠️ Session ${sessionId} not found - treating as external booking`);
         // Fall through to external booking logic
       }
     }
 
-    // Handle non-app-generated bookings or fallback for failed session matching
-    if (!isAppGenerated || !sessionId || !sessionToken) {
-      console.log('ℹ️ Non-app booking detected - logging but not processing:', {
+    // Handle bookings without session ID (external bookings) - log only
+    if (!sessionId) {
+      console.log('ℹ️ External booking detected (no session ID) - logging but not processing:', {
         appointmentId,
         clientEmail,
         source: source || 'unknown'
