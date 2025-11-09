@@ -53,17 +53,24 @@ function formatDate(datetime: string): string {
 }
 
 // Types for Acuity API response (minimal shape we need)
-interface AcuityFormAnswer {
+interface AcuityFormValue {
   id?: number;
   fieldID?: number;
+  name?: string;
   value?: string;
+}
+
+interface AcuityForm {
+  id?: number;
+  name?: string;
+  values?: AcuityFormValue[];
 }
 
 interface AcuityAppointment {
   id?: number;
   calendarID?: number;
   datetime?: string;
-  forms?: AcuityFormAnswer[];
+  forms?: AcuityForm[];
 }
 
 // Helper: fetch full appointment details from Acuity API (to access intake forms)
@@ -232,11 +239,53 @@ export async function POST(request: Request) {
       console.log('🔎 No sessionId in webhook; fetching appointment details from Acuity API…');
       const appt = await fetchAcuityAppointmentById(appointmentId);
       if (appt && Array.isArray(appt.forms)) {
-        const matched = appt.forms.find((f: AcuityFormAnswer) => String(f?.id) === ACUITY_SESSION_FIELD_ID || String(f?.fieldID) === ACUITY_SESSION_FIELD_ID);
-        if (matched?.value) {
-          sessionId = String(matched.value);
-          console.log('✅ Extracted sessionId from Acuity API forms:', sessionId);
-        } else {
+        const FIELD_NAME_FALLBACK = process.env.ACUITY_SESSION_FIELD_NAME || 'Session ID';
+
+        // Debug: print minimal snapshot of forms/values
+        try {
+          const formsSnapshot = appt.forms.slice(0, 3).map((f) => ({
+            id: f.id,
+            name: f.name,
+            values: (f.values || []).slice(0, 5).map((v) => ({
+              id: v.id, fieldID: v.fieldID, name: v.name, valuePreview: v.value?.slice(0, 12)
+            }))
+          }));
+          console.log('🧩 Forms snapshot:', JSON.stringify(formsSnapshot));
+        } catch {}
+
+        // 1) Match by numeric field ID inside forms[].values[]
+        outer: for (const form of appt.forms) {
+          if (!Array.isArray(form.values)) continue;
+          for (const v of form.values) {
+            const valueFieldId = v.id ?? v.fieldID;
+            if (valueFieldId != null && String(valueFieldId) === ACUITY_SESSION_FIELD_ID) {
+              if (v.value) {
+                sessionId = String(v.value);
+                console.log('✅ Extracted sessionId via field ID in forms.values:', sessionId);
+                break outer;
+              }
+            }
+          }
+        }
+
+        // 2) Fallback: match by field name (case-insensitive)
+        if (!sessionId) {
+          outer2: for (const form of appt.forms) {
+            if (!Array.isArray(form.values)) continue;
+            for (const v of form.values) {
+              const name = v.name?.toLowerCase().trim();
+              if (name && (name === FIELD_NAME_FALLBACK.toLowerCase().trim() || name.includes('session id'))) {
+                if (v.value) {
+                  sessionId = String(v.value);
+                  console.log('✅ Extracted sessionId via field NAME in forms.values:', { name: v.name, sessionId });
+                  break outer2;
+                }
+              }
+            }
+          }
+        }
+
+        if (!sessionId) {
           console.log('⚠️ No matching session form field found in Acuity API response');
         }
       } else {
