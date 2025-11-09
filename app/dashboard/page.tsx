@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatLondon } from "../../src/utils/dateTime";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../src/lib/supabaseClient";
 import HeroSection from "../../components/HeroSection";
 import styles from "./page.module.css";
 
@@ -35,6 +36,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(false);
   const quickActionsRef = useRef<HTMLDivElement>(null);
   const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);
+  const [nextSession, setNextSession] = useState<{ field: string; iso: string } | null>(null);
+  const [loadingNext, setLoadingNext] = useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -85,6 +88,42 @@ export default function Dashboard() {
       isMounted = false;
     };
   }, [selectedField]);
+
+  // Fetch next chronological session for the authenticated user
+  useEffect(() => {
+    let isMounted = true;
+    const loadNext = async () => {
+      try {
+        setLoadingNext(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          setNextSession(null);
+          return;
+        }
+        const nowIso = new Date().toISOString();
+        const { data, error } = await supabase
+          .from('sessions')
+          .select('field, date')
+          .eq('user_id', user.id)
+          .eq('status', 'complete')
+          .gt('date', nowIso)
+          .order('date', { ascending: true })
+          .limit(1);
+        if (error) {
+          console.error('Failed to load next session:', error);
+          setNextSession(null);
+          return;
+        }
+        const row = (data && data[0]) ? data[0] : null;
+        if (!isMounted) return;
+        setNextSession(row ? { field: String(row.field || 'Central Bark'), iso: String(row.date) } : null);
+      } finally {
+        if (isMounted) setLoadingNext(false);
+      }
+    };
+    loadNext();
+    return () => { isMounted = false; };
+  }, []);
 
   // London timezone formatting utilities are imported above
 
@@ -207,8 +246,8 @@ export default function Dashboard() {
             <div className={styles.nextSessionCard}>
               <div className={styles.nextSessionImageWrapper}>
                 <Image
-                  src="/centralbark.webp"
-                  alt="Central Bark field"
+                  src={nextSession && nextSession.field.toLowerCase().includes('hyde') ? '/hydebark.webp' : '/centralbark.webp'}
+                  alt={(nextSession?.field || 'Field')}
                   width={80}
                   height={80}
                   className={styles.nextSessionImage}
@@ -217,13 +256,30 @@ export default function Dashboard() {
               <div className={styles.nextSessionContent}>
                 <div className={styles.nextSessionDetails}>
                   <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
-                  <div className={styles.nextSessionInfoRow}>
-                    <span className={styles.nextSessionField}>Central Bark</span>
-                  </div>
-                  <div className={styles.nextSessionInfoRow}>
-                    <span className={styles.nextSessionDate}>Fri 7 Nov</span>
-                    <span className={styles.nextSessionTime}>17:15</span>
-                  </div>
+                  {loadingNext ? (
+                    <div className={styles.nextSessionInfoRow}>
+                      <span className={styles.nextSessionField}>Loading…</span>
+                    </div>
+                  ) : nextSession ? (
+                    <>
+                      <div className={styles.nextSessionInfoRow}>
+                        <span className={styles.nextSessionField}>{nextSession.field}</span>
+                      </div>
+                      <div className={styles.nextSessionInfoRow}>
+                        <span className={styles.nextSessionDate}>{formatLondon(nextSession.iso).split('·')[0].trim()}</span>
+                        <span className={styles.nextSessionTime}>{formatLondon(nextSession.iso).split('·').slice(1).join('·').trim()}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className={styles.nextSessionInfoRow}>
+                        <span className={styles.nextSessionField}>No upcoming session</span>
+                      </div>
+                      <div className={styles.nextSessionInfoRow}>
+                        <Link href="/book" className={styles.viewDetailsLink}>Book one now →</Link>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <Link href="/my-sessions" className={styles.viewDetailsLink}>
                   View Details →

@@ -1,42 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { supabase } from "../../src/lib/supabaseClient";
+import { formatLondon } from "../../src/utils/dateTime";
 
 export default function MySessions() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
-  const upcomingSessions = [
-    {
-      id: "central-bark-upcoming",
-      name: "Central Bark",
-      time: "Wed 23 Oct · 3:00 PM - 3:30 PM",
-      address: "24 Meadow Lane, London NW1",
-    },
-    {
-      id: "hyde-bark-upcoming",
-      name: "Hyde Bark",
-      time: "Fri 25 Oct · 10:00 AM - 11:00 AM",
-      address: "89 Hillcrest Road, Bristol BS8",
-    },
-  ];
+  const [loading, setLoading] = useState<boolean>(true);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string }>>([]);
+  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string }>>([]);
 
-  const pastSessions = [
-    {
-      id: "central-bark-past-1",
-      name: "Central Bark",
-      time: "Mon 14 Oct · 2:00 PM - 2:30 PM",
-      address: "24 Meadow Lane, London NW1",
-    },
-    {
-      id: "hyde-bark-past-1",
-      name: "Hyde Bark",
-      time: "Wed 9 Oct · 4:00 PM - 4:30 PM",
-      address: "89 Hillcrest Road, Bristol BS8",
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
+    const loadSessions = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!isMounted) return;
+        setAuthUserId(user?.id ?? null);
+        if (!user?.id) {
+          setUpcomingSessions([]);
+          setPastSessions([]);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('sessions')
+          .select('id, field, date')
+          .eq('user_id', user.id)
+          .eq('status', 'complete')
+          .order('date', { ascending: true });
+
+        if (error) {
+          console.error('Failed to load sessions:', error);
+          setUpcomingSessions([]);
+          setPastSessions([]);
+          return;
+        }
+
+        const now = new Date();
+        const normalized = (data ?? []).map((s) => {
+          const iso = String(s.date);
+          const name = String(s.field || 'Central Bark');
+          const time = formatLondon(iso);
+          const address = name.toLowerCase().includes('hyde') ? 'Hyde Bark, London' : 'Central Bark, London';
+          return { id: String(s.id), name, time, address, iso };
+        });
+
+        const upcoming = normalized.filter(n => new Date(n.iso) >= now);
+        const past = normalized.filter(n => new Date(n.iso) < now).reverse();
+
+        if (!isMounted) return;
+        setUpcomingSessions(upcoming);
+        setPastSessions(past);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    loadSessions();
+    return () => { isMounted = false; };
+  }, []);
   return (
     <>
       <header className={styles.navbar}>
@@ -82,6 +110,30 @@ export default function MySessions() {
 
         {/* Session Lists */}
         <main className={styles.main}>
+          {loading && (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>⏳</div>
+              <h3 className={styles.emptyTitle}>Loading your sessions…</h3>
+            </div>
+          )}
+
+          {!loading && !authUserId && (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>🔒</div>
+              <h3 className={styles.emptyTitle}>Please sign in</h3>
+              <p className={styles.emptyText}>Sign in to view and manage your sessions.</p>
+              <Link className={styles.primaryButton} href="/signin">Sign In</Link>
+            </div>
+          )}
+
+          {!loading && authUserId && upcomingSessions.length === 0 && pastSessions.length === 0 && (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>🐶</div>
+              <h3 className={styles.emptyTitle}>No sessions yet</h3>
+              <p className={styles.emptyText}>Book your first run in the fields.</p>
+              <Link className={styles.primaryButton} href="/book">Book a Session</Link>
+            </div>
+          )}
           {activeTab === 'upcoming' && (
             <div className={styles.sessionList}>
               {upcomingSessions.length > 0 ? (
@@ -90,7 +142,7 @@ export default function MySessions() {
                     <div className={styles.sessionCard}>
                       <div className={styles.sessionImageContainer}>
                         <Image
-                          src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
+                          src={session.name.toLowerCase().includes('hyde') ? '/hydebark.webp' : '/centralbark.webp'}
                           alt={session.name}
                           width={400}
                           height={225}
@@ -138,7 +190,7 @@ export default function MySessions() {
                     <div className={`${styles.sessionCard} ${styles.pastCard}`}>
                       <div className={styles.sessionImageContainer}>
                         <Image
-                          src={session.id.includes('central-bark') ? '/centralbark.webp' : '/hydebark.webp'}
+                          src={session.name.toLowerCase().includes('hyde') ? '/hydebark.webp' : '/centralbark.webp'}
                           alt={session.name}
                           width={400}
                           height={225}
