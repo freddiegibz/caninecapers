@@ -27,9 +27,7 @@ export default function Book() {
   const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
-  const pageSize = 5;
 
   useEffect(() => {
     let isMounted = true;
@@ -230,7 +228,6 @@ export default function Book() {
                           className={`${styles.quickFilter} ${checked ? styles.active : ''}`}
                           onClick={() => {
                             setSelectedType(opt.id);
-                            setCurrentPage(1);
                           }}
                         >
                           {opt.label}
@@ -252,7 +249,6 @@ export default function Book() {
                         className={`${styles.quickFilter} ${selectedField === field.id ? styles.active : ''}`}
                         onClick={() => {
                           setSelectedField(field.id);
-                          setCurrentPage(1);
                         }}
                       >
                         {field.label}
@@ -345,36 +341,35 @@ export default function Book() {
                 Loading available sessions…
               </div>
             )}
-            <div className={styles.availabilityGrid}>
-              {sessions.length === 0 && !loading && (
-                <p className={styles.availabilityTimeslot}>No sessions available for this type.</p>
-              )}
-              {sessions
-                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                .map((session) => {
-                const meta = getFieldMeta(session.calendarID);
-                const dateLabel = `${formatDate(session.startTime)} · ${formatTime(session.startTime)}`;
-                return (
-                  <SessionCard
-                    key={session.id}
-                    meta={meta}
-                    dateLabel={dateLabel}
-                    price={getPriceForType(selectedType)}
-                    onClick={() => handleBookSession(session)}
-                  />
-                );
-              })}
-            </div>
-            {sessions.length >= pageSize && currentPage * pageSize < sessions.length && (
-              <div className={styles.loadMoreContainer}>
-                <button
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                  className={styles.loadMoreButton}
-                  disabled={loading}
-                >
-                  {loading ? 'Loading...' : 'Load More Sessions'}
-                </button>
-              </div>
+            {sessions.length === 0 && !loading && (
+              <p className={styles.noSessionsMessage}>No sessions available for this type.</p>
+            )}
+            {sessions.length > 0 && (
+              <>
+                <h3 className={styles.availableSessionsSubtitle}>Available Sessions</h3>
+                <div className={styles.availabilityScrollContainer}>
+                  <div className={styles.availabilityGrid}>
+                    {sessions.map((session) => {
+                      const meta = getFieldMeta(session.calendarID);
+                      const timeString = formatTime(session.startTime);
+                      const durationText = selectedType === '18525224' ? '30 min' :
+                                          selectedType === '29373489' ? '45 min' :
+                                          selectedType === '18525161' ? '1 hour' : '30 min';
+                      const price = getPriceForType(selectedType);
+                      return (
+                        <SessionCard
+                          key={session.id}
+                          meta={meta}
+                          time={timeString}
+                          duration={durationText}
+                          price={price}
+                          onClick={() => handleBookSession(session)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
           </section>
         </main>

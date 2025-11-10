@@ -61,7 +61,7 @@ export default function Location() {
           <section className={styles.directionsSection}>
             <h2 className={styles.directionsTitle}>Directions for Each Field</h2>
             <p className={styles.directionsSubtitle}>
-              Both fields are on Green Meadow Lane — around 100m apart. Follow the directions below depending on your booking.
+              Both fields are located at Bewdley Rd North. Each field will have a sign with the name of the field on it. Use the map above for help. Follow the directions below depending on your booking.
             </p>
 
             {/* Central Bark Directions */}
@@ -87,15 +87,11 @@ export default function Location() {
                 <div className={styles.directionContent}>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
-                    <span>Entrance: Follow the main path from the car park towards the large oak tree. The Central Bark entrance is on your left.</span>
+                    <span>Entrance: Central Bark is the first field you&apos;ll see as you come down the road with both fields on. It&apos;s on the right, and you&apos;ll see a sign with the field name.</span>
                   </div>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
-                    <span>Parking: Free parking available in the main car park. Look for the &ldquo;Canine Capers&rdquo; signs.</span>
-                  </div>
-                  <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Note: Central Bark has the larger field with more shade options. Perfect for hot summer days!</span>
+                    <span>Parking: The parking for Central Bark is on the left.</span>
                   </div>
                 </div>
               )}
@@ -124,15 +120,11 @@ export default function Location() {
                 <div className={styles.directionContent}>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
-                    <span>Entrance: Continue past Central Bark for about 50m. Hyde Bark entrance is marked with a wooden signpost.</span>
+                    <span>Entrance: Follow the same signed &ldquo;Canine Capers&rdquo; road until the end. Please wait at the large gate until the field is empty.</span>
                   </div>
                   <div className={styles.directionItem}>
                     <span className={styles.bullet}>•</span>
-                    <span>Parking: Same main car park as Central Bark, or overflow parking available near the entrance.</span>
-                  </div>
-                  <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Note: Hyde Bark offers more wooded areas and agility obstacles. Great for adventurous dogs!</span>
+                    <span>Parking: When the field is empty, drive up and you will see a gated car park. You&apos;ll see a sign with the field name.</span>
                   </div>
                 </div>
               )}
@@ -152,8 +144,9 @@ export default function Location() {
               <div className={styles.contactContent}>
                 <h3 className={styles.infoTitle}>Address</h3>
                 <p className={styles.addressText}>
-                  123 Green Meadow Lane,<br />
-                  Stourport, DY13 8XX
+                  Brickyard Cottage,<br />
+                  Stourport-on-Severn, Bewdley<br />
+                  DY13 8DZ, United Kingdom
                 </p>
               </div>
             </div>
@@ -169,7 +162,7 @@ export default function Location() {
               />
               <div className={styles.contactContent}>
                 <h3 className={styles.infoTitle}>Phone</h3>
-                <a href="tel:+441234567890" className={styles.phoneLink}>+44 1234 567 890</a>
+                <a href="tel:+447533185734" className={styles.phoneLink}>+44 7533 185 734</a>
               </div>
             </div>
 

@@ -12,8 +12,8 @@ export default function MySessions() {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
-  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string }>>([]);
-  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string }>>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string }>>([]);
+  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string }>>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -31,7 +31,7 @@ export default function MySessions() {
 
         const { data, error } = await supabase
           .from('sessions')
-          .select('id, field, date')
+          .select('id, field, date, acuity_appointment_id')
           .eq('user_id', user.id)
           .eq('status', 'complete')
           .order('date', { ascending: true });
@@ -48,8 +48,15 @@ export default function MySessions() {
           const iso = String(s.date);
           const name = String(s.field || 'Central Bark');
           const time = formatLondon(iso);
-          const address = name.toLowerCase().includes('hyde') ? 'Hyde Bark, London' : 'Central Bark, London';
-          return { id: String(s.id), name, time, address, iso };
+          const address = 'Brickyard Cottage, Stourport-on-Severn, Bewdley DY13 8DZ, United Kingdom';
+          
+          // Map Acuity appointment type ID to duration (default to 30 min if unknown)
+          // Appointment type IDs: 18525224 = 30 min, 29373489 = 45 min, 18525161 = 1 hour
+          // For now, we'll use a default since we don't have the appointment type stored
+          // TODO: Store appointment_type_id in sessions table or fetch from Acuity API
+          const length = '30 min'; // Default - can be updated when appointment_type_id is stored
+          
+          return { id: String(s.id), name, time, address, iso, length };
         });
 
         const upcoming = normalized.filter(n => new Date(n.iso) >= now);
@@ -160,8 +167,14 @@ export default function MySessions() {
                             <span className={styles.sessionTime}>{session.time}</span>
                           </div>
                           <div className={styles.metaRow}>
+                            <span className={styles.metaIcon}>⏱️</span>
+                            <span className={styles.sessionLength}>{session.length || '30 min'}</span>
+                          </div>
+                          <div className={styles.metaRow}>
                             <span className={styles.metaIcon}>📍</span>
-                            <span className={styles.sessionAddress}>{session.address}</span>
+                            <Link href="/location" className={styles.sessionAddressLink}>
+                              {session.address}
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -208,8 +221,14 @@ export default function MySessions() {
                             <span className={styles.sessionTime}>{session.time}</span>
                           </div>
                           <div className={styles.metaRow}>
+                            <span className={styles.metaIcon}>⏱️</span>
+                            <span className={styles.sessionLength}>{session.length || '30 min'}</span>
+                          </div>
+                          <div className={styles.metaRow}>
                             <span className={styles.metaIcon}>📍</span>
-                            <span className={styles.sessionAddress}>{session.address}</span>
+                            <Link href="/location" className={styles.sessionAddressLink}>
+                              {session.address}
+                            </Link>
                           </div>
                         </div>
                       </div>

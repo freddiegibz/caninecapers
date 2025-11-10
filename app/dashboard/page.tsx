@@ -235,10 +235,7 @@ export default function Dashboard() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          <HeroSection 
-            onBookSession={() => {}}
-            onViewBookings={() => {}}
-          />
+          <HeroSection />
 
           {/* Dashboard Content */}
           <div className={styles.dashboardContent}>
@@ -353,7 +350,7 @@ export default function Dashboard() {
                   <span className={styles.quickActionLabel}>Directions</span>
                 </Link>
                 <a 
-                  href="tel:+441234567890" 
+                  href="tel:+447533185734" 
                   className={styles.quickActionButton}
                   role="button"
                   aria-label="Contact us"
@@ -436,7 +433,9 @@ export default function Dashboard() {
                               <div className={styles.availableTimeDetails}>
                                 <span className={styles.availableTimeField}>{meta.name}</span>
                                 <span className={styles.availableTimeSeparator}>·</span>
-                                <span className={styles.availableTimeLength}>{duration}</span>
+                                <span className={styles.availableTimeLength}>
+                                  <span className={styles.clockIcon}>🕒</span> {duration}
+                                </span>
                                 <span className={styles.availableTimeSeparator}>·</span>
                                 <span className={styles.availableTimePrice}>{price}</span>
                               </div>

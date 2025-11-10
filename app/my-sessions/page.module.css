@@ -348,6 +348,32 @@
   line-height: 1.4;
 }
 
+.sessionAddressLink {
+  font-family: var(--font-poppins);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #2F4E3E;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-decoration-color: rgba(47, 78, 62, 0.3);
+  text-underline-offset: 3px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sessionAddressLink:hover {
+  color: var(--sage);
+  text-decoration-color: var(--sage);
+}
+
+.sessionLength {
+  font-family: var(--font-poppins);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.4;
+}
+
 /* Card Divider */
 .cardDivider {
   height: 1px;

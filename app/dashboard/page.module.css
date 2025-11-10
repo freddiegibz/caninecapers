@@ -1315,6 +1315,14 @@
 
 .availableTimeLength {
   color: #60685D;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.clockIcon {
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .availableTimePrice {

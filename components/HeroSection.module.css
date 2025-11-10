@@ -71,6 +71,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .primaryButton:hover {
@@ -90,6 +93,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .secondaryButton:hover {

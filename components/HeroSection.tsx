@@ -1,14 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./HeroSection.module.css";
 
-interface HeroSectionProps {
-  onBookSession: () => void;
-  onViewBookings: () => void;
-}
-
-export default function HeroSection({ onBookSession, onViewBookings }: HeroSectionProps) {
+export default function HeroSection() {
   return (
     <section className={styles.heroSection}>
       <div className={styles.heroCard}>
@@ -32,18 +28,18 @@ export default function HeroSection({ onBookSession, onViewBookings }: HeroSecti
         </p>
         
         <div className={styles.heroActions}>
-          <button 
+          <Link 
+            href="/book"
             className={styles.primaryButton}
-            onClick={onBookSession}
           >
             Book a Session
-          </button>
-          <button 
+          </Link>
+          <Link 
+            href="/my-sessions"
             className={styles.secondaryButton}
-            onClick={onViewBookings}
           >
             View My Bookings
-          </button>
+          </Link>
         </div>
       </div>
     </section>

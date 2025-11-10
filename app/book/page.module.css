@@ -381,45 +381,6 @@
   cursor: not-allowed;
 }
 
-/* Load More Button */
-.loadMoreContainer {
-  display: flex;
-  justify-content: center;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.loadMoreButton {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #f8f7f4 0%, #f0efec 100%);
-  border: 2px solid rgba(226, 220, 203, 0.6);
-  border-radius: 12px;
-  color: var(--forest);
-  font-family: var(--font-poppins);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.loadMoreButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f0efec 0%, #e8e7e4 100%);
-  border-color: rgba(226, 220, 203, 0.8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.loadMoreButton:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.loadMoreButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
 
 /* Branded Footer Note */
 .brandedFooter {
@@ -563,13 +524,6 @@
   background: linear-gradient(135deg, #3b5138 0%, #1f2b1d 100%);
 }
 
-/* Sessions Grid */
-.sessionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1rem;
-  width: 100%;
-}
 
 .sessionCard {
   display: flex;
@@ -806,8 +760,13 @@
     font-size: 1.375rem;
   }
 
-  .sessionsGrid {
-    grid-template-columns: 1fr;
+  .availabilityScrollContainer {
+    padding-bottom: 0.75rem;
+  }
+
+  .availabilityGrid {
+    gap: 0.875rem;
+    padding-right: 0.75rem;
   }
 
   .sessionCard {
@@ -927,11 +886,60 @@
   }
 }
 
-/* Availability Card Styles - Same as Dashboard */
-.availabilityGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 14px;
+/* Availability Card Styles - Horizontal Swipable Row */
+.availabilityScrollContainer {
   width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(226, 220, 203, 0.6) transparent;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.availabilityScrollContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.availabilityScrollContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.availabilityScrollContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(226, 220, 203, 0.6);
+  border-radius: 4px;
+}
+
+.availabilityScrollContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(226, 220, 203, 0.8);
+}
+
+.availabilityGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: max-content;
+  padding-right: 1rem;
+}
+
+.availableSessionsSubtitle {
+  font-family: var(--font-poppins);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.3px;
+}
+
+.noSessionsMessage {
+  text-align: center;
+  color: var(--text);
+  opacity: 0.7;
+  font-style: italic;
+  padding: 2rem 1rem;
+  font-family: var(--font-lora);
+  font-size: 1rem;
 }
 
