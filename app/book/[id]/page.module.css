@@ -25,6 +25,12 @@
   color: #2b3a29;
   text-decoration: none;
   transition: color 0.2s ease;
+  background-color: transparent !important;
+  background: none !important;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .backButton:hover {
@@ -34,11 +40,15 @@
 .backArrow {
   font-size: 1.5rem;
   margin-right: 0.5rem;
+  background-color: transparent !important;
+  background: none !important;
 }
 
 .backText {
   font-weight: 500;
   font-size: 1rem;
+  background-color: transparent !important;
+  background: none !important;
 }
 
 /* Main Content */
@@ -121,6 +131,7 @@
   align-items: center;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f3f4f6;
+  background-color: transparent;
 }
 
 .detailRow:last-child {
@@ -140,6 +151,29 @@
 
 .detailValue.field {
   font-weight: 600;
+  color: #2b3a29;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent !important;
+  background: none !important;
+}
+
+.fieldIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background-color: transparent !important;
+  background: none !important;
+}
+
+.detailValue.field img,
+.detailValue.field .fieldIcon,
+.detailValue.field span,
+.detailValue.field > * {
+  background-color: transparent !important;
+  background: none !important;
 }
 
 .detailValue.price {

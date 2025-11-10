@@ -352,6 +352,7 @@ export default function Book() {
                     {sessions.map((session) => {
                       const meta = getFieldMeta(session.calendarID);
                       const timeString = formatTime(session.startTime);
+                      const dateString = formatDate(session.startTime);
                       const durationText = selectedType === '18525224' ? '30 min' :
                                           selectedType === '29373489' ? '45 min' :
                                           selectedType === '18525161' ? '1 hour' : '30 min';
@@ -361,6 +362,7 @@ export default function Book() {
                           key={session.id}
                           meta={meta}
                           time={timeString}
+                          date={dateString}
                           duration={durationText}
                           price={price}
                           onClick={() => handleBookSession(session)}

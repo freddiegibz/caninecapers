@@ -30,6 +30,9 @@ export default function SessionCard({ meta, time, date, duration, price, onClick
         <div className={styles.imageGradientOverlay}></div>
       </div>
       <div className={styles.availabilityContent}>
+        {date && (
+          <div className={styles.availabilityDate}>{date}</div>
+        )}
         <div className={styles.availabilityTime}>{time}</div>
         <div className={styles.availabilityDetails}>
           <span className={styles.availabilityField}>

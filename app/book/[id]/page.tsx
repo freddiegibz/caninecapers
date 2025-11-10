@@ -291,6 +291,13 @@ export default function BookingPage() {
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Field</span>
                 <span className={`${styles.detailValue} ${styles.field}`}>
+                  <Image
+                    src={session.field === 'Central Bark' ? '/locationicon/centralbark.png' : '/locationicon/hydebarki.png'}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className={styles.fieldIcon}
+                  />
                   {session.field}
                 </span>
               </div>

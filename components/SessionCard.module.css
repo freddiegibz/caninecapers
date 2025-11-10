@@ -53,6 +53,15 @@
   flex: 1;
 }
 
+.availabilityDate {
+  font-family: var(--font-lora);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #60685D;
+  line-height: 1.3;
+  opacity: 0.8;
+}
+
 .availabilityTime {
   font-family: var(--font-poppins);
   font-size: 1.1rem;
@@ -154,6 +163,10 @@
 
   .availabilityTime {
     font-size: 1rem;
+  }
+
+  .availabilityDate {
+    font-size: 0.8rem;
   }
 
   .availabilityDetails {
