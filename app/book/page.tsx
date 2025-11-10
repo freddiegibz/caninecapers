@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
@@ -25,6 +25,9 @@ export default function Book() {
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
   const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute for sessions
   const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
+  const [selectedDay, setSelectedDay] = useState<string>('all'); // 'all' or YYYY-MM-DD format
+  const [dayDropdownOpen, setDayDropdownOpen] = useState<boolean>(false);
+  const daySelectorRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
@@ -48,6 +51,7 @@ export default function Book() {
 
         if (isMounted) {
           setSessions(normalized);
+          setSelectedDay('all'); // Reset to "all" when sessions change
         }
       } catch {
         // Silent fail to keep UI clean; show empty state instead
@@ -77,6 +81,23 @@ export default function Book() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasScrolled]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dayDropdownOpen && daySelectorRef.current && !daySelectorRef.current.contains(event.target as Node)) {
+        setDayDropdownOpen(false);
+      }
+    };
+
+    if (dayDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dayDropdownOpen]);
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString('en-GB', {
@@ -86,6 +107,43 @@ export default function Book() {
       timeZone: 'Europe/London'
     });
   };
+
+  const formatDateShort = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB', {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: 'Europe/London'
+    });
+  };
+
+  const getDateKey = (iso: string) => {
+    const d = new Date(iso);
+    return d.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+  };
+
+  // Get unique days from sessions
+  const getUniqueDays = () => {
+    const days = new Set<string>();
+    sessions.forEach(session => {
+      days.add(getDateKey(session.startTime));
+    });
+    return Array.from(days).sort();
+  };
+
+  // Get display text for selected day
+  const getSelectedDayText = () => {
+    if (selectedDay === 'all') return 'All Days';
+    const daySession = sessions.find(s => getDateKey(s.startTime) === selectedDay);
+    if (!daySession) return 'All Days';
+    return formatDateShort(daySession.startTime);
+  };
+
+  // Filter sessions by selected day
+  const filteredSessions = selectedDay === 'all' 
+    ? sessions 
+    : sessions.filter(session => getDateKey(session.startTime) === selectedDay);
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
@@ -347,9 +405,48 @@ export default function Book() {
             {sessions.length > 0 && (
               <>
                 <h3 className={styles.availableSessionsSubtitle}>Available Sessions</h3>
+                {/* Day Selector Dropdown */}
+                <div className={styles.daySelectorContainer} ref={daySelectorRef}>
+                  <button
+                    className={styles.daySelectorButton}
+                    onClick={() => setDayDropdownOpen(!dayDropdownOpen)}
+                  >
+                    <span>{getSelectedDayText()}</span>
+                    <span className={styles.daySelectorArrow}>{dayDropdownOpen ? '↑' : '↓'}</span>
+                  </button>
+                  {dayDropdownOpen && (
+                    <div className={styles.dayDropdown}>
+                      <button
+                        className={`${styles.dayDropdownItem} ${selectedDay === 'all' ? styles.dayDropdownItemActive : ''}`}
+                        onClick={() => {
+                          setSelectedDay('all');
+                          setDayDropdownOpen(false);
+                        }}
+                      >
+                        All Days
+                      </button>
+                      {getUniqueDays().map((dayKey) => {
+                        const daySession = sessions.find(s => getDateKey(s.startTime) === dayKey);
+                        if (!daySession) return null;
+                        return (
+                          <button
+                            key={dayKey}
+                            className={`${styles.dayDropdownItem} ${selectedDay === dayKey ? styles.dayDropdownItemActive : ''}`}
+                            onClick={() => {
+                              setSelectedDay(dayKey);
+                              setDayDropdownOpen(false);
+                            }}
+                          >
+                            {formatDateShort(daySession.startTime)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 <div className={styles.availabilityScrollContainer}>
                   <div className={styles.availabilityGrid}>
-                    {sessions.map((session) => {
+                    {filteredSessions.map((session) => {
                       const meta = getFieldMeta(session.calendarID);
                       const timeString = formatTime(session.startTime);
                       const dateString = formatDate(session.startTime);
