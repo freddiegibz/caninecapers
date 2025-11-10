@@ -55,8 +55,6 @@ export default function Book() {
   const [selectedDay, setSelectedDay] = useState<string>('all'); // 'all' or YYYY-MM-DD format
   const [dayDropdownOpen, setDayDropdownOpen] = useState<boolean>(false);
   const daySelectorRef = useRef<HTMLDivElement>(null);
-  const [offersDropdownOpen, setOffersDropdownOpen] = useState<boolean>(false);
-  const offersDropdownRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
@@ -127,20 +125,6 @@ export default function Book() {
     };
   }, [dayDropdownOpen]);
 
-  // Close offers dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutsideOffers = (event: MouseEvent) => {
-      if (offersDropdownOpen && offersDropdownRef.current && !offersDropdownRef.current.contains(event.target as Node)) {
-        setOffersDropdownOpen(false);
-      }
-    };
-    if (offersDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutsideOffers);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutsideOffers);
-    };
-  }, [offersDropdownOpen]);
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -314,35 +298,6 @@ export default function Book() {
             </button>
           </div>
 
-          {/* Offers Dropdown (compact) */}
-          <div className={styles.offersStrip}>
-            <div className={styles.offersDropdownContainer} ref={offersDropdownRef}>
-              <button
-                className={styles.offersDropdownButton}
-                onClick={() => setOffersDropdownOpen(!offersDropdownOpen)}
-              >
-                <span>Offers: Save with Packages</span>
-                <span className={styles.daySelectorArrow}>{offersDropdownOpen ? '↑' : '↓'}</span>
-              </button>
-              {offersDropdownOpen && (
-                <div className={styles.offersDropdown}>
-                  {OFFERS.map(offer => (
-                    <a
-                      key={offer.id}
-                      className={styles.offerDropdownItem}
-                      href={offer.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span className={styles.offerDropdownTitle}>{offer.title}</span>
-                      <span className={styles.offerDropdownCta}>Buy</span>
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Expanded Calendar Panel */}
           {showFilters && (
             <div className={styles.calendarPanel}>
@@ -475,6 +430,32 @@ export default function Book() {
             {sessions.length === 0 && !loading && (
               <p className={styles.noSessionsMessage}>No sessions available for this type.</p>
             )}
+            
+            {/* Offers - Horizontal Scrollable Cards */}
+            {OFFERS.length > 0 && (
+              <div className={styles.offersSection}>
+                <h3 className={styles.offersTitle}>Save with Packages</h3>
+                <div className={styles.offersScrollContainer}>
+                  <div className={styles.offersGrid}>
+                    {OFFERS.map(offer => (
+                      <a
+                        key={offer.id}
+                        className={styles.offerCard}
+                        href={offer.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className={styles.offerContent}>
+                          <div className={styles.offerTitle}>{offer.title}</div>
+                          <button className={styles.offerButton}>Buy Package</button>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {sessions.length > 0 && (
               <>
                 <h3 className={styles.availableSessionsSubtitle}>Available Sessions</h3>
