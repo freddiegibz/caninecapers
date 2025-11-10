@@ -135,6 +135,102 @@
   font-family: var(--font-lora);
 }
 
+/* Offers Strip */
+.offersStrip {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Offers dropdown compact */
+.offersDropdownContainer {
+  position: relative;
+}
+
+.offersDropdownButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  background: transparent;
+  border: none;
+  color: var(--forest);
+  font-family: var(--font-poppins);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(43, 58, 41, 0.3);
+}
+
+.offersDropdownButton:hover {
+  color: var(--sage);
+  text-decoration-color: var(--sage);
+}
+
+.offersDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid rgba(226, 220, 203, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.offerDropdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: var(--forest);
+  font-family: var(--font-poppins);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(226, 220, 203, 0.2);
+  text-decoration: none;
+}
+
+.offerDropdownItem:last-child {
+  border-bottom: none;
+}
+
+.offerDropdownItem:hover {
+  background-color: rgba(163, 177, 138, 0.1);
+}
+
+.offerDropdownTitle {
+  line-height: 1.3;
+}
+
+.offerDropdownCta {
+  font-family: var(--font-poppins);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--forest);
+  border: 1px solid var(--forest);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
 /* Compact Calendar Toggle */
 .calendarToggleBar {
   margin-bottom: 0.75rem;

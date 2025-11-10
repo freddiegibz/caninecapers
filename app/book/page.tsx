@@ -11,6 +11,33 @@ import styles from "./page.module.css";
 export default function Book() {
   const router = useRouter();
 
+  // Offers (Acuity Packages)
+  const OFFERS: Array<{
+    id: string;
+    title: string;
+    url: string;
+    appliesTo?: string[]; // appointmentTypeIDs this offer is most relevant for
+  }> = [
+    {
+      id: '938143',
+      title: 'Book 10 × 1 hour, get 2 free',
+      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=938143',
+      appliesTo: ['18525161']
+    },
+    {
+      id: '938145',
+      title: 'Book 10 × 30 minutes, get 2 free',
+      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=938145',
+      appliesTo: ['18525224']
+    },
+    {
+      id: '1210365',
+      title: 'Book 10 × 45 minutes, get 2 free',
+      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=1210365',
+      appliesTo: ['29373489']
+    }
+  ];
+
   type AvailabilityResponseItem = {
     startTime: string; // ISO string
     calendarID: number; // 4783035 or 6255352
@@ -28,6 +55,8 @@ export default function Book() {
   const [selectedDay, setSelectedDay] = useState<string>('all'); // 'all' or YYYY-MM-DD format
   const [dayDropdownOpen, setDayDropdownOpen] = useState<boolean>(false);
   const daySelectorRef = useRef<HTMLDivElement>(null);
+  const [offersDropdownOpen, setOffersDropdownOpen] = useState<boolean>(false);
+  const offersDropdownRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
@@ -97,6 +126,21 @@ export default function Book() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dayDropdownOpen]);
+
+  // Close offers dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutsideOffers = (event: MouseEvent) => {
+      if (offersDropdownOpen && offersDropdownRef.current && !offersDropdownRef.current.contains(event.target as Node)) {
+        setOffersDropdownOpen(false);
+      }
+    };
+    if (offersDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutsideOffers);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideOffers);
+    };
+  }, [offersDropdownOpen]);
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -268,6 +312,35 @@ export default function Book() {
                 {showFilters ? '↑' : '↓'}
               </span>
             </button>
+          </div>
+
+          {/* Offers Dropdown (compact) */}
+          <div className={styles.offersStrip}>
+            <div className={styles.offersDropdownContainer} ref={offersDropdownRef}>
+              <button
+                className={styles.offersDropdownButton}
+                onClick={() => setOffersDropdownOpen(!offersDropdownOpen)}
+              >
+                <span>Offers: Save with Packages</span>
+                <span className={styles.daySelectorArrow}>{offersDropdownOpen ? '↑' : '↓'}</span>
+              </button>
+              {offersDropdownOpen && (
+                <div className={styles.offersDropdown}>
+                  {OFFERS.map(offer => (
+                    <a
+                      key={offer.id}
+                      className={styles.offerDropdownItem}
+                      href={offer.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className={styles.offerDropdownTitle}>{offer.title}</span>
+                      <span className={styles.offerDropdownCta}>Buy</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Expanded Calendar Panel */}

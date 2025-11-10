@@ -280,6 +280,70 @@
   margin: 0 auto;
 }
 
+.offersPromo {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 2rem 2rem 2rem;
+  margin: 0 auto;
+}
+
+.offersPromoContent {
+  background: #ffffff;
+  border: 1px solid #e2dccb;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.offersPromoBadge {
+  background: #2b3a29;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-family: var(--font-poppins);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.offersPromoTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2b3a29;
+  margin: 0;
+}
+
+.offersPromoText {
+  font-family: var(--font-lora);
+  font-size: 0.95rem;
+  color: #4a5a48;
+  margin: 0;
+  flex: 1;
+}
+
+.offersPromoButton {
+  background: #2b3a29;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-family: var(--font-poppins);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 2px solid #2b3a29;
+  transition: all 0.2s ease;
+}
+
+.offersPromoButton:hover {
+  background: #a3b18a;
+  border-color: #a3b18a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(43, 58, 41, 0.2);
+}
+
 .feature {
   background-color: #f8f8f4;
   padding: 2rem 2rem 2.5rem 2rem;

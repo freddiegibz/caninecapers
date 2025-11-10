@@ -61,6 +61,16 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Offers Promo Tile */}
+        <div className={styles.offersPromo}>
+          <div className={styles.offersPromoContent}>
+            <div className={styles.offersPromoBadge}>Save</div>
+            <h3 className={styles.offersPromoTitle}>Save with Packages</h3>
+            <p className={styles.offersPromoText}>Buy 10 sessions, get 2 free — available for multiple lengths.</p>
+            <Link href="/book" className={styles.offersPromoButton}>View Offers</Link>
+          </div>
+        </div>
+
         <div className={styles.features}>
           <div className={styles.feature}>
             <div className={styles.featureIcon}>
@@ -108,6 +118,7 @@ export default function Home() {
             </p>
           </div>
         </div>
+
       </main>
     </div>
     </>
