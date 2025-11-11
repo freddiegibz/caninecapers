@@ -8,8 +8,9 @@ import { supabase } from "../../src/lib/supabaseClient";
 import { formatLondon } from "../../src/utils/dateTime";
 
 // Helper function to generate Acuity reschedule URL
+// Uses the same format as Acuity email reschedule links
 const getRescheduleUrl = (acuityAppointmentId: number): string => {
-  return `https://caninecapers.as.me/appointments/${acuityAppointmentId}/reschedule`;
+  return `https://app.acuityscheduling.com/schedule.php?owner=21300080&action=appt&apptId=${acuityAppointmentId}`;
 };
 
 export default function MySessions() {
