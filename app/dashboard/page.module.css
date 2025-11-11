@@ -422,15 +422,15 @@
 .quickActionsContainer {
   margin-bottom: 1.5rem;
   padding: 0;
-  padding-left: 1.5rem;
+  padding-left: calc(1.5rem - 3px);
 }
 
 .quickActionsSeparator {
   height: 1px;
   background: rgba(47, 78, 62, 0.08);
   margin-bottom: 0.75rem;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
+  margin-left: calc(-1.5rem + 3px);
+  margin-right: calc(-1.5rem + 3px);
 }
 
 .quickActionsLabel {
@@ -443,15 +443,13 @@
 }
 
 .quickActionsScroll {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  overflow: visible;
   padding-bottom: 0.5rem;
   padding-left: 0;
-  padding-right: 1.5rem;
-  scroll-snap-type: x mandatory;
+  padding-right: 0;
 }
 
 .quickActionsScroll::-webkit-scrollbar {
@@ -459,9 +457,8 @@
 }
 
 .quickActionButton {
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  height: 80px;
   background-color: #FEFCF8;
   border-radius: 12px;
   border: none;
@@ -470,7 +467,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   padding: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -478,9 +475,6 @@
   position: relative;
   font-family: inherit;
   margin: 0;
-  scroll-snap-align: start;
-  min-width: 44px;
-  min-height: 44px;
 }
 
 .quickActionButton:hover {
@@ -528,10 +522,10 @@
 
 .quickActionLabel {
   font-family: var(--font-poppins);
-  font-size: 9px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--cc-ink);
-  opacity: 0.8;
+  opacity: 0.85;
   text-align: center;
   line-height: 1.2;
   letter-spacing: 0;
@@ -1660,16 +1654,16 @@
   }
 
   .quickActionsContainer {
-    margin-bottom: 1rem;
-    padding-left: 1rem;
+    margin-bottom: 0.75rem;
+    padding-left: calc(1rem - 3px);
   }
 
   .availableTodayContent {
-    padding-top: 2rem;
+    padding-top: 1rem;
   }
 
   .availableTodayCaption {
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
   }
 
   .dashboardSectionTitle::before {
@@ -1677,23 +1671,23 @@
   }
 
   .quickActionsSeparator {
-    margin-left: -1rem;
-    margin-right: -1rem;
+    margin-left: calc(-1rem + 3px);
+    margin-right: calc(-1rem + 3px);
   }
 
   .quickActionsScroll {
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
-    padding-right: 1rem;
   }
 
   .quickActionButton {
-    width: 60px;
-    height: 60px;
+    width: 100%;
+    height: 76px;
     border-radius: 12px;
   }
 
   .quickActionLabel {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .sectionToggle {
@@ -1835,12 +1829,13 @@
   }
 
   .quickActionsScroll {
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
   }
 
   .quickActionButton {
-    width: 56px;
-    height: 56px;
+    width: 100%;
+    height: 72px;
   }
 
   .quickActionIcon {
