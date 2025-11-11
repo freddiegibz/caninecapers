@@ -7,13 +7,18 @@ import styles from "./page.module.css";
 import { supabase } from "../../src/lib/supabaseClient";
 import { formatLondon } from "../../src/utils/dateTime";
 
+// Helper function to generate Acuity reschedule URL
+const getRescheduleUrl = (acuityAppointmentId: number): string => {
+  return `https://caninecapers.as.me/appointments/${acuityAppointmentId}/reschedule`;
+};
+
 export default function MySessions() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const [loading, setLoading] = useState<boolean>(true);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
-  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string }>>([]);
-  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string }>>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number }>>([]);
+  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number }>>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,7 +61,15 @@ export default function MySessions() {
           // TODO: Store appointment_type_id in sessions table or fetch from Acuity API
           const length = '30 min'; // Default - can be updated when appointment_type_id is stored
           
-          return { id: String(s.id), name, time, address, iso, length };
+          return { 
+            id: String(s.id), 
+            name, 
+            time, 
+            address, 
+            iso, 
+            length,
+            acuity_appointment_id: s.acuity_appointment_id || undefined
+          };
         });
 
         const upcoming = normalized.filter(n => new Date(n.iso) >= now);
@@ -159,7 +172,19 @@ export default function MySessions() {
                       <div className={styles.sessionDetails}>
                         <div className={styles.sessionHeader}>
                           <h3 className={styles.sessionFieldName}>{session.name}</h3>
-                          <button className={styles.cancelButton}>Cancel</button>
+                          <div className={styles.sessionActions}>
+                            {session.acuity_appointment_id && (
+                              <a
+                                href={getRescheduleUrl(session.acuity_appointment_id)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.rescheduleButton}
+                              >
+                                Reschedule
+                              </a>
+                            )}
+                            <button className={styles.cancelButton}>Cancel</button>
+                          </div>
                         </div>
                         <div className={styles.sessionMeta}>
                           <div className={styles.metaRow}>

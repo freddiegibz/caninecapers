@@ -272,6 +272,12 @@
   margin-bottom: 12px;
 }
 
+.sessionActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .sessionFieldName {
   font-family: var(--font-poppins);
   font-size: 1.1rem;
@@ -282,7 +288,8 @@
 }
 
 .cancelButton,
-.rebookButton {
+.rebookButton,
+.rescheduleButton {
   padding: 6px 12px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -291,6 +298,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .cancelButton {
@@ -301,6 +310,17 @@
 
 .cancelButton:hover {
   background-color: rgba(163, 177, 138, 0.1);
+}
+
+.rescheduleButton {
+  color: #ffffff;
+  background-color: var(--forest);
+  border: 1px solid var(--forest);
+}
+
+.rescheduleButton:hover {
+  background-color: var(--sage);
+  border-color: var(--sage);
 }
 
 .rebookButton {
@@ -571,7 +591,8 @@
   }
 
   .cancelButton,
-  .rebookButton {
+  .rebookButton,
+  .rescheduleButton {
     padding: 5px 10px;
     font-size: 0.75rem;
   }
@@ -677,7 +698,8 @@
   }
 
   .cancelButton,
-  .rebookButton {
+  .rebookButton,
+  .rescheduleButton {
     padding: 4px 8px;
     font-size: 0.7rem;
   }

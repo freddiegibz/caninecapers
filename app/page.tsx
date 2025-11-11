@@ -71,6 +71,22 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Gallery Preview */}
+        <div className={styles.galleryPreview}>
+          <div className={styles.galleryPreviewHeader}>
+            <h3 className={styles.galleryPreviewTitle}>Field Gallery</h3>
+            <Link href="/gallery" className={styles.galleryPreviewLink}>View All →</Link>
+          </div>
+          <p className={styles.galleryPreviewSubtitle}>See photos from our community</p>
+          <div className={styles.galleryPreviewGrid}>
+            {/* These will be populated dynamically when gallery is set up */}
+            <div className={styles.galleryPreviewPlaceholder}>
+              <span className={styles.galleryPreviewIcon}>📷</span>
+              <p>Share your photos!</p>
+            </div>
+          </div>
+        </div>
+
         <div className={styles.features}>
           <div className={styles.feature}>
             <div className={styles.featureIcon}>

@@ -38,6 +38,17 @@ export default function Dashboard() {
   const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);
   const [nextSession, setNextSession] = useState<{ field: string; iso: string } | null>(null);
   const [loadingNext, setLoadingNext] = useState<boolean>(true);
+  
+  // Notice Board State
+  type Notice = {
+    id: string;
+    title: string;
+    message: string;
+    priority: 'info' | 'warning' | 'important';
+    created_at: string;
+  };
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loadingNotices, setLoadingNotices] = useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -122,6 +133,59 @@ export default function Dashboard() {
       }
     };
     loadNext();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Fetch notices from Supabase
+  useEffect(() => {
+    let isMounted = true;
+    const loadNotices = async () => {
+      try {
+        setLoadingNotices(true);
+        const now = new Date().toISOString();
+        
+        // Try to fetch from Supabase notices table
+        const { data, error } = await supabase
+          .from('notices')
+          .select('id, title, message, priority, created_at')
+          .eq('is_active', true)
+          .lte('start_date', now)
+          .or(`end_date.is.null,end_date.gte.${now}`)
+          .order('priority', { ascending: false }) // important first
+          .order('created_at', { ascending: false }) // newest first
+          .limit(5);
+
+        if (error) {
+          // Table might not exist yet, use mock data for demo
+          console.log('Notices table not found, using mock data:', error.message);
+          const mockNotices: Notice[] = [
+            {
+              id: '1',
+              title: 'Welcome to Canine Capers!',
+              message: 'We\'re excited to have you here. Book your first session and let your dog enjoy our premium fields.',
+              priority: 'info',
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: '2',
+              title: 'New Field Opening Soon',
+              message: 'We\'re opening a third location next month! Stay tuned for updates.',
+              priority: 'important',
+              created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            },
+          ];
+          if (isMounted) setNotices(mockNotices);
+        } else {
+          if (isMounted) setNotices(data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load notices:', err);
+        if (isMounted) setNotices([]);
+      } finally {
+        if (isMounted) setLoadingNotices(false);
+      }
+    };
+    loadNotices();
     return () => { isMounted = false; };
   }, []);
 
@@ -239,6 +303,51 @@ export default function Dashboard() {
 
           {/* Dashboard Content */}
           <div className={styles.dashboardContent}>
+            {/* Notice Board Section */}
+            {notices.length > 0 && (
+              <div className={styles.noticeBoardCard}>
+                <div className={styles.noticeBoardHeader}>
+                  <div className={styles.noticeBoardTitleWrapper}>
+                    <Image
+                      src="/noticeboard.jpg"
+                      alt="Notice board icon"
+                      width={20}
+                      height={20}
+                      className={styles.noticeBoardIcon}
+                    />
+                    <h3 className={styles.noticeBoardTitle}>Notice Board</h3>
+                  </div>
+                </div>
+                <div className={styles.noticeBoardContent}>
+                  {loadingNotices ? (
+                    <div className={styles.noticeItem}>
+                      <p className={styles.noticeMessage}>Loading announcements...</p>
+                    </div>
+                  ) : (
+                    notices.map((notice) => {
+                      const priorityClass = notice.priority === 'important' 
+                        ? styles.noticePriorityImportant 
+                        : notice.priority === 'warning' 
+                        ? styles.noticePriorityWarning 
+                        : styles.noticePriorityInfo;
+                      
+                      return (
+                        <div key={notice.id} className={styles.noticeItem}>
+                          <div className={styles.noticeItemHeader}>
+                            <span className={`${styles.noticePriorityBadge} ${priorityClass}`}>
+                              {notice.priority === 'important' ? 'Important' : notice.priority === 'warning' ? 'Update' : 'Info'}
+                            </span>
+                            <h4 className={styles.noticeTitle}>{notice.title}</h4>
+                          </div>
+                          <p className={styles.noticeMessage}>{notice.message}</p>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Next Session Card */}
             <div className={styles.nextSessionCard}>
               <div className={styles.nextSessionImageWrapper}>
@@ -302,8 +411,8 @@ export default function Dashboard() {
                     <Image
                       src="/booksession.png"
                       alt=""
-                      width={28}
-                      height={28}
+                      width={24}
+                      height={24}
                       aria-hidden="true"
                     />
                   </div>
@@ -322,8 +431,8 @@ export default function Dashboard() {
                     <Image
                       src="/viewsessions.png"
                       alt=""
-                      width={28}
-                      height={28}
+                      width={24}
+                      height={24}
                       aria-hidden="true"
                     />
                   </div>
@@ -342,8 +451,8 @@ export default function Dashboard() {
                     <Image
                       src="/location.png"
                       alt=""
-                      width={28}
-                      height={28}
+                      width={24}
+                      height={24}
                       aria-hidden="true"
                     />
                   </div>
@@ -362,8 +471,8 @@ export default function Dashboard() {
                     <Image
                       src="/locationicon/phone.png"
                       alt=""
-                      width={28}
-                      height={28}
+                      width={24}
+                      height={24}
                       aria-hidden="true"
                     />
                   </div>

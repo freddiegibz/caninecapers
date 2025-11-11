@@ -9,8 +9,6 @@ import styles from "./page.module.css";
 
 export default function Settings() {
   const router = useRouter();
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
-  const [updatesEnabled, setUpdatesEnabled] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userName, setUserName] = useState<string>('Loading...');
   const [userEmail, setUserEmail] = useState<string>('Loading...');
@@ -283,45 +281,6 @@ export default function Settings() {
                 <button className={styles.editButton}>
                   Edit Profile
                 </button>
-              </div>
-            </div>
-
-            {/* Notifications Section */}
-            <div className={styles.settingsSection}>
-              <h3 className={styles.sectionHeader}>Notifications</h3>
-
-              <div className={styles.toggleGroup}>
-                <div className={styles.toggleItem}>
-                  <div className={styles.toggleInfo}>
-                    <span className={styles.toggleLabel}>Session Reminders</span>
-                    <span className={styles.toggleDescription}>Get reminded about upcoming sessions</span>
-                  </div>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={remindersEnabled}
-                      onChange={(e) => setRemindersEnabled(e.target.checked)}
-                      className={styles.toggleInput}
-                    />
-                    <span className={styles.toggleSlider}></span>
-                  </label>
-                </div>
-
-                <div className={styles.toggleItem}>
-                  <div className={styles.toggleInfo}>
-                    <span className={styles.toggleLabel}>App Updates</span>
-                    <span className={styles.toggleDescription}>Receive notifications about app updates</span>
-                  </div>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={updatesEnabled}
-                      onChange={(e) => setUpdatesEnabled(e.target.checked)}
-                      className={styles.toggleInput}
-                    />
-                    <span className={styles.toggleSlider}></span>
-                  </label>
-                </div>
               </div>
             </div>
 
