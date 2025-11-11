@@ -1664,6 +1664,14 @@
     padding-left: 1rem;
   }
 
+  .availableTodayContent {
+    padding-top: 2rem;
+  }
+
+  .availableTodayCaption {
+    margin-top: 0.5rem;
+  }
+
   .quickActionsSeparator {
     margin-left: -1rem;
     margin-right: -1rem;
