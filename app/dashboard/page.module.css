@@ -420,7 +420,7 @@
 
 /* Quick Actions Row */
 .quickActionsContainer {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   padding: 0;
   padding-left: 1.5rem;
 }
@@ -546,7 +546,7 @@
   font-family: var(--font-lora);
   font-size: 0.875rem;
   color: rgba(96, 104, 93, 0.7);
-  margin: 1.5rem 0 0.5rem 0;
+  margin: 2rem 0 0.5rem 0;
   padding-left: 0;
   font-style: italic;
 }
