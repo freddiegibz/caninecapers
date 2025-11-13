@@ -67,19 +67,34 @@ export function getAcuityBookingUrl(
   const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
   const encodedSessionId = encodeURIComponent(sessionId);
   
-  // Safari: Use path-based format (same as other browsers) but WITHOUT user info
-  // The path-based format was working for Safari before - it handles datetime better than schedule.php
+  // Safari: Use path-based format (same as other browsers)
+  // Try adding user info BEFORE the custom field parameter - Safari might process in order
   if (isSafari) {
-    // Use path-based format WITHOUT user info - this was working before
     const params = [
       `appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}`,
       `calendarIds=${encodeURIComponent(calendarId)}`,
-      `datetime=${encodeURIComponent(datetime)}`,
-      `${fieldKey}=${encodedSessionId}` // Custom field parameter LAST
+      `datetime=${encodeURIComponent(datetime)}`
     ];
     
+    // Add user info BEFORE custom field - Safari might process standard fields first
+    if (userInfo) {
+      if (userInfo.email) {
+        params.push(`email=${encodeURIComponent(userInfo.email)}`);
+      }
+      if (userInfo.firstName) {
+        params.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
+      }
+      if (userInfo.lastName) {
+        params.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
+      }
+    }
+    
+    // Add custom field parameter LAST
+    params.push(`${fieldKey}=${encodedSessionId}`);
+    
     const safariUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${params.join('&')}`;
-    console.log('🔗 Safari URL (path-based, no user info):', safariUrl);
+    console.log('🔗 Safari URL (path-based with user info):', safariUrl);
+    console.log('🔗 Safari params order:', params.map(p => p.split('=')[0]));
     return safariUrl;
   }
   
