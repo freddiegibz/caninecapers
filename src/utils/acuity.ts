@@ -67,28 +67,19 @@ export function getAcuityBookingUrl(
   const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
   const encodedSessionId = encodeURIComponent(sessionId);
   
-  // Safari has issues with path-based URLs and array parameters (appointmentTypeIds[])
-  // Use schedule.php format for Safari which handles parameters more reliably
-  // Don't include user info (firstName/lastName/email) for Safari as it interferes with Session ID prefilling
+  // Safari: Use path-based format (same as other browsers) but WITHOUT user info
+  // The path-based format was working for Safari before - it handles datetime better than schedule.php
   if (isSafari) {
-    // Use schedule.php format - this was working for Session ID and date/time before
+    // Use path-based format WITHOUT user info - this was working before
     const params = [
-      `appointmentType=${encodeURIComponent(appointmentTypeId)}`,
-      `calendarID=${encodeURIComponent(calendarId)}`,
-      `datetime=${datetime}`, // Acuity docs show datetime should be literal (not URL encoded)
-      `${fieldKey}=${encodedSessionId}` // Custom field parameter
+      `appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}`,
+      `calendarIds=${encodeURIComponent(calendarId)}`,
+      `datetime=${encodeURIComponent(datetime)}`,
+      `${fieldKey}=${encodedSessionId}` // Custom field parameter LAST
     ];
     
-    const safariUrl = `https://caninecapers.as.me/schedule.php?${params.join('&')}`;
-    console.log('🔗 Safari-compatible URL (without user info):', safariUrl);
-    console.log('🔍 Safari Debug Info:', {
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
-      fieldKeyEncoded: fieldKey,
-      fieldKeyLiteral: `field:${ACUITY_SESSION_FIELD_ID}`,
-      sessionIdLength: sessionId.length,
-      urlLength: safariUrl.length,
-      hasUserInfo: !!userInfo
-    });
+    const safariUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${params.join('&')}`;
+    console.log('🔗 Safari URL (path-based, no user info):', safariUrl);
     return safariUrl;
   }
   
