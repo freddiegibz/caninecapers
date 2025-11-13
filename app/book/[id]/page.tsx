@@ -133,7 +133,17 @@ export default function BookingPage() {
         isSafari // Safari detection for URL format
       );
       console.log('Generated booking URL:', bookingUrl);
-      window.location.href = bookingUrl;
+      console.log('Full URL length:', bookingUrl.length);
+      console.log('URL contains field param:', bookingUrl.includes('field'));
+      
+      // For Safari, try using window.open or location.assign instead of href
+      // Safari sometimes handles direct href assignment differently
+      if (isSafari) {
+        // Try location.assign which may preserve parameters better in Safari
+        window.location.assign(bookingUrl);
+      } else {
+        window.location.href = bookingUrl;
+      }
     } catch (error) {
       console.error('Failed to build booking URL:', error);
       const fullDatetime = toFullIsoWithOffset(session.startTime);

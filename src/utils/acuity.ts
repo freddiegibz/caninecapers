@@ -71,14 +71,20 @@ export function getAcuityBookingUrl(
   // Use schedule.php format for Safari which handles parameters more reliably
   if (isSafari) {
     // Use schedule.php format which Safari handles better
-    // Format: schedule.php?appointmentType=ID&calendarID=ID&datetime=ISO&field:ID=value
-    const params = [
-      `appointmentType=${encodeURIComponent(appointmentTypeId)}`,
-      `calendarID=${encodeURIComponent(calendarId)}`,
-      `datetime=${datetime}` // Acuity docs show datetime should be literal (not URL encoded)
-    ];
+    // Since firstName/lastName/email ARE working, Safari IS processing params
+    // Issue might be that Acuity processes custom fields differently when standard fields are present
+    // Try putting custom field FIRST to ensure Acuity processes it before standard fields
+    const params: string[] = [];
     
-    // Add optional user info (standard Acuity fields)
+    // Put custom field FIRST - Acuity might process it better this way in Safari
+    params.push(`${fieldKey}=${encodedSessionId}`);
+    
+    // Then add standard Acuity parameters
+    params.push(`appointmentType=${encodeURIComponent(appointmentTypeId)}`);
+    params.push(`calendarID=${encodeURIComponent(calendarId)}`);
+    params.push(`datetime=${datetime}`); // Acuity docs show datetime should be literal (not URL encoded)
+    
+    // Add optional user info (standard Acuity fields) AFTER custom field
     if (userInfo) {
       if (userInfo.email) {
         params.push(`email=${encodeURIComponent(userInfo.email)}`);
@@ -91,11 +97,11 @@ export function getAcuityBookingUrl(
       }
     }
     
-    // Add custom field parameter LAST
-    params.push(`${fieldKey}=${encodedSessionId}`);
-    
     const safariUrl = `https://caninecapers.as.me/schedule.php?${params.join('&')}`;
     console.log('🔗 Safari-compatible URL format (schedule.php):', safariUrl);
+    console.log('🔗 Safari field param (FIRST position):', `${fieldKey}=${encodedSessionId}`);
+    console.log('🔗 All Safari params in order:', params);
+    
     return safariUrl;
   }
   
