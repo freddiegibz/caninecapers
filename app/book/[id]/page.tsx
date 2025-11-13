@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { supabase } from '../../../src/lib/supabaseClient';
 import { getAcuityBookingUrl } from '../../../src/utils/acuity';
 import { formatLondon } from '../../../src/utils/dateTime';
 import styles from './page.module.css';
@@ -74,6 +75,30 @@ export default function BookingPage() {
     setBookingLoading(true);
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || null;
+
+      // Create incomplete session in Supabase BEFORE redirecting to Acuity
+      // This ensures the webhook can match the session ID when it comes back
+      const { error: createError } = await supabase
+        .from('sessions')
+        .insert({
+          id: session.id, // Use the UUID we generated
+          user_id: userId,
+          field: session.field,
+          date: session.startTime, // ISO datetime string
+          status: 'incomplete',
+          source: 'app'
+        });
+
+      if (createError) {
+        console.error('Failed to create incomplete session:', createError);
+        // Continue anyway - webhook will create a new session if needed
+      } else {
+        console.log('✅ Created incomplete session:', session.id);
+      }
+
       const fullDatetime = toFullIsoWithOffset(session.startTime);
       console.log('Booking with session ID:', session.id);
       const bookingUrl = getAcuityBookingUrl(
