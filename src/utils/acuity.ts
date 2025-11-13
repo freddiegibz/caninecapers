@@ -53,8 +53,15 @@ export function getAcuityBookingUrl(
   // Try adding datetime as query param (not in path) to see if both work together
   const datetime = buildDatetime(selectedDate, selectedTime);
   
+  // Validate sessionId is not empty
+  if (!sessionId || sessionId.trim() === '') {
+    console.warn('⚠️ Empty sessionId passed to getAcuityBookingUrl');
+  }
+  
   const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
+  const encodedSessionId = encodeURIComponent(sessionId);
+  
   // Use path format WITHOUT datetime segment, but add datetime as query param
   // This matches the working link structure that successfully prefills Session ID
-  return `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}&calendarIds=${encodeURIComponent(calendarId)}&datetime=${encodeURIComponent(datetime)}&${fieldKey}=${encodeURIComponent(sessionId)}`;
+  return `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}&calendarIds=${encodeURIComponent(calendarId)}&datetime=${encodeURIComponent(datetime)}&${fieldKey}=${encodedSessionId}`;
 }

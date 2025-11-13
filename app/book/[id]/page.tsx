@@ -32,8 +32,11 @@ export default function BookingPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
+    const sessionId = searchParams.get('id') || '';
+    console.log('📋 Session ID from URL params:', sessionId);
+    
     const sessionData: SessionData = {
-      id: searchParams.get('id') || '',
+      id: sessionId,
       image_url: searchParams.get('image_url') || '',
       date: searchParams.get('date') || '',
       time: searchParams.get('time') || '',
@@ -48,6 +51,7 @@ export default function BookingPage() {
     if (sessionData.id && sessionData.startTime && sessionData.field && sessionData.appointmentTypeID) {
       setSession(sessionData);
     } else {
+      console.error('❌ Missing session data:', { id: sessionData.id, startTime: sessionData.startTime, field: sessionData.field, appointmentTypeID: sessionData.appointmentTypeID });
       setError('Session not found. Please return to the dashboard and try again.');
     }
 
@@ -71,6 +75,7 @@ export default function BookingPage() {
 
     try {
       const fullDatetime = toFullIsoWithOffset(session.startTime);
+      console.log('Booking with session ID:', session.id);
       const bookingUrl = getAcuityBookingUrl(
         session.id,
         session.calendarID.toString(),
@@ -78,6 +83,7 @@ export default function BookingPage() {
         session.date,
         fullDatetime // pass as selectedTime: function will detect full ISO and use as-is
       );
+      console.log('Generated booking URL:', bookingUrl);
       window.location.href = bookingUrl;
     } catch (error) {
       console.error('Failed to build booking URL:', error);
