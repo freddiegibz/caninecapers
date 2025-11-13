@@ -507,3 +507,67 @@
     font-size: 0.75rem;
   }
 }
+
+/* Debug Panel */
+.debugPanel {
+  max-width: 28rem;
+  margin: 1rem auto;
+  background-color: #fff;
+  border: 2px solid #e2dccb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.debugToggle {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #f5f4f1;
+  border: none;
+  border-bottom: 1px solid #e2dccb;
+  text-align: left;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2b3a29;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.debugToggle:hover {
+  background-color: #edece8;
+}
+
+.debugContent {
+  padding: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  color: #2b3a29;
+}
+
+.debugItem {
+  margin-bottom: 0.75rem;
+}
+
+.debugItem:last-child {
+  margin-bottom: 0;
+}
+
+.debugItem strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #3d4a3d;
+}
+
+.debugUrl,
+.debugUserAgent {
+  word-break: break-all;
+  background-color: #f5f4f1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+  overflow-x: auto;
+}

@@ -31,6 +31,8 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<{ url: string; isSafari: boolean; userAgent: string } | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     const sessionId = searchParams.get('id') || '';
@@ -135,6 +137,13 @@ export default function BookingPage() {
       console.log('Generated booking URL:', bookingUrl);
       console.log('Full URL length:', bookingUrl.length);
       console.log('URL contains field param:', bookingUrl.includes('field'));
+      
+      // Store debug info for visual display (useful for mobile Safari)
+      setDebugInfo({
+        url: bookingUrl,
+        isSafari,
+        userAgent: navigator.userAgent
+      });
       
       // Log what Safari will actually navigate to
       if (isSafari) {
@@ -321,6 +330,42 @@ export default function BookingPage() {
             </div>
           </div>
         </div>
+
+        {/* Debug Panel - Shows URL on mobile Safari */}
+        {debugInfo && (
+          <div className={styles.debugPanel}>
+            <button
+              onClick={() => setShowDebug(!showDebug)}
+              className={styles.debugToggle}
+            >
+              {showDebug ? '▼' : '▶'} Debug Info {debugInfo.isSafari ? '(Safari)' : ''}
+            </button>
+            {showDebug && (
+              <div className={styles.debugContent}>
+                <div className={styles.debugItem}>
+                  <strong>Generated URL:</strong>
+                  <div className={styles.debugUrl}>{debugInfo.url}</div>
+                </div>
+                <div className={styles.debugItem}>
+                  <strong>Browser:</strong> {debugInfo.isSafari ? 'Safari' : 'Other'}
+                </div>
+                <div className={styles.debugItem}>
+                  <strong>User Agent:</strong>
+                  <div className={styles.debugUserAgent}>{debugInfo.userAgent}</div>
+                </div>
+                <div className={styles.debugItem}>
+                  <strong>URL Length:</strong> {debugInfo.url.length} characters
+                </div>
+                <div className={styles.debugItem}>
+                  <strong>Has Session ID:</strong> {debugInfo.url.includes('field%3A17517976') ? 'Yes' : 'No'}
+                </div>
+                <div className={styles.debugItem}>
+                  <strong>Has User Info:</strong> {debugInfo.url.includes('email=') || debugInfo.url.includes('firstName=') ? 'Yes' : 'No'}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
