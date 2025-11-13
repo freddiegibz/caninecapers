@@ -325,8 +325,12 @@ export default function MySessions() {
                                 </button>
                                 <button
                                   className={styles.updateButton}
-                                  onClick={() => syncSessionFromAcuity(session.id, session.acuity_appointment_id)}
-                                  disabled={updatingSession === session.id}
+                                  onClick={() => {
+                                    if (session.acuity_appointment_id) {
+                                      syncSessionFromAcuity(session.id, session.acuity_appointment_id);
+                                    }
+                                  }}
+                                  disabled={updatingSession === session.id || !session.acuity_appointment_id}
                                 >
                                   {updatingSession === session.id ? 'Updating...' : 'Update'}
                                 </button>
