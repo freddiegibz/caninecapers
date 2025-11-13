@@ -69,39 +69,18 @@ export function getAcuityBookingUrl(
   
   // Safari has issues with path-based URLs and array parameters (appointmentTypeIds[])
   // Use schedule.php format for Safari which handles parameters more reliably
+  // Don't include user info (firstName/lastName/email) for Safari as it interferes with Session ID prefilling
   if (isSafari) {
-    // Use schedule.php format which Safari handles better
-    // Since firstName/lastName/email ARE working, Safari IS processing params
-    // Issue might be that Acuity processes custom fields differently when standard fields are present
-    // Try putting custom field FIRST to ensure Acuity processes it before standard fields
-    const params: string[] = [];
-    
-    // Put custom field FIRST - Acuity might process it better this way in Safari
-    params.push(`${fieldKey}=${encodedSessionId}`);
-    
-    // Then add standard Acuity parameters
-    params.push(`appointmentType=${encodeURIComponent(appointmentTypeId)}`);
-    params.push(`calendarID=${encodeURIComponent(calendarId)}`);
-    params.push(`datetime=${datetime}`); // Acuity docs show datetime should be literal (not URL encoded)
-    
-    // Add optional user info (standard Acuity fields) AFTER custom field
-    if (userInfo) {
-      if (userInfo.email) {
-        params.push(`email=${encodeURIComponent(userInfo.email)}`);
-      }
-      if (userInfo.firstName) {
-        params.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
-      }
-      if (userInfo.lastName) {
-        params.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
-      }
-    }
+    // Use schedule.php format - this was working for Session ID and date/time before
+    const params = [
+      `appointmentType=${encodeURIComponent(appointmentTypeId)}`,
+      `calendarID=${encodeURIComponent(calendarId)}`,
+      `datetime=${datetime}`, // Acuity docs show datetime should be literal (not URL encoded)
+      `${fieldKey}=${encodedSessionId}` // Custom field parameter
+    ];
     
     const safariUrl = `https://caninecapers.as.me/schedule.php?${params.join('&')}`;
-    console.log('🔗 Safari-compatible URL format (schedule.php):', safariUrl);
-    console.log('🔗 Safari field param (FIRST position):', `${fieldKey}=${encodedSessionId}`);
-    console.log('🔗 All Safari params in order:', params);
-    
+    console.log('🔗 Safari-compatible URL (without user info):', safariUrl);
     return safariUrl;
   }
   
