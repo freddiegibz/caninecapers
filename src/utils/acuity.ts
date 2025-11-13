@@ -17,22 +17,26 @@ function normalizeDateYYYYMMDD(input: string): string {
 }
 
 function buildDatetime(selectedDate: string, selectedTime: string): string {
-  // If the caller passes a full ISO datetime with offset, use it directly
+  // Acuity example format: 2025-08-30T14:00-05:00 (NO seconds, with timezone offset)
+  // If the caller passes a full ISO datetime with offset, extract date/time/offset
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(?:[+\-]\d{2}:?\d{2}|Z)$/.test(selectedTime)) {
-    // Normalize to include seconds and colon in offset if needed
+    // Parse the ISO string
     let dt = selectedTime.replace('Z', '+00:00');
-    // Insert seconds if missing
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?:[+\-]|Z)/.test(selectedTime)) {
-      dt = dt.replace(/T(\d{2}:\d{2})([+\-])/, 'T$1:00$2');
-    }
-    // Insert colon in offset if missing (e.g., +0000 -> +00:00)
-    dt = dt.replace(/([+\-]\d{2})(\d{2})$/, '$1:$2');
+    
+    // Remove seconds if present (Acuity format doesn't include seconds)
+    // Match: THH:MM:SS+offset or THH:MM:SS-offset
+    dt = dt.replace(/T(\d{2}:\d{2}):\d{2}([+\-]\d{2}:?\d{2})$/, 'T$1$2');
+    
+    // Ensure offset has colon (e.g., +0000 -> +00:00, but leave +00:00 as-is)
+    dt = dt.replace(/([+\-])(\d{2})(\d{2})$/, '$1$2:$3');
+    
     return dt;
   }
 
   // Else, build from date + time, defaulting to +00:00 offset
+  // Format: YYYY-MM-DDTHH:MM+00:00 (no seconds)
   const dateStr = normalizeDateYYYYMMDD(selectedDate);
-  const timeStr = selectedTime.length === 5 ? `${selectedTime}:00` : selectedTime;
+  const timeStr = selectedTime.length === 5 ? selectedTime : selectedTime.substring(0, 5); // Remove seconds if present
   return `${dateStr}T${timeStr}+00:00`;
 }
 
@@ -43,13 +47,14 @@ export function getAcuityBookingUrl(
   selectedDate: string,
   selectedTime: string
 ): string {
-  // Use EXACT format from Acuity docs:
-  // https://example.acuityscheduling.com/schedule.php?field:237764=Relaxation!&appointmentType=184520&datetime=2025-08-30T14:00-05:00
+  // Working link format (prefills Session ID but doesn't navigate to datetime):
+  // https://caninecapers.as.me/schedule/{ownerId}/appointment/{typeId}/calendar/{calId}?appointmentTypeIds[]=...&calendarIds=...&field%3A17517976=...
+  // 
+  // Try adding datetime as query param (not in path) to see if both work together
   const datetime = buildDatetime(selectedDate, selectedTime);
   
-  // Build URL exactly as documented:
-  // - field:ID key stays literal (colon not encoded)
-  // - datetime value stays literal (colons and +/- not encoded, as per Acuity example)
-  // - Other values are URL encoded
-  return `https://caninecapers.as.me/schedule.php?field:${ACUITY_SESSION_FIELD_ID}=${encodeURIComponent(sessionId)}&appointmentType=${encodeURIComponent(appointmentTypeId)}&calendarID=${encodeURIComponent(calendarId)}&datetime=${datetime}`;
+  const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
+  // Use path format WITHOUT datetime segment, but add datetime as query param
+  // This matches the working link structure that successfully prefills Session ID
+  return `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}&calendarIds=${encodeURIComponent(calendarId)}&datetime=${encodeURIComponent(datetime)}&${fieldKey}=${encodeURIComponent(sessionId)}`;
 }
