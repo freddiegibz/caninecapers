@@ -35,3 +35,4 @@ CREATE POLICY "Users can delete their own images"
   USING (auth.uid() = user_id);
 
 
+

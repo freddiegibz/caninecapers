@@ -33,7 +33,6 @@ export default function BookingPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
-    // Read session data from URL query parameters
     const sessionData: SessionData = {
       id: searchParams.get('id') || '',
       image_url: searchParams.get('image_url') || '',
@@ -47,25 +46,23 @@ export default function BookingPage() {
       appointmentTypeID: searchParams.get('appointmentTypeID') || ''
     };
 
-    console.log('Session data from query params:', sessionData);
-
-    // Check if we have all required session data
-    const hasRequiredData = sessionData.id && sessionData.date && sessionData.time && sessionData.field && sessionData.appointmentTypeID;
-
-    if (hasRequiredData) {
+    if (sessionData.id && sessionData.startTime && sessionData.field && sessionData.appointmentTypeID) {
       setSession(sessionData);
-      console.log('Session data loaded successfully');
     } else {
-      console.error('Missing session data in URL parameters');
       setError('Session not found. Please return to the dashboard and try again.');
     }
 
     setLoading(false);
   }, [searchParams, id]);
 
-
   const handleBack = () => {
     router.push('/dashboard');
+  };
+
+  const toFullIsoWithOffset = (isoZ: string) => {
+    // Expecting e.g. 2025-11-16T06:15:00.000Z -> 2025-11-16T06:15:00+00:00
+    const trimmed = isoZ.replace('.000Z', 'Z');
+    return trimmed.replace('Z', '+00:00');
   };
 
   const handleConfirmBooking = async () => {
@@ -74,117 +71,20 @@ export default function BookingPage() {
     setBookingLoading(true);
 
     try {
-      // Check if user is authenticated
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-      if (authError) {
-        console.error('Auth check error:', authError);
-      }
-
-      // Create incomplete session in database first
-      const sessionData = {
-        user_id: user?.id || null, // Link to authenticated user if available
-        field: session.field,
-        date: new Date(session.startTime).toISOString(),
-        session_token: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
-
-      console.log('Creating session for user:', user?.id || 'anonymous');
-
-      console.log('Creating incomplete session:', sessionData);
-
-      const response = await fetch('/api/sessions/create-incomplete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sessionData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create session');
-      }
-
-      const { sessionId, sessionToken } = await response.json();
-      console.log('Created incomplete session:', { sessionId, sessionToken });
-
-      // Save booking data with session info
-      const bookingData = {
-        sessionId,
-        sessionToken,
-        field: session.field,
-        calendarID: session.calendarID,
-        appointmentTypeID: session.appointmentTypeID,
-        date: session.date,
-        time: session.time,
-        length: session.length,
-        price: session.price,
-        startTime: session.startTime
-      };
-
-      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
-      console.log('Saved booking data to localStorage:', bookingData);
-
-      // Generate Acuity booking URL using raw UI date/time values
-      // Use session.date and session.time exactly as selected (no conversions)
-      const selectedDate = session.date; // Already in YYYY-MM-DD format from UI
-      const selectedTime = session.time; // Already in HH:MM format from UI (London-correct)
-
+      const fullDatetime = toFullIsoWithOffset(session.startTime);
       const bookingUrl = getAcuityBookingUrl(
-        sessionId,
+        session.id,
         session.calendarID.toString(),
         session.appointmentTypeID.toString(),
-        selectedDate,
-        selectedTime
+        session.date,
+        fullDatetime // pass as selectedTime: function will detect full ISO and use as-is
       );
-
-      // Validate URL structure before redirect
-      console.log('✅ Session ID prefill validation:', {
-        format: 'Root query format (calendar view + session ID prefill)',
-        fieldId: '17517976',
-        sessionId: sessionId,
-        encodedSessionId: encodeURIComponent(sessionId),
-        urlUsesRootFormat: bookingUrl.startsWith('https://caninecapers.as.me/?'),
-        urlContainsField: bookingUrl.includes('field:17517976='),
-        urlContainsSessionId: bookingUrl.includes(encodeURIComponent(sessionId)),
-        urlContainsDate: bookingUrl.includes('date='),
-        urlContainsTime: bookingUrl.includes('time='),
-        urlFormat: bookingUrl.startsWith('https://caninecapers.as.me/?') && bookingUrl.includes('field:17517976=') ? 'Correct format (root query + field param, opens calendar view)' : 'incorrect format'
-      });
-
-      // Add a brief delay for user feedback before redirecting
-      setTimeout(() => {
-        window.location.href = bookingUrl;
-      }, 1500);
+      window.location.href = bookingUrl;
     } catch (error) {
-      console.error('Failed to create session:', error);
-      // Fallback: redirect without session tracking (can't pre-fill session ID since creation failed)
-      // Use raw UI date/time values (no conversions)
-      const selectedDate = session.date; // Already in YYYY-MM-DD format from UI
-      const selectedTime = session.time; // Already in HH:MM format from UI (London-correct)
-
-      // Use root query format for fallback (without session ID prefill)
-      const bookingUrl = `https://caninecapers.as.me/?calendarID=${session.calendarID}&appointmentType=${session.appointmentTypeID}&date=${selectedDate}&time=${selectedTime}`;
-
-      console.log("🗓 selectedDate (UI):", selectedDate);
-      console.log("⏰ selectedTime (UI):", selectedTime);
-      console.log("🔗 Final booking URL (fallback - no session ID):", bookingUrl);
-
-      // Save basic booking data
-      const bookingData = {
-        field: session.field,
-        calendarID: session.calendarID,
-        appointmentTypeID: session.appointmentTypeID,
-        date: session.date,
-        time: session.time,
-        length: session.length,
-        price: session.price,
-        startTime: session.startTime
-      };
-
-      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
-
-      setTimeout(() => {
-        window.location.href = bookingUrl;
-      }, 1500);
+      console.error('Failed to build booking URL:', error);
+      const fullDatetime = toFullIsoWithOffset(session.startTime);
+      const fallback = `https://caninecapers.as.me/schedule.php?appointmentType=${encodeURIComponent(session.appointmentTypeID)}&calendarID=${encodeURIComponent(session.calendarID)}&datetime=${encodeURIComponent(fullDatetime)}&field%3A17517976=${encodeURIComponent(session.id)}`;
+      window.location.href = fallback;
     }
   };
 

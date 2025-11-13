@@ -8,9 +8,12 @@ import { supabase } from "../../src/lib/supabaseClient";
 import { formatLondon } from "../../src/utils/dateTime";
 
 // Helper function to generate Acuity reschedule URL
-// Uses the same format as Acuity email reschedule links
-const getRescheduleUrl = (acuityAppointmentId: number): string => {
-  return `https://app.acuityscheduling.com/schedule.php?owner=21300080&action=appt&apptId=${acuityAppointmentId}`;
+// Prefer account domain path format to deep-link to a specific appointment
+const getRescheduleUrl = (acuityAppointmentId: number, userEmail?: string | null): string => {
+  const id = encodeURIComponent(String(acuityAppointmentId));
+  // Primary: direct reschedule path on the account domain
+  // Example: https://caninecapers.as.me/appointments/1571017465/reschedule
+  return `https://caninecapers.as.me/appointments/${id}/reschedule`;
 };
 
 export default function MySessions() {
@@ -18,71 +21,201 @@ export default function MySessions() {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
-  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number }>>([]);
-  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number }>>([]);
+  const [authUserEmail, setAuthUserEmail] = useState<string | null>(null);
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
+  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
+  const [showReschedule, setShowReschedule] = useState<{ appointmentId: number; currentIso: string; appointmentTypeID?: string | null } | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<Array<{ startTime: string; calendarID: number; fieldName: string }>>([]);
+  const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
+  const [rescheduling, setRescheduling] = useState<boolean>(false);
+  const [rescheduleSuccess, setRescheduleSuccess] = useState<string | null>(null);
+  const [updatingSession, setUpdatingSession] = useState<string | null>(null); // session ID being updated
+
+  const getFieldMeta = (calendarID: number) => {
+    if (calendarID === 4783035) {
+      return { id: "central-bark" as const, name: "Central Bark" };
+    }
+    if (calendarID === 6255352) {
+      return { id: "hyde-bark" as const, name: "Hyde Bark" };
+    }
+    return { id: "central-bark" as const, name: "Central Bark" };
+  };
+
+  const openReschedule = async (appointmentId?: number, currentIso?: string) => {
+    if (!appointmentId || !currentIso) return;
+    setAvailableSlots([]);
+    setLoadingSlots(true);
+    setShowReschedule({ appointmentId, currentIso, appointmentTypeID: null });
+    // Fetch appointment info to get appointmentTypeID
+    try {
+      const infoResp = await fetch(`/api/acuity/appointment/${encodeURIComponent(String(appointmentId))}`, { cache: 'no-store' });
+      if (infoResp.ok) {
+        const info = await infoResp.json();
+        const typeId: string | null = info.appointmentTypeID || null;
+        setShowReschedule({ appointmentId, currentIso, appointmentTypeID: typeId });
+        if (typeId) {
+          const availResp = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(typeId)}`, { cache: 'no-store' });
+          if (availResp.ok) {
+            const slots: Array<{ startTime: string; calendarID: number }> = await availResp.json();
+            // Map slots to include field names and filter to only show future slots
+            const now = new Date();
+            const enrichedSlots = slots
+              .map(slot => ({
+                ...slot,
+                fieldName: getFieldMeta(slot.calendarID).name
+              }))
+              .filter(slot => new Date(slot.startTime) > now) // Only show future slots
+              .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()); // Sort by time
+            setAvailableSlots(enrichedSlots);
+          }
+        }
+      }
+    } catch {
+      // Silent fail; modal will show empty state
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const syncSessionFromAcuity = async (sessionId: string, appointmentId: number) => {
+    setUpdatingSession(sessionId);
+    try {
+      const resp = await fetch('/api/sessions/sync-acuity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: String(appointmentId), sessionId })
+      });
+      
+      const data = await resp.json();
+      
+      if (resp.ok && data.success) {
+        console.log('Session synced:', data);
+        // Refresh the session list to show updated data
+        await loadSessions();
+        alert('Session updated successfully!');
+      } else {
+        console.error('Sync failed:', data);
+        alert(`Failed to update session: ${data.error || 'Unknown error'}`);
+      }
+    } catch (e) {
+      console.error('Error syncing session:', e);
+      alert('Failed to update session. Please try again.');
+    } finally {
+      setUpdatingSession(null);
+    }
+  };
+
+  const submitRescheduleToSlot = async (slot: { startTime: string; calendarID: number }) => {
+    if (!showReschedule) return;
+    setRescheduling(true);
+    setRescheduleSuccess(null);
+    try {
+      const resp = await fetch('/api/acuity/reschedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: showReschedule.appointmentId, datetime: slot.startTime, calendarID: slot.calendarID })
+      });
+      
+      const data = await resp.json();
+      
+      if (resp.ok && data.success) {
+        console.log('Reschedule successful:', data);
+        setRescheduleSuccess('Appointment rescheduled successfully!');
+        setShowReschedule(null);
+        // Refresh the session list to show updated times
+        await loadSessions();
+        // Clear success message after a delay
+        setTimeout(() => setRescheduleSuccess(null), 3000);
+      } else {
+        console.error('Reschedule failed:', data);
+        const errorMsg = data.error || 'Unknown error';
+        const details = data.details ? ` ${data.details}` : '';
+        alert(`Failed to reschedule: ${errorMsg}.${details}`);
+      }
+    } catch (e) {
+      console.error('Error rescheduling:', e);
+      alert('Failed to reschedule. Please try again.');
+    } finally {
+      setRescheduling(false);
+    }
+  };
+
+
+  const loadSessions = async () => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      setAuthUserId(user?.id ?? null);
+      setAuthUserEmail(user?.email ?? null);
+      if (!user?.id) {
+        setUpcomingSessions([]);
+        setPastSessions([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('id, field, date, acuity_appointment_id')
+        .eq('user_id', user.id)
+        .eq('status', 'complete')
+        .order('date', { ascending: true });
+
+      if (error) {
+        console.error('Failed to load sessions:', error);
+        setUpcomingSessions([]);
+        setPastSessions([]);
+        return;
+      }
+
+      const now = new Date();
+      const normalized = (data ?? []).map((s) => {
+        const iso = String(s.date);
+        const name = String(s.field || 'Central Bark');
+        const time = formatLondon(iso);
+        const address = 'Brickyard Cottage, Stourport-on-Severn, Bewdley DY13 8DZ, United Kingdom';
+        return { 
+          id: String(s.id), 
+          name, 
+          time, 
+          address, 
+          iso, 
+          length: undefined,
+          acuity_appointment_id: s.acuity_appointment_id || undefined,
+          appointmentTypeID: undefined
+        };
+      });
+
+      const upcoming = normalized.filter(n => new Date(n.iso) >= now);
+      const past = normalized.filter(n => new Date(n.iso) < now).reverse();
+
+      setUpcomingSessions(upcoming);
+      setPastSessions(past);
+
+      // Enrich upcoming with appointment type for accurate duration
+      const enriched = await Promise.all(upcoming.map(async (sess) => {
+        if (!sess.acuity_appointment_id) return sess;
+        try {
+          const resp = await fetch(`/api/acuity/appointment/${encodeURIComponent(String(sess.acuity_appointment_id))}`, { cache: 'no-store' });
+          if (!resp.ok) return sess;
+          const info = await resp.json();
+          const typeId: string | undefined = info.appointmentTypeID || undefined;
+          let lengthText: string | undefined;
+          if (typeId === '18525224') lengthText = '30 min';
+          else if (typeId === '29373489') lengthText = '45 min';
+          else if (typeId === '18525161') lengthText = '1 hour';
+          return { ...sess, appointmentTypeID: typeId, length: lengthText };
+        } catch {
+          return sess;
+        }
+      }));
+      setUpcomingSessions(enriched);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
-    const loadSessions = async () => {
-      try {
-        setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!isMounted) return;
-        setAuthUserId(user?.id ?? null);
-        if (!user?.id) {
-          setUpcomingSessions([]);
-          setPastSessions([]);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('sessions')
-          .select('id, field, date, acuity_appointment_id')
-          .eq('user_id', user.id)
-          .eq('status', 'complete')
-          .order('date', { ascending: true });
-
-        if (error) {
-          console.error('Failed to load sessions:', error);
-          setUpcomingSessions([]);
-          setPastSessions([]);
-          return;
-        }
-
-        const now = new Date();
-        const normalized = (data ?? []).map((s) => {
-          const iso = String(s.date);
-          const name = String(s.field || 'Central Bark');
-          const time = formatLondon(iso);
-          const address = 'Brickyard Cottage, Stourport-on-Severn, Bewdley DY13 8DZ, United Kingdom';
-          
-          // Map Acuity appointment type ID to duration (default to 30 min if unknown)
-          // Appointment type IDs: 18525224 = 30 min, 29373489 = 45 min, 18525161 = 1 hour
-          // For now, we'll use a default since we don't have the appointment type stored
-          // TODO: Store appointment_type_id in sessions table or fetch from Acuity API
-          const length = '30 min'; // Default - can be updated when appointment_type_id is stored
-          
-          return { 
-            id: String(s.id), 
-            name, 
-            time, 
-            address, 
-            iso, 
-            length,
-            acuity_appointment_id: s.acuity_appointment_id || undefined
-          };
-        });
-
-        const upcoming = normalized.filter(n => new Date(n.iso) >= now);
-        const past = normalized.filter(n => new Date(n.iso) < now).reverse();
-
-        if (!isMounted) return;
-        setUpcomingSessions(upcoming);
-        setPastSessions(past);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
     loadSessions();
     return () => { isMounted = false; };
   }, []);
@@ -110,6 +243,18 @@ export default function MySessions() {
         <header className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>My Sessions</h1>
           <p className={styles.pageSubtitle}>See your upcoming and past bookings in one place.</p>
+          {rescheduleSuccess && (
+            <div style={{ 
+              marginTop: '1rem', 
+              padding: '0.75rem', 
+              backgroundColor: '#d4edda', 
+              color: '#155724', 
+              borderRadius: '4px',
+              border: '1px solid #c3e6cb'
+            }}>
+              {rescheduleSuccess}
+            </div>
+          )}
           <div className={styles.headerDivider}></div>
         </header>
 
@@ -172,19 +317,34 @@ export default function MySessions() {
                       </div>
                       <div className={styles.sessionDetails}>
                         <div className={styles.sessionHeader}>
-                          <h3 className={styles.sessionFieldName}>{session.name}</h3>
+                          <h3 className={styles.sessionFieldName}>
+                            <Image
+                              src={session.name.toLowerCase().includes('hyde') ? '/locationicon/hydebarki.png' : '/locationicon/centralbark.png'}
+                              alt=""
+                              width={16}
+                              height={16}
+                              style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                            />
+                            {session.name}
+                          </h3>
                           <div className={styles.sessionActions}>
                             {session.acuity_appointment_id && (
-                              <a
-                                href={getRescheduleUrl(session.acuity_appointment_id)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.rescheduleButton}
-                              >
-                                Reschedule
-                              </a>
+                              <>
+                                <button
+                                  className={styles.rescheduleButton}
+                                  onClick={() => openReschedule(session.acuity_appointment_id, session.iso)}
+                                >
+                                  Reschedule
+                                </button>
+                                <button
+                                  className={styles.updateButton}
+                                  onClick={() => syncSessionFromAcuity(session.id, session.acuity_appointment_id)}
+                                  disabled={updatingSession === session.id}
+                                >
+                                  {updatingSession === session.id ? 'Updating...' : 'Update'}
+                                </button>
+                              </>
                             )}
-                            <button className={styles.cancelButton}>Cancel</button>
                           </div>
                         </div>
                         <div className={styles.sessionMeta}>
@@ -238,7 +398,16 @@ export default function MySessions() {
                       </div>
                       <div className={styles.sessionDetails}>
                         <div className={styles.sessionHeader}>
-                          <h3 className={styles.sessionFieldName}>{session.name}</h3>
+                          <h3 className={styles.sessionFieldName}>
+                            <Image
+                              src={session.name.toLowerCase().includes('hyde') ? '/locationicon/hydebarki.png' : '/locationicon/centralbark.png'}
+                              alt=""
+                              width={16}
+                              height={16}
+                              style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+                            />
+                            {session.name}
+                          </h3>
                           <button className={styles.rebookButton}>Rebook</button>
                         </div>
                         <div className={styles.sessionMeta}>
@@ -276,6 +445,61 @@ export default function MySessions() {
           )}
         </main>
       </div>
+
+      {showReschedule && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <strong>Reschedule</strong>
+              <button className={styles.closeBtn} onClick={() => setShowReschedule(null)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              {rescheduling && (
+                <div style={{ textAlign: 'center', padding: '1rem' }}>Rescheduling appointment…</div>
+              )}
+              {!rescheduling && loadingSlots && (
+                <div>Loading available slots…</div>
+              )}
+              {!rescheduling && !loadingSlots && !showReschedule.appointmentTypeID && (
+                <div>Loading appointment info…</div>
+              )}
+              {!rescheduling && !loadingSlots && showReschedule.appointmentTypeID && availableSlots.length === 0 && (
+                <div>No free slots available in the next few days.</div>
+              )}
+              {!rescheduling && !loadingSlots && availableSlots.length > 0 && (
+                <div>
+                  <div style={{ marginBottom: '1rem', fontWeight: 600 }}>Pick a free slot:</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '400px', overflowY: 'auto' }}>
+                    {availableSlots.map((s, idx) => (
+                      <button 
+                        key={idx} 
+                        className={styles.primaryBtn} 
+                        onClick={() => submitRescheduleToSlot({ startTime: s.startTime, calendarID: s.calendarID })}
+                        disabled={rescheduling}
+                        style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          alignItems: 'flex-start',
+                          padding: '0.75rem',
+                          textAlign: 'left',
+                          opacity: rescheduling ? 0.6 : 1,
+                          cursor: rescheduling ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        <div style={{ fontWeight: 600 }}>{formatLondon(s.startTime)}</div>
+                        <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>{s.fieldName}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.secondaryBtn} onClick={() => setShowReschedule(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className={styles.mobileFooter} aria-label="Primary actions">
         <Link href="/dashboard" className={styles.footerAction}>
