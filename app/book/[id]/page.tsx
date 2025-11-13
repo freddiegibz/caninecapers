@@ -117,6 +117,10 @@ export default function BookingPage() {
         }
       }
 
+      // Detect Safari browser
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      console.log('🌐 Browser detection:', { isSafari, userAgent: navigator.userAgent });
+
       const fullDatetime = toFullIsoWithOffset(session.startTime);
       console.log('Booking with session ID:', session.id);
       const bookingUrl = getAcuityBookingUrl(
@@ -125,7 +129,8 @@ export default function BookingPage() {
         session.appointmentTypeID.toString(),
         session.date,
         fullDatetime, // pass as selectedTime: function will detect full ISO and use as-is
-        userInfo // optional user info for prefilling
+        userInfo, // optional user info for prefilling
+        isSafari // Safari detection for URL format
       );
       console.log('Generated booking URL:', bookingUrl);
       window.location.href = bookingUrl;

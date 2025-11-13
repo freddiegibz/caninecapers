@@ -50,7 +50,8 @@ export function getAcuityBookingUrl(
     email?: string | null;
     firstName?: string | null;
     lastName?: string | null;
-  }
+  },
+  isSafari?: boolean
 ): string {
   // Working link format (prefills Session ID but doesn't navigate to datetime):
   // https://caninecapers.as.me/schedule/{ownerId}/appointment/{typeId}/calendar/{calId}?appointmentTypeIds[]=...&calendarIds=...&field%3A17517976=...
@@ -66,7 +67,39 @@ export function getAcuityBookingUrl(
   const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
   const encodedSessionId = encodeURIComponent(sessionId);
   
-  // Build base URL with required parameters
+  // Safari has issues with path-based URLs and array parameters (appointmentTypeIds[])
+  // Use schedule.php format for Safari which handles parameters more reliably
+  if (isSafari) {
+    // Use schedule.php format which Safari handles better
+    // Format: schedule.php?appointmentType=ID&calendarID=ID&datetime=ISO&field:ID=value
+    const params = [
+      `appointmentType=${encodeURIComponent(appointmentTypeId)}`,
+      `calendarID=${encodeURIComponent(calendarId)}`,
+      `datetime=${datetime}` // Acuity docs show datetime should be literal (not URL encoded)
+    ];
+    
+    // Add optional user info (standard Acuity fields)
+    if (userInfo) {
+      if (userInfo.email) {
+        params.push(`email=${encodeURIComponent(userInfo.email)}`);
+      }
+      if (userInfo.firstName) {
+        params.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
+      }
+      if (userInfo.lastName) {
+        params.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
+      }
+    }
+    
+    // Add custom field parameter LAST
+    params.push(`${fieldKey}=${encodedSessionId}`);
+    
+    const safariUrl = `https://caninecapers.as.me/schedule.php?${params.join('&')}`;
+    console.log('🔗 Safari-compatible URL format (schedule.php):', safariUrl);
+    return safariUrl;
+  }
+  
+  // Build base URL with required parameters for non-Safari browsers
   // Put standard Acuity params first, then user info, then custom field LAST
   // This ensures the custom field parameter is processed correctly
   const baseParams = [
