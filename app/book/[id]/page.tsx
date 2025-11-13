@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { supabase } from '../../../src/lib/supabaseClient';
 import { getAcuityBookingUrl } from '../../../src/utils/acuity';
 import { formatLondon } from '../../../src/utils/dateTime';
 import styles from './page.module.css';

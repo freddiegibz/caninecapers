@@ -51,7 +51,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch appointment from Acuity', details: text }, { status: acuityResp.status });
     }
 
-    const appointment: any = await acuityResp.json();
+    const appointment: {
+      id?: number;
+      datetime?: string;
+      calendarID?: number;
+      appointmentTypeID?: number;
+    } = await acuityResp.json();
     
     // Extract data from Acuity appointment
     const acuityAppointmentId = appointment.id;

@@ -216,12 +216,6 @@ export default function Gallery() {
     };
   }, [showLightbox]);
 
-  const getFieldName = (fieldId: number) => {
-    if (fieldId === 4783035) return 'Central Bark';
-    if (fieldId === 6255352) return 'Hyde Bark';
-    return 'All Fields';
-  };
-
   return (
     <>
       <header className={styles.navbar}>

@@ -7,21 +7,11 @@ import styles from "./page.module.css";
 import { supabase } from "../../src/lib/supabaseClient";
 import { formatLondon } from "../../src/utils/dateTime";
 
-// Helper function to generate Acuity reschedule URL
-// Prefer account domain path format to deep-link to a specific appointment
-const getRescheduleUrl = (acuityAppointmentId: number, userEmail?: string | null): string => {
-  const id = encodeURIComponent(String(acuityAppointmentId));
-  // Primary: direct reschedule path on the account domain
-  // Example: https://caninecapers.as.me/appointments/1571017465/reschedule
-  return `https://caninecapers.as.me/appointments/${id}/reschedule`;
-};
-
 export default function MySessions() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const [loading, setLoading] = useState<boolean>(true);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
-  const [authUserEmail, setAuthUserEmail] = useState<string | null>(null);
   const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [showReschedule, setShowReschedule] = useState<{ appointmentId: number; currentIso: string; appointmentTypeID?: string | null } | null>(null);
@@ -146,7 +136,6 @@ export default function MySessions() {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       setAuthUserId(user?.id ?? null);
-      setAuthUserEmail(user?.email ?? null);
       if (!user?.id) {
         setUpcomingSessions([]);
         setPastSessions([]);
@@ -215,9 +204,7 @@ export default function MySessions() {
   };
 
   useEffect(() => {
-    let isMounted = true;
     loadSessions();
-    return () => { isMounted = false; };
   }, []);
   return (
     <>
