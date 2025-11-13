@@ -32,7 +32,13 @@ export async function GET(request: Request) {
           cache: 'no-store'
         });
         if (resp.ok) {
-          const appt: any = await resp.json();
+          const appt: {
+            appointmentTypeID?: number | string;
+            appointmentTypeId?: number | string;
+            typeID?: number | string;
+            typeId?: number | string;
+            calendarID?: number | string;
+          } = await resp.json();
           // Try multiple possible field names defensively
           appointmentTypeID = String(
             appt.appointmentTypeID ?? appt.appointmentTypeId ?? appt.typeID ?? appt.typeId ?? ''
@@ -57,7 +63,7 @@ export async function GET(request: Request) {
 
     // Redirect to the first (richest) candidate; Acuity will handle remaining routing
     return NextResponse.redirect(candidates[0], { status: 302 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }

@@ -28,7 +28,14 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       return NextResponse.json({ error: 'Failed to fetch appointment' }, { status: resp.status });
     }
 
-    const appt: any = await resp.json();
+    const appt: {
+      appointmentTypeID?: number | string;
+      appointmentTypeId?: number | string;
+      typeID?: number | string;
+      typeId?: number | string;
+      calendarID?: number | string;
+      calendarId?: number | string;
+    } = await resp.json();
     const appointmentTypeID = appt.appointmentTypeID ?? appt.appointmentTypeId ?? appt.typeID ?? appt.typeId ?? null;
     const calendarID = appt.calendarID ?? appt.calendarId ?? null;
 
@@ -37,7 +44,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       appointmentTypeID: appointmentTypeID != null ? String(appointmentTypeID) : null,
       calendarID: calendarID != null ? String(calendarID) : null,
     });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }

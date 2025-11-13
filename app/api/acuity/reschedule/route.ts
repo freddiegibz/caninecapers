@@ -36,7 +36,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch appointment', details: text }, { status: getResp.status });
     }
 
-    const currentAppointment: any = await getResp.json();
+    const currentAppointment: {
+      id?: number;
+      datetime?: string;
+      calendarID?: number;
+    } = await getResp.json();
     console.log('Current appointment:', { id: currentAppointment.id, datetime: currentAppointment.datetime, calendarID: currentAppointment.calendarID });
 
     // Convert datetime from ISO string (with Z) to Acuity's expected format (+0000)
@@ -90,11 +94,16 @@ export async function POST(request: Request) {
     });
 
     const text = await updateResp.text();
-    let json: any = null;
+    let json: {
+      datetime?: string;
+      appointment?: {
+        datetime?: string;
+      };
+    } | null = null;
     try { 
       json = JSON.parse(text); 
       console.log('Update response:', { status: updateResp.status, appointment: json });
-    } catch (e) {
+    } catch {
       console.error('Failed to parse update response:', text);
     }
 
