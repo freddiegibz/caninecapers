@@ -136,10 +136,14 @@ export default function BookingPage() {
       console.log('Full URL length:', bookingUrl.length);
       console.log('URL contains field param:', bookingUrl.includes('field'));
       
-      // For Safari, try using window.open or location.assign instead of href
-      // Safari sometimes handles direct href assignment differently
+      // Log what Safari will actually navigate to
       if (isSafari) {
-        // Try location.assign which may preserve parameters better in Safari
+        console.log('🌐 Safari Navigation Debug:', {
+          originalUrl: bookingUrl,
+          locationHref: window.location.href,
+          willNavigateTo: bookingUrl
+        });
+        // Use location.assign for Safari - may preserve parameters better
         window.location.assign(bookingUrl);
       } else {
         window.location.href = bookingUrl;

@@ -81,6 +81,14 @@ export function getAcuityBookingUrl(
     
     const safariUrl = `https://caninecapers.as.me/schedule.php?${params.join('&')}`;
     console.log('🔗 Safari-compatible URL (without user info):', safariUrl);
+    console.log('🔍 Safari Debug Info:', {
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
+      fieldKeyEncoded: fieldKey,
+      fieldKeyLiteral: `field:${ACUITY_SESSION_FIELD_ID}`,
+      sessionIdLength: sessionId.length,
+      urlLength: safariUrl.length,
+      hasUserInfo: !!userInfo
+    });
     return safariUrl;
   }
   
