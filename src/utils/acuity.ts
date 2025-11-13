@@ -45,12 +45,17 @@ export function getAcuityBookingUrl(
   calendarId: string, 
   appointmentTypeId: string, 
   selectedDate: string,
-  selectedTime: string
+  selectedTime: string,
+  userInfo?: {
+    email?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+  }
 ): string {
   // Working link format (prefills Session ID but doesn't navigate to datetime):
   // https://caninecapers.as.me/schedule/{ownerId}/appointment/{typeId}/calendar/{calId}?appointmentTypeIds[]=...&calendarIds=...&field%3A17517976=...
   // 
-  // Try adding datetime as query param (not in path) to see if both work together
+  // Acuity also supports prefilling client data: firstName, lastName, email, phone
   const datetime = buildDatetime(selectedDate, selectedTime);
   
   // Validate sessionId is not empty
@@ -61,7 +66,43 @@ export function getAcuityBookingUrl(
   const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
   const encodedSessionId = encodeURIComponent(sessionId);
   
+  // Build base URL with required parameters
+  // Put standard Acuity params first, then user info, then custom field LAST
+  // This ensures the custom field parameter is processed correctly
+  const baseParams = [
+    `appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}`,
+    `calendarIds=${encodeURIComponent(calendarId)}`,
+    `datetime=${encodeURIComponent(datetime)}`
+  ];
+  
+  // Add optional user info if provided (standard Acuity fields)
+  if (userInfo) {
+    if (userInfo.email) {
+      baseParams.push(`email=${encodeURIComponent(userInfo.email)}`);
+    }
+    if (userInfo.firstName) {
+      baseParams.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
+    }
+    if (userInfo.lastName) {
+      baseParams.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
+    }
+  }
+  
+  // Add custom field parameter LAST - this ensures it's processed after standard fields
+  baseParams.push(`${fieldKey}=${encodedSessionId}`);
+  
+  const finalUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${baseParams.join('&')}`;
+  
+  // Debug logging
+  console.log('🔗 Acuity booking URL params:', {
+    sessionId,
+    hasUserInfo: !!userInfo,
+    userInfoKeys: userInfo ? Object.keys(userInfo).filter(k => userInfo[k as keyof typeof userInfo]) : [],
+    fieldParam: `${fieldKey}=${encodedSessionId}`,
+    totalParams: baseParams.length
+  });
+  
   // Use path format WITHOUT datetime segment, but add datetime as query param
   // This matches the working link structure that successfully prefills Session ID
-  return `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}&calendarIds=${encodeURIComponent(calendarId)}&datetime=${encodeURIComponent(datetime)}&${fieldKey}=${encodedSessionId}`;
+  return finalUrl;
 }

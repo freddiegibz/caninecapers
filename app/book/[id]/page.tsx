@@ -99,6 +99,24 @@ export default function BookingPage() {
         console.log('✅ Created incomplete session:', session.id);
       }
 
+      // Get user info for prefilling Acuity form
+      let userInfo: { email?: string | null; firstName?: string | null; lastName?: string | null } | undefined;
+      if (user) {
+        const firstName = user.user_metadata?.first_name || user.user_metadata?.given_name || null;
+        const lastName = user.user_metadata?.last_name || user.user_metadata?.family_name || null;
+        const email = user.email || null;
+        
+        // Only include userInfo if we have at least email or name
+        if (email || firstName || lastName) {
+          userInfo = {
+            email: email,
+            firstName: firstName,
+            lastName: lastName
+          };
+          console.log('Including user info in booking URL:', userInfo);
+        }
+      }
+
       const fullDatetime = toFullIsoWithOffset(session.startTime);
       console.log('Booking with session ID:', session.id);
       const bookingUrl = getAcuityBookingUrl(
@@ -106,7 +124,8 @@ export default function BookingPage() {
         session.calendarID.toString(),
         session.appointmentTypeID.toString(),
         session.date,
-        fullDatetime // pass as selectedTime: function will detect full ISO and use as-is
+        fullDatetime, // pass as selectedTime: function will detect full ISO and use as-is
+        userInfo // optional user info for prefilling
       );
       console.log('Generated booking URL:', bookingUrl);
       window.location.href = bookingUrl;

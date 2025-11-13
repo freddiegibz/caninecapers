@@ -38,7 +38,7 @@ export default function Dashboard() {
   const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);
   const [nextSession, setNextSession] = useState<{ field: string; iso: string } | null>(null);
   const [loadingNext, setLoadingNext] = useState<boolean>(true);
-  
+
   // Notice Board State
   type Notice = {
     id: string;

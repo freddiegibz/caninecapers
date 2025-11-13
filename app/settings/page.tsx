@@ -21,6 +21,14 @@ export default function Settings() {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [profileData, setProfileData] = useState({
+    firstName: '',
+    lastName: ''
+  });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
 
   const loadUserData = async () => {
     try {
@@ -49,12 +57,19 @@ export default function Settings() {
         console.log('Name from metadata:', name);
 
         // 2. Check user metadata for first/last name combination
-        if (!name && user.user_metadata) {
-          const firstName = user.user_metadata.first_name || user.user_metadata.given_name;
-          const lastName = user.user_metadata.last_name || user.user_metadata.family_name;
+        let firstName = null;
+        let lastName = null;
+        if (user.user_metadata) {
+          firstName = user.user_metadata.first_name || user.user_metadata.given_name;
+          lastName = user.user_metadata.last_name || user.user_metadata.family_name;
           if (firstName || lastName) {
             name = [firstName, lastName].filter(Boolean).join(' ');
             console.log('Name from first/last name:', name);
+            // Set profile data for edit form
+            setProfileData({
+              firstName: firstName || '',
+              lastName: lastName || ''
+            });
           }
         }
 
@@ -77,6 +92,14 @@ export default function Settings() {
                      profile.first_name || profile.last_name;
 
               console.log('Name from profiles table:', name);
+              
+              // Set profile data for edit form if not already set
+              if (!firstName && !lastName) {
+                setProfileData({
+                  firstName: profile.first_name || '',
+                  lastName: profile.last_name || ''
+                });
+              }
             } else {
               console.log('Profile query failed:', profileError?.message);
             }
@@ -227,6 +250,55 @@ export default function Settings() {
     setShowPasswordModal(true);
   };
 
+  const openEditProfileModal = () => {
+    setProfileError('');
+    setProfileSuccess('');
+    setShowEditProfileModal(true);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setIsSavingProfile(true);
+      setProfileError('');
+      setProfileSuccess('');
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        setProfileError('Unable to verify user session');
+        setIsSavingProfile(false);
+        return;
+      }
+
+      // Update user metadata with first and last name
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          first_name: profileData.firstName.trim() || null,
+          last_name: profileData.lastName.trim() || null
+        }
+      });
+
+      if (updateError) {
+        console.error('Failed to update profile:', updateError);
+        setProfileError(updateError.message || 'Failed to update profile');
+      } else {
+        console.log('Profile updated successfully');
+        setProfileSuccess('Profile updated successfully!');
+        // Reload user data to reflect changes
+        await loadUserData();
+        // Close modal after a short delay
+        setTimeout(() => {
+          setShowEditProfileModal(false);
+          setProfileSuccess('');
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Unexpected error updating profile:', error);
+      setProfileError('An unexpected error occurred');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   return (
     <>
       <header className={styles.navbar}>
@@ -278,7 +350,7 @@ export default function Settings() {
                     </p>
                   </div>
                 </div>
-                <button className={styles.editButton}>
+                <button className={styles.editButton} onClick={openEditProfileModal}>
                   Edit Profile
                 </button>
               </div>
@@ -453,6 +525,71 @@ export default function Settings() {
                 disabled={isChangingPassword}
               >
                 {isChangingPassword ? 'Changing...' : 'Change Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
+      {showEditProfileModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowEditProfileModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Edit Profile</h3>
+              <button
+                className={styles.modalClose}
+                onClick={() => setShowEditProfileModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>First Name</label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={profileData.firstName}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                  placeholder="Enter your first name"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Last Name</label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={profileData.lastName}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                  placeholder="Enter your last name"
+                />
+              </div>
+
+              {profileError && (
+                <div className={styles.errorMessage}>{profileError}</div>
+              )}
+              {profileSuccess && (
+                <div className={styles.successMessage}>{profileSuccess}</div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowEditProfileModal(false)}
+                disabled={isSavingProfile}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleSaveProfile}
+                disabled={isSavingProfile}
+              >
+                {isSavingProfile ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
