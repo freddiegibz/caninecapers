@@ -131,54 +131,54 @@ export default function MySessions() {
   };
 
 
-  const loadSessions = async () => {
-    try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      setAuthUserId(user?.id ?? null);
-      if (!user?.id) {
-        setUpcomingSessions([]);
-        setPastSessions([]);
-        return;
-      }
+    const loadSessions = async () => {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        setAuthUserId(user?.id ?? null);
+        if (!user?.id) {
+          setUpcomingSessions([]);
+          setPastSessions([]);
+          return;
+        }
 
-      const { data, error } = await supabase
-        .from('sessions')
-        .select('id, field, date, acuity_appointment_id')
-        .eq('user_id', user.id)
-        .eq('status', 'complete')
-        .order('date', { ascending: true });
+        const { data, error } = await supabase
+          .from('sessions')
+          .select('id, field, date, acuity_appointment_id')
+          .eq('user_id', user.id)
+          .eq('status', 'complete')
+          .order('date', { ascending: true });
 
-      if (error) {
-        console.error('Failed to load sessions:', error);
-        setUpcomingSessions([]);
-        setPastSessions([]);
-        return;
-      }
+        if (error) {
+          console.error('Failed to load sessions:', error);
+          setUpcomingSessions([]);
+          setPastSessions([]);
+          return;
+        }
 
-      const now = new Date();
-      const normalized = (data ?? []).map((s) => {
-        const iso = String(s.date);
-        const name = String(s.field || 'Central Bark');
-        const time = formatLondon(iso);
-        const address = 'Brickyard Cottage, Stourport-on-Severn, Bewdley DY13 8DZ, United Kingdom';
-        return { 
-          id: String(s.id), 
-          name, 
-          time, 
-          address, 
-          iso, 
+        const now = new Date();
+        const normalized = (data ?? []).map((s) => {
+          const iso = String(s.date);
+          const name = String(s.field || 'Central Bark');
+          const time = formatLondon(iso);
+          const address = 'Brickyard Cottage, Stourport-on-Severn, Bewdley DY13 8DZ, United Kingdom';
+          return { 
+            id: String(s.id), 
+            name, 
+            time, 
+            address, 
+            iso, 
           length: undefined,
           acuity_appointment_id: s.acuity_appointment_id || undefined,
           appointmentTypeID: undefined
-        };
-      });
+          };
+        });
 
-      const upcoming = normalized.filter(n => new Date(n.iso) >= now);
-      const past = normalized.filter(n => new Date(n.iso) < now).reverse();
+        const upcoming = normalized.filter(n => new Date(n.iso) >= now);
+        const past = normalized.filter(n => new Date(n.iso) < now).reverse();
 
-      setUpcomingSessions(upcoming);
-      setPastSessions(past);
+        setUpcomingSessions(upcoming);
+        setPastSessions(past);
 
       // Enrich upcoming with appointment type for accurate duration
       const enriched = await Promise.all(upcoming.map(async (sess) => {
@@ -198,10 +198,10 @@ export default function MySessions() {
         }
       }));
       setUpcomingSessions(enriched);
-    } finally {
+      } finally {
       setLoading(false);
-    }
-  };
+      }
+    };
 
   useEffect(() => {
     loadSessions();
@@ -318,10 +318,10 @@ export default function MySessions() {
                             {session.acuity_appointment_id && (
                               <>
                                 <button
-                                  className={styles.rescheduleButton}
+                                className={styles.rescheduleButton}
                                   onClick={() => openReschedule(session.acuity_appointment_id, session.iso)}
-                                >
-                                  Reschedule
+                              >
+                                Reschedule
                                 </button>
                                 <button
                                   className={styles.updateButton}

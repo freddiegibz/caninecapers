@@ -50,8 +50,10 @@ export function getAcuityBookingUrl(
     email?: string | null;
     firstName?: string | null;
     lastName?: string | null;
+    phone?: string | null;
   },
-  isSafari?: boolean
+  isSafari?: boolean,
+  isMobile?: boolean
 ): string {
   // Working link format (prefills Session ID but doesn't navigate to datetime):
   // https://caninecapers.as.me/schedule/{ownerId}/appointment/{typeId}/calendar/{calId}?appointmentTypeIds[]=...&calendarIds=...&field%3A17517976=...
@@ -59,82 +61,45 @@ export function getAcuityBookingUrl(
   // Acuity also supports prefilling client data: firstName, lastName, email, phone
   const datetime = buildDatetime(selectedDate, selectedTime);
   
-  // Validate sessionId is not empty
-  if (!sessionId || sessionId.trim() === '') {
-    console.warn('⚠️ Empty sessionId passed to getAcuityBookingUrl');
-  }
+  // Note: sessionId parameter kept for backward compatibility but not used in URL
+  // Sessions are now matched by email address in the webhook
   
-  const fieldKey = encodeURIComponent(`field:${ACUITY_SESSION_FIELD_ID}`); // field:17517976 -> field%3A17517976
-  const encodedSessionId = encodeURIComponent(sessionId);
-  
-  // Safari: Use path-based format (same as other browsers)
-  // Try adding user info BEFORE the custom field parameter - Safari might process in order
-  if (isSafari) {
-    const params = [
-      `appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}`,
-      `calendarIds=${encodeURIComponent(calendarId)}`,
-      `datetime=${encodeURIComponent(datetime)}`
-    ];
-    
-    // Add user info BEFORE custom field - Safari might process standard fields first
-    if (userInfo) {
-      if (userInfo.email) {
-        params.push(`email=${encodeURIComponent(userInfo.email)}`);
-      }
-      if (userInfo.firstName) {
-        params.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
-      }
-      if (userInfo.lastName) {
-        params.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
-      }
-    }
-    
-    // Add custom field parameter LAST
-    params.push(`${fieldKey}=${encodedSessionId}`);
-    
-    const safariUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${params.join('&')}`;
-    console.log('🔗 Safari URL (path-based with user info):', safariUrl);
-    console.log('🔗 Safari params order:', params.map(p => p.split('=')[0]));
-    return safariUrl;
-  }
-  
-  // Build base URL with required parameters for non-Safari browsers
-  // Put standard Acuity params first, then user info, then custom field LAST
-  // This ensures the custom field parameter is processed correctly
-  const baseParams = [
+  // Use path-based format for all browsers (prioritizes datetime autofill)
+  // Autofill user info (firstName, lastName, email, phone) - sessions matched by email
+  // Session ID no longer passed to Acuity - matching done via email in webhook
+  const params = [
     `appointmentTypeIds[]=${encodeURIComponent(appointmentTypeId)}`,
     `calendarIds=${encodeURIComponent(calendarId)}`,
     `datetime=${encodeURIComponent(datetime)}`
   ];
-  
-  // Add optional user info if provided (standard Acuity fields)
+
+  // Add user info for all browsers (firstName, lastName, email, phone)
   if (userInfo) {
-    if (userInfo.email) {
-      baseParams.push(`email=${encodeURIComponent(userInfo.email)}`);
-    }
     if (userInfo.firstName) {
-      baseParams.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
+      params.push(`firstName=${encodeURIComponent(userInfo.firstName)}`);
     }
     if (userInfo.lastName) {
-      baseParams.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
+      params.push(`lastName=${encodeURIComponent(userInfo.lastName)}`);
+    }
+    if (userInfo.email) {
+      params.push(`email=${encodeURIComponent(userInfo.email)}`);
+    }
+    if (userInfo.phone) {
+      params.push(`phone=${encodeURIComponent(userInfo.phone)}`);
     }
   }
-  
-  // Add custom field parameter LAST - this ensures it's processed after standard fields
-  baseParams.push(`${fieldKey}=${encodedSessionId}`);
-  
-  const finalUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${baseParams.join('&')}`;
-  
-  // Debug logging
-  console.log('🔗 Acuity booking URL params:', {
-    sessionId,
+
+  const finalUrl = `https://caninecapers.as.me/schedule/${ACUITY_OWNER_ID}/appointment/${appointmentTypeId}/calendar/${calendarId}?${params.join('&')}`;
+
+  console.log('🔗 URL (path-based - user info autofill):', finalUrl);
+  console.log('🔗 Params:', {
+    isSafari,
+    isMobile,
     hasUserInfo: !!userInfo,
     userInfoKeys: userInfo ? Object.keys(userInfo).filter(k => userInfo[k as keyof typeof userInfo]) : [],
-    fieldParam: `${fieldKey}=${encodedSessionId}`,
-    totalParams: baseParams.length
+    totalParams: params.length,
+    note: 'Sessions matched by email. Session ID no longer passed to Acuity.'
   });
-  
-  // Use path format WITHOUT datetime segment, but add datetime as query param
-  // This matches the working link structure that successfully prefills Session ID
+
   return finalUrl;
 }

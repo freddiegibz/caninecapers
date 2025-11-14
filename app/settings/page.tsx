@@ -24,7 +24,8 @@ export default function Settings() {
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
-    lastName: ''
+    lastName: '',
+    phone: ''
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -59,16 +60,26 @@ export default function Settings() {
         // 2. Check user metadata for first/last name combination
         let firstName = null;
         let lastName = null;
+        let phone = null;
         if (user.user_metadata) {
           firstName = user.user_metadata.first_name || user.user_metadata.given_name;
           lastName = user.user_metadata.last_name || user.user_metadata.family_name;
+          phone = user.user_metadata.phone || null;
           if (firstName || lastName) {
             name = [firstName, lastName].filter(Boolean).join(' ');
             console.log('Name from first/last name:', name);
             // Set profile data for edit form
             setProfileData({
               firstName: firstName || '',
-              lastName: lastName || ''
+              lastName: lastName || '',
+              phone: phone || ''
+            });
+          } else {
+            // Still set phone if available even without name
+            setProfileData({
+              firstName: '',
+              lastName: '',
+              phone: phone || ''
             });
           }
         }
@@ -97,7 +108,8 @@ export default function Settings() {
               if (!firstName && !lastName) {
                 setProfileData({
                   firstName: profile.first_name || '',
-                  lastName: profile.last_name || ''
+                  lastName: profile.last_name || '',
+                  phone: phone || ''
                 });
               }
             } else {
@@ -269,11 +281,12 @@ export default function Settings() {
         return;
       }
 
-      // Update user metadata with first and last name
+      // Update user metadata with first name, last name, and phone
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
           first_name: profileData.firstName.trim() || null,
-          last_name: profileData.lastName.trim() || null
+          last_name: profileData.lastName.trim() || null,
+          phone: profileData.phone.trim() || null
         }
       });
 
@@ -565,6 +578,17 @@ export default function Settings() {
                   value={profileData.lastName}
                   onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
                   placeholder="Enter your last name"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Phone Number</label>
+                <input
+                  type="tel"
+                  className={styles.formInput}
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="Enter your phone number"
                 />
               </div>
 

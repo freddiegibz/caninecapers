@@ -33,6 +33,8 @@ export default function BookingPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<{ url: string; isSafari: boolean; userAgent: string } | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+  const [showSessionIdModal, setShowSessionIdModal] = useState(false);
 
   useEffect(() => {
     const sessionId = searchParams.get('id') || '';
@@ -82,7 +84,7 @@ export default function BookingPage() {
       const userId = user?.id || null;
 
       // Create incomplete session in Supabase BEFORE redirecting to Acuity
-      // This ensures the webhook can match the session ID when it comes back
+      // Store email so webhook can match by email address
       const { error: createError } = await supabase
         .from('sessions')
         .insert({
@@ -91,7 +93,8 @@ export default function BookingPage() {
           field: session.field,
           date: session.startTime, // ISO datetime string
           status: 'incomplete',
-          source: 'app'
+          source: 'app',
+          client_email: user?.email || null // Store email for webhook matching
         });
 
       if (createError) {
@@ -101,27 +104,42 @@ export default function BookingPage() {
         console.log('✅ Created incomplete session:', session.id);
       }
 
-      // Get user info for prefilling Acuity form
-      let userInfo: { email?: string | null; firstName?: string | null; lastName?: string | null } | undefined;
+      // Get user info for prefilling Acuity form (firstName, lastName, email, phone)
+      // Sessions will be matched by email, not Session ID
+      let userInfo: { email?: string | null; firstName?: string | null; lastName?: string | null; phone?: string | null } | undefined;
       if (user) {
         const firstName = user.user_metadata?.first_name || user.user_metadata?.given_name || null;
         const lastName = user.user_metadata?.last_name || user.user_metadata?.family_name || null;
         const email = user.email || null;
+        const phone = user.user_metadata?.phone || null;
         
-        // Only include userInfo if we have at least email or name
-        if (email || firstName || lastName) {
+        // Only include userInfo if we have at least email (required for matching)
+        if (email) {
           userInfo = {
             email: email,
             firstName: firstName,
-            lastName: lastName
+            lastName: lastName,
+            phone: phone
           };
-          console.log('Including user info in booking URL:', userInfo);
+          console.log('Including user info in booking URL (matched by email):', userInfo);
         }
       }
 
-      // Detect Safari browser
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      console.log('🌐 Browser detection:', { isSafari, userAgent: navigator.userAgent });
+      // Detect mobile devices and Safari browser
+      // Be more specific - only detect actual mobile devices, not desktop browsers
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
+      // Check screen width as additional check (mobile is typically < 768px)
+      const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+      const isMobile = isMobileDevice && isSmallScreen;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) && !userAgent.includes('brave');
+      console.log('🌐 Browser detection:', { 
+        isMobile,
+        isSafari, 
+        userAgent: navigator.userAgent,
+        hasUserInfo: !!userInfo,
+        userInfoData: userInfo
+      });
 
       const fullDatetime = toFullIsoWithOffset(session.startTime);
       console.log('Booking with session ID:', session.id);
@@ -132,7 +150,8 @@ export default function BookingPage() {
         session.date,
         fullDatetime, // pass as selectedTime: function will detect full ISO and use as-is
         userInfo, // optional user info for prefilling
-        isSafari // Safari detection for URL format
+        isSafari, // Safari detection for URL format
+        isMobile // Mobile detection - use schedule.php format
       );
       console.log('Generated booking URL:', bookingUrl);
       console.log('Full URL length:', bookingUrl.length);
@@ -145,22 +164,16 @@ export default function BookingPage() {
         userAgent: navigator.userAgent
       });
       
-      // Log what Safari will actually navigate to
-      if (isSafari) {
-        console.log('🌐 Safari Navigation Debug:', {
-          originalUrl: bookingUrl,
-          locationHref: window.location.href,
-          willNavigateTo: bookingUrl
-        });
-        // Use location.assign for Safari - may preserve parameters better
-        window.location.assign(bookingUrl);
-      } else {
-        window.location.href = bookingUrl;
-      }
+      // Show confirmation modal before redirecting
+      setShowSessionIdModal(true);
+      
+      // Store URL for later redirect
+      setRedirectUrl(bookingUrl);
     } catch (error) {
       console.error('Failed to build booking URL:', error);
       const fullDatetime = toFullIsoWithOffset(session.startTime);
-      const fallback = `https://caninecapers.as.me/schedule.php?appointmentType=${encodeURIComponent(session.appointmentTypeID)}&calendarID=${encodeURIComponent(session.calendarID)}&datetime=${encodeURIComponent(fullDatetime)}&field%3A17517976=${encodeURIComponent(session.id)}`;
+      // Fallback: minimal URL with just appointment type and datetime (no Session ID)
+      const fallback = `https://caninecapers.as.me/schedule.php?appointmentType=${encodeURIComponent(session.appointmentTypeID)}&calendarID=${encodeURIComponent(session.calendarID)}&datetime=${encodeURIComponent(fullDatetime)}`;
       window.location.href = fallback;
     }
   };
@@ -300,10 +313,10 @@ export default function BookingPage() {
             {/* Book Button */}
             <button
               onClick={handleConfirmBooking}
-              disabled={bookingLoading}
+              disabled={bookingLoading || showSessionIdModal}
               className={styles.bookButton}
             >
-              {bookingLoading ? 'Redirecting to payment...' : 'Confirm Booking'}
+              {bookingLoading ? 'Preparing...' : 'Confirm Booking'}
             </button>
           </div>
         </div>
@@ -331,6 +344,49 @@ export default function BookingPage() {
           </div>
         </div>
 
+        {/* Booking Confirmation Modal - Shows before redirect */}
+        {showSessionIdModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeader}>
+                <h3 className={styles.modalTitle}>Ready to Book</h3>
+                <button
+                  className={styles.modalClose}
+                  onClick={() => {
+                    setShowSessionIdModal(false);
+                    // Open Acuity in new window after closing modal
+                    if (redirectUrl) {
+                      window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              <div className={styles.modalBody}>
+                <p className={styles.modalText}>
+                  Your booking form will open in a new window with your details prefilled.
+                  Your session will be automatically linked to your account using your email address.
+                </p>
+              </div>
+              <div className={styles.modalFooter}>
+                <button
+                  className={styles.continueButton}
+                  onClick={() => {
+                    setShowSessionIdModal(false);
+                    // Open Acuity in new window
+                    if (redirectUrl) {
+                      window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  Continue to Booking
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Debug Panel - Shows URL on mobile Safari */}
         {debugInfo && (
           <div className={styles.debugPanel}>
@@ -357,10 +413,10 @@ export default function BookingPage() {
                   <strong>URL Length:</strong> {debugInfo.url.length} characters
                 </div>
                 <div className={styles.debugItem}>
-                  <strong>Has Session ID:</strong> {debugInfo.url.includes('field%3A17517976') ? 'Yes' : 'No'}
+                  <strong>Has User Info:</strong> {debugInfo.url.includes('email=') || debugInfo.url.includes('firstName=') || debugInfo.url.includes('phone=') ? 'Yes' : 'No'}
                 </div>
                 <div className={styles.debugItem}>
-                  <strong>Has User Info:</strong> {debugInfo.url.includes('email=') || debugInfo.url.includes('firstName=') ? 'Yes' : 'No'}
+                  <strong>Has Datetime:</strong> {debugInfo.url.includes('datetime=') ? 'Yes' : 'No'}
                 </div>
               </div>
             )}
