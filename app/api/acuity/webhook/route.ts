@@ -66,6 +66,38 @@ interface AcuityAppointment {
   calendarID?: number;
   datetime?: string;
   client?: AcuityClient;
+  // Acuity often puts these at the top level
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  // Plain-text dump of form answers
+  formsText?: string;
+}
+
+// Helper: try multiple locations in the Acuity appointment payload to find an email
+function extractEmailFromAcuityAppointment(appointment: AcuityAppointment | null): string | undefined {
+  if (!appointment) return undefined;
+
+  // 1) Client object (if present)
+  if (appointment.client?.email && appointment.client.email.includes('@')) {
+    return appointment.client.email;
+  }
+
+  // 2) Top-level email (common in Acuity v1 appointments API)
+  if (appointment.email && appointment.email.includes('@')) {
+    return appointment.email;
+  }
+
+  // 3) Parse from formsText (e.g. "Email: example@domain.com")
+  if (appointment.formsText) {
+    const match = appointment.formsText.match(/Email:\s*([^\n\r]+)/i);
+    if (match && match[1] && match[1].includes('@')) {
+      return match[1].trim();
+    }
+  }
+
+  return undefined;
 }
 
 // Helper: fetch full appointment details from Acuity API (to get email address)
@@ -97,12 +129,18 @@ async function fetchAcuityAppointmentById(appointmentId: string): Promise<Acuity
     }
 
     const json = (await res.json()) as AcuityAppointment;
+
+    // Log a concise summary plus a full snapshot to help debug field locations
     console.log('📥 Fetched appointment from Acuity API:', {
       id: json?.id,
       calendarID: json?.calendarID,
       hasClient: !!json?.client,
-      clientEmail: json?.client?.email
+      clientEmail: json?.client?.email,
+      topLevelEmail: json?.email,
+      hasFormsText: typeof json?.formsText === 'string',
     });
+    console.log('📥 Full appointment from Acuity API (raw):', JSON.stringify(json, null, 2));
+
     return json;
   } catch (err) {
     console.error('❌ Error fetching Acuity appointment:', err);
@@ -180,21 +218,23 @@ export async function POST(request: Request) {
     if (!clientEmail && appointmentId) {
       console.log('📥 Email not in webhook payload - fetching appointment details from Acuity API...');
       const appointmentDetails = await fetchAcuityAppointmentById(appointmentId);
-      if (appointmentDetails?.client?.email) {
-        clientEmail = appointmentDetails.client.email;
-        console.log('✅ Found email from Acuity API:', clientEmail);
-        
-        // Also update datetime and calendarId if missing
-        if (!datetime && appointmentDetails.datetime) {
-          datetime = appointmentDetails.datetime;
-          console.log('✅ Updated datetime from Acuity API:', datetime);
-        }
-        if (!calendarId && appointmentDetails.calendarID) {
-          calendarId = appointmentDetails.calendarID.toString();
-          console.log('✅ Updated calendarId from Acuity API:', calendarId);
-        }
+
+      const extractedEmail = extractEmailFromAcuityAppointment(appointmentDetails);
+      if (extractedEmail) {
+        clientEmail = extractedEmail;
+        console.log('✅ Found email from Acuity API (post-processed):', clientEmail);
       } else {
         console.warn('⚠️ Could not fetch email from Acuity API');
+      }
+
+      // Also update datetime and calendarId if missing
+      if (!datetime && appointmentDetails?.datetime) {
+        datetime = appointmentDetails.datetime;
+        console.log('✅ Updated datetime from Acuity API:', datetime);
+      }
+      if (!calendarId && appointmentDetails?.calendarID) {
+        calendarId = appointmentDetails.calendarID.toString();
+        console.log('✅ Updated calendarId from Acuity API:', calendarId);
       }
     }
 
