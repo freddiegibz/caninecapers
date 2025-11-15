@@ -53,69 +53,7 @@ function formatDate(datetime: string): string {
   return d.toISOString();
 }
 
-// Types for Acuity API response (minimal shape we need)
-interface AcuityFormValue {
-  id?: number;
-  fieldID?: number;
-  name?: string;
-  value?: string;
-}
-
-interface AcuityForm {
-  id?: number;
-  name?: string;
-  values?: AcuityFormValue[];
-}
-
-interface AcuityAppointment {
-  id?: number;
-  calendarID?: number;
-  datetime?: string;
-  forms?: AcuityForm[];
-}
-
-// Helper: fetch full appointment details from Acuity API (to access intake forms)
-async function fetchAcuityAppointmentById(appointmentId: string): Promise<AcuityAppointment | null> {
-  try {
-    const userId = process.env.ACUITY_USER_ID;
-    const apiKey = process.env.ACUITY_API_KEY;
-
-    if (!userId || !apiKey) {
-      console.warn('⚠️ Missing ACUITY_USER_ID or ACUITY_API_KEY env vars; cannot fetch appointment details');
-      return null;
-    }
-
-    const auth = Buffer.from(`${userId}:${apiKey}`).toString('base64');
-    const url = `https://acuityscheduling.com/api/v1/appointments/${encodeURIComponent(appointmentId)}`;
-
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Accept': 'application/json'
-      },
-      // Node runtime; Next.js route can await fetch server-side
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      console.error('❌ Failed to fetch appointment from Acuity:', res.status, res.statusText);
-      return null;
-    }
-
-    const json = (await res.json()) as AcuityAppointment;
-    console.log('📥 Fetched appointment from Acuity API (truncated):', {
-      id: json?.id,
-      calendarID: json?.calendarID,
-      hasForms: Array.isArray(json?.forms),
-      formsCount: Array.isArray(json?.forms) ? json.forms.length : 0
-    });
-    return json;
-  } catch (err) {
-    console.error('❌ Error fetching Acuity appointment:', err);
-    return null;
-  }
-}
+// Note: Acuity API types removed - sessions now matched by email, not Session ID
 
 export async function POST(request: Request) {
   try {
@@ -143,15 +81,10 @@ export async function POST(request: Request) {
     const calendarId = formData['appointment[calendarID]'] || formData['calendarID'];
 
     // Note: Session ID extraction removed - sessions now matched by email address
-    // Keeping for logging/debugging purposes only
-    let sessionId: string | undefined;
-    const ACUITY_SESSION_FIELD_ID = '17517976';
     
     // Log form fields for debugging (but don't use for matching)
     const formFieldKeys = Object.keys(formData).filter(key => key.includes('forms'));
     console.log('📋 Form field keys found:', formFieldKeys);
-    
-    const sessionToken = formData['sessionToken'];
     const source = formData['source'];
     const isAppGenerated = source === 'app' || formData['app_generated'] === 'true';
     console.log('📄 Booking source validation:', { source, isAppGenerated });
@@ -301,9 +234,6 @@ export async function POST(request: Request) {
     }
 
     // If no incomplete session found, create new completed session
-    // Try to get user_id by email (if user exists in auth)
-    let user_id: string | null = null;
-    
     // Note: We can't directly query auth.users with regular Supabase client
     // The incomplete session would have had user_id if user was logged in
     // For new sessions without incomplete match, we'll create with user_id = null
