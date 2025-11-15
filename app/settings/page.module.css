@@ -600,6 +600,7 @@
 
 .modalBody {
   padding: 1.5rem;
+  padding-bottom: 2rem;
 }
 
 .formGroup {
@@ -623,6 +624,9 @@
   background-color: #ffffff;
   color: #1f2937;
   transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 
 .formInput::placeholder {
@@ -709,6 +713,7 @@
 
   .modalBody {
     padding: 1.25rem;
+    padding-bottom: 2rem;
   }
 
   .modalFooter {
