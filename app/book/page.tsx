@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../src/lib/supabaseClient";
 import SessionCard from "../../components/SessionCard";
 import styles from "./page.module.css";
 
@@ -58,6 +59,47 @@ export default function Book() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
+
+  // User info for Acuity iframe autofill
+  const [userInfo, setUserInfo] = useState<{
+    email?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setUserInfo(null);
+          return;
+        }
+
+        const firstName = user.user_metadata?.first_name || user.user_metadata?.given_name || null;
+        const lastName = user.user_metadata?.last_name || user.user_metadata?.family_name || null;
+        const email = user.email || null;
+        const phone = user.user_metadata?.phone || null;
+
+        if (email) {
+          setUserInfo({
+            email,
+            firstName,
+            lastName,
+            phone,
+          });
+        } else {
+          setUserInfo(null);
+        }
+      } catch (err) {
+        console.error("Failed to load user for calendar autofill:", err);
+        setUserInfo(null);
+      }
+    };
+
+    loadUser();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -348,7 +390,20 @@ export default function Book() {
               {selectedField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
-                    src={`https://caninecapers.as.me/?calendarID=${selectedField}&appointmentTypeID=${selectedType}`}
+                    src={(() => {
+                      const params = new URLSearchParams();
+                      params.set("calendarID", String(selectedField));
+                      params.set("appointmentTypeID", selectedType);
+
+                      if (userInfo?.email) {
+                        params.set("email", userInfo.email);
+                        if (userInfo.firstName) params.set("firstName", userInfo.firstName);
+                        if (userInfo.lastName) params.set("lastName", userInfo.lastName);
+                        if (userInfo.phone) params.set("phone", userInfo.phone);
+                      }
+
+                      return `https://caninecapers.as.me/?${params.toString()}`;
+                    })()}
                     title="Schedule Appointment"
                     width="100%"
                     height="600"
