@@ -61,32 +61,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Offers Promo Tile */}
-        <div className={styles.offersPromo}>
-          <div className={styles.offersPromoContent}>
-            <div className={styles.offersPromoBadge}>Save</div>
-            <h3 className={styles.offersPromoTitle}>Save with Packages</h3>
-            <p className={styles.offersPromoText}>Buy 10 sessions, get 2 free — available for multiple lengths.</p>
-            <Link href="/book" className={styles.offersPromoButton}>View Offers</Link>
-          </div>
-        </div>
-
-        {/* Gallery Preview */}
-        <div className={styles.galleryPreview}>
-          <div className={styles.galleryPreviewHeader}>
-            <h3 className={styles.galleryPreviewTitle}>Field Gallery</h3>
-            <Link href="/gallery" className={styles.galleryPreviewLink}>View All →</Link>
-          </div>
-          <p className={styles.galleryPreviewSubtitle}>See photos from our community</p>
-          <div className={styles.galleryPreviewGrid}>
-            {/* These will be populated dynamically when gallery is set up */}
-            <div className={styles.galleryPreviewPlaceholder}>
-              <span className={styles.galleryPreviewIcon}>📷</span>
-              <p>Share your photos!</p>
-            </div>
-          </div>
-        </div>
-
         <div className={styles.features}>
           <div className={styles.feature}>
             <div className={styles.featureIcon}>
