@@ -53,7 +53,62 @@ function formatDate(datetime: string): string {
   return d.toISOString();
 }
 
-// Note: Acuity API types removed - sessions now matched by email, not Session ID
+// Types for Acuity API response
+interface AcuityClient {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+}
+
+interface AcuityAppointment {
+  id?: number;
+  calendarID?: number;
+  datetime?: string;
+  client?: AcuityClient;
+}
+
+// Helper: fetch full appointment details from Acuity API (to get email address)
+async function fetchAcuityAppointmentById(appointmentId: string): Promise<AcuityAppointment | null> {
+  try {
+    const userId = process.env.ACUITY_USER_ID;
+    const apiKey = process.env.ACUITY_API_KEY;
+
+    if (!userId || !apiKey) {
+      console.warn('⚠️ Missing ACUITY_USER_ID or ACUITY_API_KEY env vars; cannot fetch appointment details');
+      return null;
+    }
+
+    const auth = Buffer.from(`${userId}:${apiKey}`).toString('base64');
+    const url = `https://acuityscheduling.com/api/v1/appointments/${encodeURIComponent(appointmentId)}`;
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Accept': 'application/json'
+      },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      console.error('❌ Failed to fetch appointment from Acuity:', res.status, res.statusText);
+      return null;
+    }
+
+    const json = (await res.json()) as AcuityAppointment;
+    console.log('📥 Fetched appointment from Acuity API:', {
+      id: json?.id,
+      calendarID: json?.calendarID,
+      hasClient: !!json?.client,
+      clientEmail: json?.client?.email
+    });
+    return json;
+  } catch (err) {
+    console.error('❌ Error fetching Acuity appointment:', err);
+    return null;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -77,8 +132,8 @@ export async function POST(request: Request) {
 
     // Try nested format first (app-generated), then flat format (Acuity direct)
     const appointmentId = formData['appointment[id]'] || formData['id'];
-    const datetime = formData['appointment[datetime]'] || formData['datetime'];
-    const calendarId = formData['appointment[calendarID]'] || formData['calendarID'];
+    let datetime = formData['appointment[datetime]'] || formData['datetime'];
+    let calendarId = formData['appointment[calendarID]'] || formData['calendarID'];
 
     // Note: Session ID extraction removed - sessions now matched by email address
     
@@ -118,6 +173,28 @@ export async function POST(request: Request) {
           console.log(`📄 Found email in key "${key}":`, clientEmail);
           break;
         }
+      }
+    }
+
+    // If email still not found in webhook payload, fetch from Acuity API
+    if (!clientEmail && appointmentId) {
+      console.log('📥 Email not in webhook payload - fetching appointment details from Acuity API...');
+      const appointmentDetails = await fetchAcuityAppointmentById(appointmentId);
+      if (appointmentDetails?.client?.email) {
+        clientEmail = appointmentDetails.client.email;
+        console.log('✅ Found email from Acuity API:', clientEmail);
+        
+        // Also update datetime and calendarId if missing
+        if (!datetime && appointmentDetails.datetime) {
+          datetime = appointmentDetails.datetime;
+          console.log('✅ Updated datetime from Acuity API:', datetime);
+        }
+        if (!calendarId && appointmentDetails.calendarID) {
+          calendarId = appointmentDetails.calendarID.toString();
+          console.log('✅ Updated calendarId from Acuity API:', calendarId);
+        }
+      } else {
+        console.warn('⚠️ Could not fetch email from Acuity API');
       }
     }
 
