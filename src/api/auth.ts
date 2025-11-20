@@ -1,11 +1,28 @@
 import { supabase } from '../lib/supabaseClient'
 
-export async function signUp(email: string, password: string, fullName?: string) {
+export async function signUp(email: string, password: string, fullName?: string, phone?: string) {
+  // Split full name into first and last name
+  let firstName = '';
+  let lastName = '';
+
+  if (fullName) {
+    const nameParts = fullName.trim().split(' ');
+    firstName = nameParts[0] || '';
+    lastName = nameParts.slice(1).join(' ') || '';
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: fullName ? { name: fullName } : {}
+      data: {
+        ...(fullName && {
+          name: fullName,
+          first_name: firstName,
+          last_name: lastName
+        }),
+        ...(phone && { phone })
+      }
     }
   });
   if (error) throw error;

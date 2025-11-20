@@ -10,6 +10,7 @@ export default function SignUp() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -22,8 +23,8 @@ export default function SignUp() {
     setSuccess("");
 
     try {
-      console.log('Attempting signup with:', { email, fullName }); // Debug log
-      await signUp(email, password, fullName);
+      console.log('Attempting signup with:', { email, fullName, phone }); // Debug log
+      await signUp(email, password, fullName, phone);
       setSuccess("Account created successfully! Please check your email to verify your account.");
       // Optionally redirect to signin after a delay
       setTimeout(() => {
@@ -93,6 +94,19 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="phone" className={styles.label}>Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              className={styles.input}
+              placeholder="Enter your phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 

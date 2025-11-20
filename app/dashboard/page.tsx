@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [focusedActionIndex, setFocusedActionIndex] = useState<number>(-1);
   const [nextSession, setNextSession] = useState<{ field: string; iso: string } | null>(null);
   const [loadingNext, setLoadingNext] = useState<boolean>(true);
+  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(false);
 
   // Notice Board State
   type Notice = {
@@ -95,6 +96,26 @@ export default function Dashboard() {
     };
 
     fetchAvailability();
+
+    // Check if user has set up their profile
+    const checkProfileSetup = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.user_metadata) {
+          const hasName = !!(user.user_metadata.first_name || user.user_metadata.last_name);
+          const hasPhone = !!user.user_metadata.phone;
+          setShowProfileSetup(!hasName || !hasPhone);
+        } else {
+          setShowProfileSetup(true);
+        }
+      } catch (error) {
+        console.error('Error checking profile setup:', error);
+        setShowProfileSetup(true); // Show by default if check fails
+      }
+    };
+
+    checkProfileSetup();
+
     return () => {
       isMounted = false;
     };
@@ -296,6 +317,20 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {showProfileSetup && (
+        <div className={styles.profileSetupBar}>
+          <div className={styles.profileSetupContent}>
+            <div className={styles.profileSetupIcon}>👤</div>
+            <div className={styles.profileSetupText}>
+              Set up your profile for smoother booking experience
+            </div>
+            <Link href="/settings" className={styles.profileSetupLink}>
+              Complete Setup
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className={styles.container}>
         <main className={styles.main}>

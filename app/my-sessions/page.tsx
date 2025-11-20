@@ -18,6 +18,7 @@ export default function MySessions() {
   const [rescheduling, setRescheduling] = useState<boolean>(false);
   const [rescheduleSuccess, setRescheduleSuccess] = useState<string | null>(null);
   const [selectedDateRange, setSelectedDateRange] = useState<number>(0); // 0 = current 5 days, 1 = next 5 days, etc.
+  const [selectedSlotForConfirm, setSelectedSlotForConfirm] = useState<{ startTime: string; calendarID: number; fieldName: string } | null>(null);
   const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null); // session ID being updated
@@ -101,6 +102,17 @@ export default function MySessions() {
     } else {
       return `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
     }
+  };
+
+  const handleSlotSelect = (slot: { startTime: string; calendarID: number; fieldName: string }) => {
+    setSelectedSlotForConfirm(slot);
+  };
+
+  const confirmReschedule = async () => {
+    if (!selectedSlotForConfirm) return;
+
+    await submitRescheduleToSlot(selectedSlotForConfirm);
+    setSelectedSlotForConfirm(null);
   };
 
   const submitRescheduleToSlot = async (slot: { startTime: string; calendarID: number }) => {
@@ -519,17 +531,9 @@ export default function MySessions() {
                     >
                       ‹ Previous
                     </button>
-                    <select
-                      value={selectedDateRange}
-                      onChange={(e) => handleDateRangeChange(Number(e.target.value))}
-                      className={styles.dateSelect}
-                    >
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <option key={i} value={i}>
-                          {getDateRangeLabel(i)}
-                        </option>
-                      ))}
-                    </select>
+                    <div className={styles.dateDisplay}>
+                      {getDateRangeLabel(selectedDateRange)}
+                    </div>
                     <button
                       className={styles.navButton}
                       onClick={() => handleDateRangeChange(selectedDateRange + 1)}
@@ -541,12 +545,7 @@ export default function MySessions() {
                   {/* Available Slots Grid */}
                   <div className={styles.slotsGrid}>
                     {availableSlots.map((slot, idx) => (
-                      <div
-                        key={idx}
-                        className={styles.slotCard}
-                        onClick={() => !rescheduling && submitRescheduleToSlot(slot)}
-                        style={{ opacity: rescheduling ? 0.6 : 1, pointerEvents: rescheduling ? 'none' : 'auto' }}
-                      >
+                      <div key={idx} className={styles.slotCard}>
                         <div className={styles.fieldName}>{slot.fieldName}</div>
                         <div className={styles.slotTime}>
                           {new Date(slot.startTime).toLocaleTimeString('en-GB', {
@@ -562,6 +561,13 @@ export default function MySessions() {
                             month: 'short'
                           })}
                         </div>
+                        <button
+                          className={styles.selectSlotBtn}
+                          onClick={() => handleSlotSelect(slot)}
+                          disabled={rescheduling}
+                        >
+                          Select This Time
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -570,6 +576,61 @@ export default function MySessions() {
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.secondaryBtn} onClick={() => setShowReschedule(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {selectedSlotForConfirm && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <strong>Confirm Reschedule</strong>
+              <button className={styles.closeBtn} onClick={() => setSelectedSlotForConfirm(null)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <p style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>
+                  Are you sure you want to reschedule to:
+                </p>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--forest)', marginBottom: '0.5rem' }}>
+                    {new Date(selectedSlotForConfirm.startTime).toLocaleTimeString('en-GB', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}
+                  </div>
+                  <div style={{ fontSize: '1rem', color: '#666', marginBottom: '0.25rem' }}>
+                    {new Date(selectedSlotForConfirm.startTime).toLocaleDateString('en-GB', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    })}
+                  </div>
+                  <div style={{ fontSize: '0.9rem', color: '#888' }}>
+                    {selectedSlotForConfirm.fieldName}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.secondaryBtn} onClick={() => setSelectedSlotForConfirm(null)}>
+                Cancel
+              </button>
+              <button
+                className={styles.primaryBtn}
+                onClick={confirmReschedule}
+                disabled={rescheduling}
+              >
+                {rescheduling ? 'Rescheduling...' : 'Confirm Reschedule'}
+              </button>
             </div>
           </div>
         </div>
