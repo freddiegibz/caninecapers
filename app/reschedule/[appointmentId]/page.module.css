@@ -1,0 +1,377 @@
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: #FBFAF7;
+  padding: 1.5rem 2.25rem;
+  border-radius: 0 0 72px 72px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.navbarContent {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.brandTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* Main Container */
+.container {
+  min-height: calc(100vh - 60px);
+  padding: 2rem;
+  background-color: #FBFAF7;
+  font-family: var(--font-lora);
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Page Header */
+.pageHeader {
+  text-align: center;
+  margin-top: 32px;
+  margin-bottom: 24px;
+  padding: 0 20px;
+}
+
+.pageTitle {
+  font-family: var(--font-poppins);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.5px;
+}
+
+.pageSubtitle {
+  font-family: var(--font-lora);
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.headerDivider {
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+  margin: 0 auto;
+  max-width: 200px;
+}
+
+/* Date Selector */
+.dateSelectorSection {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.dateSelector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.dateLabel {
+  font-family: var(--font-poppins);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.dateSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+/* Slots Section */
+.slotsSection {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+.slotsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dateGroup {
+  border-bottom: 1px solid rgba(226, 220, 203, 0.5);
+  padding-bottom: 2rem;
+}
+
+.dateGroup:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dateHeader {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 1rem 0;
+}
+
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.slotCard {
+  background: #f9f9f9;
+  border: 1px solid rgba(226, 220, 203, 0.8);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.slotCard:hover {
+  border-color: var(--sage);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.slotTime {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.slotField {
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.slotLength {
+  font-family: var(--font-lora);
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.selectSlotBtn {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--forest);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-poppins);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectSlotBtn:hover:not(:disabled) {
+  background-color: var(--sage);
+}
+
+.selectSlotBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* States */
+.loadingState, .emptyState {
+  text-align: center;
+  padding: 2rem;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-family: var(--font-poppins);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyText {
+  font-family: var(--font-lora);
+  color: #666;
+  margin: 0;
+}
+
+/* Mobile Footer */
+.mobileFooter {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 220, 203, 0.8);
+  box-shadow: 0 -6px 16px rgba(43, 58, 41, 0.12);
+  padding: 0.65rem calc(0.65rem + env(safe-area-inset-bottom));
+  display: none;
+  z-index: 90;
+}
+
+.footerAction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  gap: 0.35rem;
+  position: relative;
+  padding: 0.5rem 0;
+  width: 100%;
+}
+
+.footerAction:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background-color: #e2dccb;
+}
+
+.footerIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.footerLabel {
+  font-family: var(--font-poppins);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--forest);
+  letter-spacing: 0.2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 64px 64px;
+  }
+
+  .container {
+    padding: 1.5rem 1.25rem 12rem;
+    min-height: auto;
+  }
+
+  .main {
+    gap: 1.5rem;
+    margin-bottom: 8rem;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+
+  .dateSelector {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dateSelect {
+    min-width: 100%;
+  }
+
+  .slotsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .mobileFooter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+
+  .pageHeader {
+    margin-top: 24px;
+    margin-bottom: 16px;
+  }
+
+  .dateSelectorSection, .slotsSection {
+    padding: 1.25rem;
+  }
+
+  .slotCard {
+    padding: 0.875rem;
+  }
+}
+

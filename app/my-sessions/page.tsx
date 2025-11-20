@@ -12,14 +12,131 @@ export default function MySessions() {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
-  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
-  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [showReschedule, setShowReschedule] = useState<{ appointmentId: number; currentIso: string; appointmentTypeID?: string | null } | null>(null);
   const [availableSlots, setAvailableSlots] = useState<Array<{ startTime: string; calendarID: number; fieldName: string }>>([]);
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
   const [rescheduling, setRescheduling] = useState<boolean>(false);
   const [rescheduleSuccess, setRescheduleSuccess] = useState<string | null>(null);
+  const [selectedDateRange, setSelectedDateRange] = useState<number>(0); // 0 = current 5 days, 1 = next 5 days, etc.
+  const [upcomingSessions, setUpcomingSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
+  const [pastSessions, setPastSessions] = useState<Array<{ id: string; name: string; time: string; address: string; iso: string; length?: string; acuity_appointment_id?: number; appointmentTypeID?: string }>>([]);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null); // session ID being updated
+
+  const openReschedule = async (appointmentId?: number, currentIso?: string) => {
+    if (!appointmentId || !currentIso) return;
+    setAvailableSlots([]);
+    setLoadingSlots(true);
+    setSelectedDateRange(0); // Reset to first date range
+    setShowReschedule({ appointmentId, currentIso, appointmentTypeID: null });
+    // Fetch appointment info to get appointmentTypeID
+    try {
+      const infoResp = await fetch(`/api/acuity/appointment/${encodeURIComponent(String(appointmentId))}`, { cache: 'no-store' });
+      if (infoResp.ok) {
+        const info = await infoResp.json();
+        const typeId: string | null = info.appointmentTypeID || null;
+        setShowReschedule({ appointmentId, currentIso, appointmentTypeID: typeId });
+        if (typeId) {
+          await loadSlotsForRange(typeId, 0);
+        }
+      }
+    } catch {
+      // Silent fail; modal will show empty state
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const loadSlotsForRange = async (appointmentTypeID: string, rangeIndex: number) => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + (rangeIndex * 5) + 1); // Start from tomorrow + offset
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 4); // 5 days total
+
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+
+    const availResp = await fetch(
+      `/api/availability?appointmentTypeID=${encodeURIComponent(appointmentTypeID)}&startDate=${startDateStr}&endDate=${endDateStr}`,
+      { cache: 'no-store' }
+    );
+    if (availResp.ok) {
+      const slots: Array<{ startTime: string; calendarID: number }> = await availResp.json();
+      // Map slots to include field names and filter to only show future slots
+      const now = new Date();
+      const enrichedSlots = slots
+        .map(slot => ({
+          ...slot,
+          fieldName: getFieldMeta(slot.calendarID).name
+        }))
+        .filter(slot => new Date(slot.startTime) > now) // Only show future slots
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()); // Sort by time
+      setAvailableSlots(enrichedSlots);
+    }
+  };
+
+  const handleDateRangeChange = async (newRange: number) => {
+    if (!showReschedule?.appointmentTypeID) return;
+    setSelectedDateRange(newRange);
+    setLoadingSlots(true);
+    try {
+      await loadSlotsForRange(showReschedule.appointmentTypeID, newRange);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const getDateRangeLabel = (rangeIndex: number) => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + (rangeIndex * 5) + 1);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 4);
+
+    const startMonth = startDate.toLocaleDateString('en-GB', { month: 'short' });
+    const endMonth = endDate.toLocaleDateString('en-GB', { month: 'short' });
+    const startDay = startDate.getDate();
+    const endDay = endDate.getDate();
+
+    if (startMonth === endMonth) {
+      return `${startDay}-${endDay} ${startMonth}`;
+    } else {
+      return `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
+    }
+  };
+
+  const submitRescheduleToSlot = async (slot: { startTime: string; calendarID: number }) => {
+    if (!showReschedule) return;
+    setRescheduling(true);
+    setRescheduleSuccess(null);
+    try {
+      const resp = await fetch('/api/acuity/reschedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: showReschedule.appointmentId, datetime: slot.startTime, calendarID: slot.calendarID })
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data.success) {
+        console.log('Reschedule successful:', data);
+        setRescheduleSuccess('Appointment rescheduled successfully!');
+        setShowReschedule(null);
+        // Refresh the session list to show updated times
+        await loadSessions();
+        // Clear success message after a delay
+        setTimeout(() => setRescheduleSuccess(null), 3000);
+      } else {
+        console.error('Reschedule failed:', data);
+        const errorMsg = data.error || 'Unknown error';
+        const details = data.details ? ` ${data.details}` : '';
+        alert(`Failed to reschedule: ${errorMsg}.${details}`);
+      }
+    } catch (e) {
+      console.error('Error rescheduling:', e);
+      alert('Failed to reschedule. Please try again.');
+    } finally {
+      setRescheduling(false);
+    }
+  };
 
   const getFieldMeta = (calendarID: number) => {
     if (calendarID === 4783035) {
@@ -31,41 +148,6 @@ export default function MySessions() {
     return { id: "central-bark" as const, name: "Central Bark" };
   };
 
-  const openReschedule = async (appointmentId?: number, currentIso?: string) => {
-    if (!appointmentId || !currentIso) return;
-    setAvailableSlots([]);
-    setLoadingSlots(true);
-    setShowReschedule({ appointmentId, currentIso, appointmentTypeID: null });
-    // Fetch appointment info to get appointmentTypeID
-    try {
-      const infoResp = await fetch(`/api/acuity/appointment/${encodeURIComponent(String(appointmentId))}`, { cache: 'no-store' });
-      if (infoResp.ok) {
-        const info = await infoResp.json();
-        const typeId: string | null = info.appointmentTypeID || null;
-        setShowReschedule({ appointmentId, currentIso, appointmentTypeID: typeId });
-        if (typeId) {
-          const availResp = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(typeId)}`, { cache: 'no-store' });
-          if (availResp.ok) {
-            const slots: Array<{ startTime: string; calendarID: number }> = await availResp.json();
-            // Map slots to include field names and filter to only show future slots
-            const now = new Date();
-            const enrichedSlots = slots
-              .map(slot => ({
-                ...slot,
-                fieldName: getFieldMeta(slot.calendarID).name
-              }))
-              .filter(slot => new Date(slot.startTime) > now) // Only show future slots
-              .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()); // Sort by time
-            setAvailableSlots(enrichedSlots);
-          }
-        }
-      }
-    } catch {
-      // Silent fail; modal will show empty state
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
 
   const syncSessionFromAcuity = async (sessionId: string, appointmentId: number) => {
     setUpdatingSession(sessionId);
@@ -95,40 +177,6 @@ export default function MySessions() {
     }
   };
 
-  const submitRescheduleToSlot = async (slot: { startTime: string; calendarID: number }) => {
-    if (!showReschedule) return;
-    setRescheduling(true);
-    setRescheduleSuccess(null);
-    try {
-      const resp = await fetch('/api/acuity/reschedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointmentId: showReschedule.appointmentId, datetime: slot.startTime, calendarID: slot.calendarID })
-      });
-      
-      const data = await resp.json();
-      
-      if (resp.ok && data.success) {
-        console.log('Reschedule successful:', data);
-        setRescheduleSuccess('Appointment rescheduled successfully!');
-        setShowReschedule(null);
-        // Refresh the session list to show updated times
-        await loadSessions();
-        // Clear success message after a delay
-        setTimeout(() => setRescheduleSuccess(null), 3000);
-      } else {
-        console.error('Reschedule failed:', data);
-        const errorMsg = data.error || 'Unknown error';
-        const details = data.details ? ` ${data.details}` : '';
-        alert(`Failed to reschedule: ${errorMsg}.${details}`);
-      }
-    } catch (e) {
-      console.error('Error rescheduling:', e);
-      alert('Failed to reschedule. Please try again.');
-    } finally {
-      setRescheduling(false);
-    }
-  };
 
 
     const loadSessions = async () => {
@@ -231,11 +279,11 @@ export default function MySessions() {
           <h1 className={styles.pageTitle}>My Sessions</h1>
           <p className={styles.pageSubtitle}>See your upcoming and past bookings in one place.</p>
           {rescheduleSuccess && (
-            <div style={{ 
-              marginTop: '1rem', 
-              padding: '0.75rem', 
-              backgroundColor: '#d4edda', 
-              color: '#155724', 
+            <div style={{
+              marginTop: '1rem',
+              padding: '0.75rem',
+              backgroundColor: '#d4edda',
+              color: '#155724',
               borderRadius: '4px',
               border: '1px solid #c3e6cb'
             }}>
@@ -318,10 +366,10 @@ export default function MySessions() {
                             {session.acuity_appointment_id && (
                               <>
                                 <button
-                                className={styles.rescheduleButton}
+                                  className={styles.rescheduleButton}
                                   onClick={() => openReschedule(session.acuity_appointment_id, session.iso)}
-                              >
-                                Reschedule
+                                >
+                                  Reschedule
                                 </button>
                                 <button
                                   className={styles.updateButton}
@@ -437,6 +485,7 @@ export default function MySessions() {
         </main>
       </div>
 
+
       {showReschedule && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -449,37 +498,71 @@ export default function MySessions() {
                 <div style={{ textAlign: 'center', padding: '1rem' }}>Rescheduling appointment…</div>
               )}
               {!rescheduling && loadingSlots && (
-                <div>Loading available slots…</div>
+                <div style={{ textAlign: 'center', padding: '2rem' }}>Loading available slots…</div>
               )}
               {!rescheduling && !loadingSlots && !showReschedule.appointmentTypeID && (
-                <div>Loading appointment info…</div>
+                <div style={{ textAlign: 'center', padding: '2rem' }}>Loading appointment info…</div>
               )}
               {!rescheduling && !loadingSlots && showReschedule.appointmentTypeID && availableSlots.length === 0 && (
-                <div>No free slots available in the next few days.</div>
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+                  No free slots available for this date range.
+                </div>
               )}
               {!rescheduling && !loadingSlots && availableSlots.length > 0 && (
                 <div>
-                  <div style={{ marginBottom: '1rem', fontWeight: 600 }}>Pick a free slot:</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '400px', overflowY: 'auto' }}>
-                    {availableSlots.map((s, idx) => (
-                      <button 
-                        key={idx} 
-                        className={styles.primaryBtn} 
-                        onClick={() => submitRescheduleToSlot({ startTime: s.startTime, calendarID: s.calendarID })}
-                        disabled={rescheduling}
-                        style={{ 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          alignItems: 'flex-start',
-                          padding: '0.75rem',
-                          textAlign: 'left',
-                          opacity: rescheduling ? 0.6 : 1,
-                          cursor: rescheduling ? 'not-allowed' : 'pointer'
-                        }}
+                  {/* Date Range Selector */}
+                  <div className={styles.dateSelector}>
+                    <button
+                      className={styles.navButton}
+                      onClick={() => handleDateRangeChange(Math.max(0, selectedDateRange - 1))}
+                      disabled={selectedDateRange === 0}
+                    >
+                      ‹ Previous
+                    </button>
+                    <select
+                      value={selectedDateRange}
+                      onChange={(e) => handleDateRangeChange(Number(e.target.value))}
+                      className={styles.dateSelect}
+                    >
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {getDateRangeLabel(i)}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className={styles.navButton}
+                      onClick={() => handleDateRangeChange(selectedDateRange + 1)}
+                    >
+                      Next ›
+                    </button>
+                  </div>
+
+                  {/* Available Slots Grid */}
+                  <div className={styles.slotsGrid}>
+                    {availableSlots.map((slot, idx) => (
+                      <div
+                        key={idx}
+                        className={styles.slotCard}
+                        onClick={() => !rescheduling && submitRescheduleToSlot(slot)}
+                        style={{ opacity: rescheduling ? 0.6 : 1, pointerEvents: rescheduling ? 'none' : 'auto' }}
                       >
-                        <div style={{ fontWeight: 600 }}>{formatLondon(s.startTime)}</div>
-                        <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>{s.fieldName}</div>
-                      </button>
+                        <div className={styles.fieldName}>{slot.fieldName}</div>
+                        <div className={styles.slotTime}>
+                          {new Date(slot.startTime).toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                          })}
+                        </div>
+                        <div className={styles.slotDate}>
+                          {new Date(slot.startTime).toLocaleDateString('en-GB', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short'
+                          })}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

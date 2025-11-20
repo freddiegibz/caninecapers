@@ -21,7 +21,6 @@ export default function Settings() {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -262,12 +261,6 @@ export default function Settings() {
     setShowPasswordModal(true);
   };
 
-  const openEditProfileModal = () => {
-    setProfileError('');
-    setProfileSuccess('');
-    setShowEditProfileModal(true);
-  };
-
   const handleSaveProfile = async () => {
     try {
       setIsSavingProfile(true);
@@ -298,11 +291,10 @@ export default function Settings() {
         setProfileSuccess('Profile updated successfully!');
         // Reload user data to reflect changes
         await loadUserData();
-        // Close modal after a short delay
+        // Clear success message after a short delay
         setTimeout(() => {
-          setShowEditProfileModal(false);
           setProfileSuccess('');
-        }, 1500);
+        }, 3000);
       }
     } catch (error) {
       console.error('Unexpected error updating profile:', error);
@@ -363,9 +355,72 @@ export default function Settings() {
                     </p>
                   </div>
                 </div>
-                <button className={styles.editButton} onClick={openEditProfileModal}>
-                  Edit Profile
-                </button>
+              </div>
+            </div>
+
+            {/* Edit Profile Section */}
+            <div className={styles.settingsSection}>
+              <h3 className={styles.sectionHeader}>Edit Profile</h3>
+
+              <div className={styles.profileForm}>
+                <div className={styles.formDescription}>
+                  <p className={styles.descriptionText}>
+                    Your profile information will be automatically filled in when booking sessions.
+                    Keep your details up to date to make booking faster and easier.
+                  </p>
+                </div>
+
+                <div className={styles.formFields}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>First Name</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Last Name</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Phone Number</label>
+                    <input
+                      type="tel"
+                      className={styles.formInput}
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formActions}>
+                  <button
+                    className={styles.saveButton}
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile}
+                  >
+                    {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+
+                {profileError && (
+                  <div className={styles.errorMessage}>{profileError}</div>
+                )}
+                {profileSuccess && (
+                  <div className={styles.successMessage}>{profileSuccess}</div>
+                )}
               </div>
             </div>
 
@@ -544,81 +599,6 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Edit Profile Modal */}
-      {showEditProfileModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowEditProfileModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Edit Profile</h3>
-              <button
-                className={styles.modalClose}
-                onClick={() => setShowEditProfileModal(false)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>First Name</label>
-                <input
-                  type="text"
-                  className={styles.formInput}
-                  value={profileData.firstName}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
-                  placeholder="Enter your first name"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Last Name</label>
-                <input
-                  type="text"
-                  className={styles.formInput}
-                  value={profileData.lastName}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
-                  placeholder="Enter your last name"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Phone Number</label>
-                <input
-                  type="tel"
-                  className={styles.formInput}
-                  value={profileData.phone}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              {profileError && (
-                <div className={styles.errorMessage}>{profileError}</div>
-              )}
-              {profileSuccess && (
-                <div className={styles.successMessage}>{profileSuccess}</div>
-              )}
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setShowEditProfileModal(false)}
-                disabled={isSavingProfile}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.submitButton}
-                onClick={handleSaveProfile}
-                disabled={isSavingProfile}
-              >
-                {isSavingProfile ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </>
   );

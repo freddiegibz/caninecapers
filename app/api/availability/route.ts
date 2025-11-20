@@ -30,6 +30,8 @@ function getNextNDates(n: number): string[] {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const appointmentTypeID = url.searchParams.get('appointmentTypeID');
+  const startDate = url.searchParams.get('startDate');
+  const endDate = url.searchParams.get('endDate');
 
   const userId = process.env.ACUITY_USER_ID;
   const apiKey = process.env.ACUITY_API_KEY;
@@ -48,7 +50,18 @@ export async function GET(request: Request) {
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
 
-  const dates = getNextNDates(5); // today + next 4 days
+  // Generate date range based on parameters or default to next 5 days
+  let dates: string[];
+  if (startDate && endDate) {
+    dates = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dates.push(formatDate(new Date(d)));
+    }
+  } else {
+    dates = getNextNDates(5); // today + next 4 days (fallback)
+  }
   const authHeader = `Basic ${Buffer.from(`${userId}:${apiKey}`).toString('base64')}`;
 
   try {

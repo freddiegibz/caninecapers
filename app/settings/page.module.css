@@ -209,21 +209,56 @@
   color: rgba(43, 43, 43, 0.7);
 }
 
-.editButton {
-  padding: 0.5rem 1rem;
+.profileForm {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem;
+}
+
+.formDescription {
+  margin-bottom: 1.5rem;
+}
+
+.descriptionText {
+  margin: 0;
+  font-family: var(--font-lora);
+  font-size: 0.9rem;
+  color: rgba(43, 43, 43, 0.7);
+  line-height: 1.5;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: var(--font-poppins);
-  color: var(--forest);
-  background-color: rgba(163, 177, 138, 0.1);
-  border: 1px solid var(--sage);
+  color: white;
+  background-color: var(--forest);
+  border: 1px solid var(--forest);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.editButton:hover {
-  background-color: rgba(163, 177, 138, 0.2);
+.saveButton:hover:not(:disabled) {
+  background-color: var(--sage);
+  border-color: var(--sage);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Toggle Section */
@@ -464,14 +499,20 @@
     font-size: 1.5rem;
   }
 
-  .profileCard {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .profileForm {
+    padding: 1.25rem;
   }
 
-  .editButton {
-    align-self: flex-end;
+  .formFields {
+    gap: 0.875rem;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .saveButton {
+    width: 100%;
   }
 
   .toggleItem {
@@ -495,6 +536,13 @@
   .mobileFooter {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  .profileCard {
+    padding: 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 }
 
@@ -531,6 +579,12 @@
   }
 
   .profileCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .profileForm {
     padding: 1.25rem;
   }
 
@@ -700,7 +754,6 @@
   cursor: not-allowed;
 }
 
-/* Mobile responsive */
 @media (max-width: 480px) {
   .modalContent {
     margin: 1rem;

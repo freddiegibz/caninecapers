@@ -52,7 +52,8 @@ export default function Book() {
 
   const [sessions, setSessions] = useState<NormalizedSession[]>([]);
   const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute for sessions
-  const [selectedField, setSelectedField] = useState<number>(0); // No default - user must select
+  const [selectedField, setSelectedField] = useState<number>(0); // For upcoming availability filtering (0 = All)
+  const [calendarField, setCalendarField] = useState<number>(4783035); // For calendar iframe (defaults to Central)
   const [selectedDay, setSelectedDay] = useState<string>('all'); // 'all' or YYYY-MM-DD format
   const [dayDropdownOpen, setDayDropdownOpen] = useState<boolean>(false);
   const daySelectorRef = useRef<HTMLDivElement>(null);
@@ -100,6 +101,13 @@ export default function Book() {
 
     loadUser();
   }, []);
+
+  // Auto-select Central field when calendar panel opens
+  useEffect(() => {
+    if (showFilters) {
+      setCalendarField(4783035);
+    }
+  }, [showFilters]);
 
   useEffect(() => {
     let isMounted = true;
@@ -210,10 +218,14 @@ export default function Book() {
     return formatDateShort(daySession.startTime);
   };
 
-  // Filter sessions by selected day
-  const filteredSessions = selectedDay === 'all' 
-    ? sessions 
-    : sessions.filter(session => getDateKey(session.startTime) === selectedDay);
+  // Filter sessions by selected day and field
+  const filteredSessions = sessions.filter(session => {
+    // Filter by day
+    const dayMatch = selectedDay === 'all' || getDateKey(session.startTime) === selectedDay;
+    // Filter by field (0 = All fields, otherwise specific field)
+    const fieldMatch = selectedField === 0 || session.calendarID === selectedField;
+    return dayMatch && fieldMatch;
+  });
 
   const formatTime = (iso: string) => {
     const d = new Date(iso);
@@ -325,7 +337,17 @@ export default function Book() {
           {/* Collapsible Browse Calendar Section */}
           <div className={styles.calendarToggleBar}>
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => {
+                const newShowFilters = !showFilters;
+                setShowFilters(newShowFilters);
+                // Auto-select Central Bark field when opening calendar
+                if (newShowFilters) {
+                  setCalendarField(4783035);
+                } else {
+                  // Reset calendar field when closing
+                  setCalendarField(0);
+                }
+              }}
               className={`${styles.calendarToggleButton} ${showFilters ? styles.expanded : ''}`}
             >
               <span className={styles.toggleIcon}>
@@ -371,28 +393,35 @@ export default function Book() {
                     {[
                       { id: 4783035, label: 'Central' },
                       { id: 6255352, label: 'Hyde' }
-                    ].map(field => (
-                      <button
-                        key={field.id}
-                        className={`${styles.quickFilter} ${selectedField === field.id ? styles.active : ''}`}
-                        onClick={() => {
-                          setSelectedField(field.id);
-                        }}
-                      >
-                        {field.label}
-                      </button>
-                    ))}
+                    ].map(field => {
+                      const isActive = field.id === 4783035; // Hard-code Central to be active
+                      const buttonClasses = [styles.quickFilter];
+                      if (isActive) {
+                        buttonClasses.push(styles.active);
+                      }
+                      return (
+                        <button
+                          key={field.id}
+                          className={buttonClasses.join(' ')}
+                          onClick={() => {
+                            setCalendarField(field.id);
+                          }}
+                        >
+                          {field.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
               {/* Calendar Iframe */}
-              {selectedField > 0 && selectedType && (
+              {calendarField > 0 && selectedType && (
                 <div className={styles.calendarContainer}>
                   <iframe
                     src={(() => {
                       const params = new URLSearchParams();
-                      params.set("calendarID", String(selectedField));
+                      params.set("calendarID", String(calendarField));
                       params.set("appointmentTypeID", selectedType);
 
                       if (userInfo?.email) {
@@ -418,8 +447,8 @@ export default function Book() {
                 </div>
               )}
 
-              {/* Selection Prompt */}
-              {(!selectedField || !selectedType) && (
+              {/* Selection Prompt - Don't show when calendar is open since we auto-select */}
+              {false && (
                 <div className={styles.selectionPrompt}>
                   Select length and field above to view calendar
                 </div>
