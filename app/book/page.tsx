@@ -36,6 +36,24 @@ export default function Book() {
       title: 'Book 10 × 45 minutes, get 2 free',
       url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=1210365',
       appliesTo: ['29373489']
+    },
+    {
+      id: '3e8feaf8',
+      title: 'Book 20 × 30 minutes, get 5 free',
+      url: 'https://caninecapers.as.me/catalog/3e8feaf8/cart',
+      appliesTo: ['18525224']
+    },
+    {
+      id: '20-hour-package',
+      title: 'Book 20 × 1 hour, get 5 free',
+      url: 'https://caninecapers.as.me/catalog/20-hour-package/cart',
+      appliesTo: ['18525161']
+    },
+    {
+      id: '20-45min-package',
+      title: 'Book 20 × 45 minutes, get 5 free',
+      url: 'https://caninecapers.as.me/catalog/3e8feaf8/cart',
+      appliesTo: ['29373489']
     }
   ];
 

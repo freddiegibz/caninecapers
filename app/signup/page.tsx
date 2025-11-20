@@ -25,7 +25,7 @@ export default function SignUp() {
     try {
       console.log('Attempting signup with:', { email, fullName, phone }); // Debug log
       await signUp(email, password, fullName, phone);
-      setSuccess("Account created successfully! Please check your email to verify your account.");
+      setSuccess("Account created successfully!");
       // Optionally redirect to signin after a delay
       setTimeout(() => {
         router.push("/signin");
