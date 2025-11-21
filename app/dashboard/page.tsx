@@ -518,9 +518,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Section Divider */}
-            <div className={styles.sectionDivider}></div>
-
             {/* Available Today Section */}
             <div className={styles.availableTodayContent}>
               <p className={styles.availableTodayCaption}>Looking to book more?</p>
