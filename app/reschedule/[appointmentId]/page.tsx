@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,14 +35,7 @@ export default function ReschedulePage() {
   const [rescheduling, setRescheduling] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState(0); // 0 = next 5 days, 1 = next 5-10 days, etc.
 
-  useEffect(() => {
-    if (appointmentId) {
-      loadAppointment();
-      loadAvailableSlots();
-    }
-  }, [appointmentId, selectedDateRange]);
-
-  const loadAppointment = async () => {
+  const loadAppointment = useCallback(async () => {
     try {
       const { data: session, error } = await supabase
         .from('sessions')
@@ -68,9 +61,9 @@ export default function ReschedulePage() {
     } catch (error) {
       console.error('Error loading appointment:', error);
     }
-  };
+  }, [appointmentId]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = useCallback(async () => {
     try {
       setLoading(true);
       const startDate = new Date();
@@ -95,7 +88,14 @@ export default function ReschedulePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDateRange, appointment?.appointmentTypeID]);
+
+  useEffect(() => {
+    if (appointmentId) {
+      loadAppointment();
+      loadAvailableSlots();
+    }
+  }, [appointmentId, selectedDateRange, loadAppointment, loadAvailableSlots]);
 
   const submitRescheduleToSlot = async (slot: { startTime: string; calendarID: number }) => {
     if (!appointment) return;

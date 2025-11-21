@@ -36,7 +36,8 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Failed to fetch appointment', details: text }, { status: getResp.status });
     }
 
-    const appointment = await getResp.json();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _appointment = await getResp.json();
     
     // Acuity API doesn't have a direct /email endpoint for resending
     // The endpoint /api/v1/appointments/{id}/email doesn't exist in Acuity's API

@@ -21,7 +21,7 @@ async function findUserByEmail(email: string) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { specificEmail, forceRefresh } = body;
+    const { specificEmail } = body;
     console.log('🔗 Starting session linking process...', specificEmail ? `for ${specificEmail}` : 'bulk');
 
     // If specific email provided, just link that one

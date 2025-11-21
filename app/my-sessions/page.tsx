@@ -498,12 +498,12 @@ export default function MySessions() {
 
                       {/* Action Buttons - Bottom Right */}
                       <div className={styles.actionButtons}>
-                        {session.acuity_appointment_id && new Date(session.iso) > new Date() && session.status !== 'cancelled' && (
-                          <button
-                            className={styles.cancelButton}
-                            onClick={() => handleCancelSession(session.acuity_appointment_id)}
-                            disabled={updatingSession === session.id}
-                          >
+                          {session.acuity_appointment_id && new Date(session.iso) > new Date() && session.status !== 'cancelled' && (
+                            <button
+                              className={styles.cancelButton}
+                              onClick={() => handleCancelSession(session.acuity_appointment_id!)}
+                              disabled={updatingSession === session.id}
+                            >
                             {updatingSession === session.id ? 'Cancelling...' : 'Cancel Session'}
                           </button>
                         )}
