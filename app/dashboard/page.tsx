@@ -393,6 +393,9 @@ export default function Dashboard() {
 
           <HeroSection />
 
+          {/* Section Divider */}
+          <div className={styles.sectionDivider}></div>
+
           {/* Dashboard Content */}
           <div className={styles.dashboardContent}>
             {/* Next Session Card */}
@@ -431,9 +434,11 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Section Divider */}
+            <div className={styles.sectionDivider}></div>
+
             {/* Quick Actions Row */}
             <div className={styles.quickActionsContainer}>
-              <div className={styles.quickActionsSeparator}></div>
               <div className={styles.quickActionsLabel}>Quick Actions</div>
               <div className={styles.quickActionsScroll} ref={quickActionsRef} role="toolbar" aria-label="Quick actions">
                 <Link 
@@ -518,6 +523,9 @@ export default function Dashboard() {
                 </a>
               </div>
             </div>
+
+            {/* Section Divider */}
+            <div className={styles.sectionDivider}></div>
 
             {/* Available Today Section */}
             <div className={styles.availableTodayContent}>
