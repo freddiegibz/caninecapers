@@ -301,7 +301,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 28px;
+  margin-bottom: 40px;
 }
 
 .locationIcon {
@@ -735,7 +735,7 @@
   }
 
   .locationSection {
-    margin-bottom: 26px;
+    margin-bottom: 38px;
   }
 
   .actionButtons {
@@ -858,7 +858,7 @@
   }
 
   .locationSection {
-    margin-bottom: 24px;
+    margin-bottom: 36px;
   }
 
   .actionButtons {
