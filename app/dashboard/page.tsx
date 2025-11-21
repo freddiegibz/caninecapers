@@ -50,6 +50,7 @@ export default function Dashboard() {
   };
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loadingNotices, setLoadingNotices] = useState<boolean>(true);
+  const [noticeBoardExpanded, setNoticeBoardExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -334,25 +335,31 @@ export default function Dashboard() {
 
       <div className={styles.container}>
         <main className={styles.main}>
-          <HeroSection />
-
-          {/* Dashboard Content */}
-          <div className={styles.dashboardContent}>
-            {/* Notice Board Section */}
-            {notices.length > 0 && (
-              <div className={styles.noticeBoardCard}>
-                <div className={styles.noticeBoardHeader}>
-                  <div className={styles.noticeBoardTitleWrapper}>
-                    <Image
-                      src="/noticeboard.jpg"
-                      alt="Notice board icon"
-                      width={20}
-                      height={20}
-                      className={styles.noticeBoardIcon}
-                    />
-                    <h3 className={styles.noticeBoardTitle}>Notice Board</h3>
-                  </div>
+          {/* Notice Board Section */}
+          {notices.length > 0 && (
+            <div className={styles.noticeBoardCard}>
+              <div className={styles.noticeBoardHeader}>
+                <div className={styles.noticeBoardTitleWrapper}>
+                  <Image
+                    src="/noticeboard.jpg"
+                    alt="Notice board icon"
+                    width={20}
+                    height={20}
+                    className={styles.noticeBoardIcon}
+                  />
+                  <h3 className={styles.noticeBoardTitle}>Notice Board</h3>
                 </div>
+                <button
+                  className={styles.noticeBoardToggle}
+                  onClick={() => setNoticeBoardExpanded(!noticeBoardExpanded)}
+                  aria-label={noticeBoardExpanded ? 'Collapse notice board' : 'Expand notice board'}
+                >
+                  <span className={styles.toggleIcon}>
+                    {noticeBoardExpanded ? '−' : '+'}
+                  </span>
+                </button>
+              </div>
+              {noticeBoardExpanded && (
                 <div className={styles.noticeBoardContent}>
                   {loadingNotices ? (
                     <div className={styles.noticeItem}>
@@ -360,12 +367,12 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     notices.map((notice) => {
-                      const priorityClass = notice.priority === 'important' 
-                        ? styles.noticePriorityImportant 
-                        : notice.priority === 'warning' 
-                        ? styles.noticePriorityWarning 
+                      const priorityClass = notice.priority === 'important'
+                        ? styles.noticePriorityImportant
+                        : notice.priority === 'warning'
+                        ? styles.noticePriorityWarning
                         : styles.noticePriorityInfo;
-                      
+
                       return (
                         <div key={notice.id} className={styles.noticeItem}>
                           <div className={styles.noticeItemHeader}>
@@ -380,20 +387,16 @@ export default function Dashboard() {
                     })
                   )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
+          <HeroSection />
+
+          {/* Dashboard Content */}
+          <div className={styles.dashboardContent}>
             {/* Next Session Card */}
             <div className={styles.nextSessionCard}>
-              <div className={styles.nextSessionImageWrapper}>
-                <Image
-                  src={nextSession && nextSession.field.toLowerCase().includes('hyde') ? '/hydebark.webp' : '/centralbark.webp'}
-                  alt={(nextSession?.field || 'Field')}
-                  width={80}
-                  height={80}
-                  className={styles.nextSessionImage}
-                />
-              </div>
               <div className={styles.nextSessionContent}>
                 <div className={styles.nextSessionDetails}>
                   <h3 className={styles.nextSessionTitle}>Your Next Session</h3>
