@@ -233,13 +233,15 @@ export default function MySessions() {
           console.log('🔗 Checking for unlinked sessions for email:', userEmail);
           try {
             // Check for exact email match first
-            let { data: unlinkedSessions, error: linkError } = await supabase
+            const { data: exactMatchSessions, error: linkError } = await supabase
               .from('sessions')
               .select('id, client_email, date, field')
               .eq('client_email', userEmail.toLowerCase())
               .is('user_id', null);
 
-            console.log('🔍 Exact match query result:', { count: unlinkedSessions?.length || 0, error: linkError });
+            console.log('🔍 Exact match query result:', { count: exactMatchSessions?.length || 0, error: linkError });
+
+            let unlinkedSessions = exactMatchSessions;
 
             // If no exact matches, try case-insensitive search (fallback)
             if ((!unlinkedSessions || unlinkedSessions.length === 0) && !linkError) {
