@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../src/lib/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 
@@ -98,6 +99,64 @@ function extractEmailFromAcuityAppointment(appointment: AcuityAppointment | null
   }
 
   return undefined;
+}
+
+// Helper: find user by email in auth.users
+async function findUserByEmail(email: string) {
+  try {
+    console.log(`🔍 Searching for user with email: ${email}`);
+
+    // Create admin client with service role for user lookup
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('❌ Missing Supabase service role configuration');
+      return null;
+    }
+
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+
+    // Try using the admin API
+    try {
+      const { data, error } = await adminClient.auth.admin.listUsers();
+      if (error) {
+        console.error('❌ Admin API error:', error);
+        throw error;
+      }
+
+      console.log(`📋 Found ${data.users.length} total users in system`);
+
+      const user = data.users.find(u => {
+        const userEmail = u.email?.toLowerCase();
+        const searchEmail = email.toLowerCase();
+        const match = userEmail === searchEmail;
+        if (match) {
+          console.log(`✅ Found matching user: ${u.id} for email: ${email}`);
+        }
+        return match;
+      });
+
+      if (user) {
+        console.log(`🎯 User found: ${user.id}`);
+        return user;
+      } else {
+        console.log(`⚠️ No user found with email: ${email}`);
+        // Log some sample emails for debugging
+        const sampleEmails = data.users.slice(0, 5).map(u => u.email).filter(Boolean);
+        console.log(`📧 Sample user emails in system: ${sampleEmails.join(', ')}`);
+        return null;
+      }
+    } catch (adminError) {
+      console.error('💥 Admin API failed:', adminError);
+      return null;
+    }
+  } catch (err) {
+    console.error('💥 Error finding user by email:', err);
+    return null;
+  }
 }
 
 // Helper: fetch full appointment details from Acuity API (to get email address)
@@ -357,9 +416,19 @@ export async function POST(request: Request) {
     // It can be linked later if needed
     
     console.log('📝 Creating new completed session for email:', clientEmail);
-    
+
+    // Try to find user by email to link the session
+    const user = await findUserByEmail(clientEmail);
+    const userId = user?.id || null;
+
+    if (userId) {
+      console.log('✅ Found user account, linking session to user:', userId);
+    } else {
+      console.log('⚠️ No user account found for email, session will be unlinked');
+    }
+
     const insertData: SessionInsertData = {
-      user_id: null, // Will be null - can be updated later if user account is found
+      user_id: userId,
       acuity_appointment_id: parseInt(appointmentId, 10),
       status: 'complete',
       client_email: clientEmail.toLowerCase().trim(),

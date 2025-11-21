@@ -33,8 +33,8 @@
 }
 
 .logoIcon {
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
 }
 
@@ -223,11 +223,13 @@
 /* Session Card */
 .sessionCard {
   background-color: #FFFFFF;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(226, 220, 203, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  transition: all 0.15s ease;
-  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  position: relative;
 }
 
 .sessionCard:hover,
@@ -246,8 +248,9 @@
 
 .sessionImageContainer {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 160px;
   overflow: hidden;
+  border-radius: 16px 16px 0 0;
 }
 
 .sessionImage {
@@ -259,6 +262,77 @@
 
 .sessionCard:hover .sessionImage {
   transform: scale(1.05);
+}
+
+.sessionInfo {
+  padding: 16px 20px 20px 20px;
+}
+
+.sessionHeader {
+  margin-bottom: 16px;
+}
+
+.sessionFieldName {
+  font-family: var(--font-poppins);
+  font-size: 18px;
+  font-weight: 700;
+  color: #203425;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+.sessionDateTime {
+  font-family: var(--font-lora);
+  font-size: 14px;
+  color: #2F4E3E;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.sessionDuration {
+  font-family: var(--font-lora);
+  font-size: 16px;
+  color: #60685D;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.locationSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.locationIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sessionAddressLink {
+  font-family: var(--font-lora);
+  font-size: 13px;
+  color: #60685D;
+  text-decoration: none;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.sessionAddressLink:hover {
+  color: #2F4E3E;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
 }
 
 .sessionDetails {
@@ -305,13 +379,29 @@
   display: inline-block;
 }
 
+.cancelButton,
+.rescheduleButton,
+.updateButton {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font-poppins);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+  height: 36px;
+  flex: 1;
+}
+
 .cancelButton {
   color: var(--forest);
   background-color: transparent;
   border: 1px solid var(--forest);
 }
 
-.cancelButton:hover {
+.cancelButton:hover:not(:disabled) {
   background-color: rgba(163, 177, 138, 0.1);
 }
 
@@ -321,9 +411,26 @@
   border: 1px solid var(--forest);
 }
 
-.rescheduleButton:hover {
+.rescheduleButton:hover:not(:disabled) {
   background-color: var(--sage);
   border-color: var(--sage);
+}
+
+.updateButton {
+  color: var(--forest);
+  background-color: transparent;
+  border: 1px solid var(--forest);
+}
+
+.updateButton:hover:not(:disabled) {
+  background-color: rgba(163, 177, 138, 0.1);
+}
+
+.cancelButton:disabled,
+.rescheduleButton:disabled,
+.updateButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .rebookButton {
@@ -335,24 +442,6 @@
 .rebookButton:hover {
   background-color: var(--sage);
   border-color: var(--sage);
-}
-
-.updateButton {
-  color: var(--forest);
-  background-color: transparent;
-  border: 1px solid var(--forest);
-  padding: 4px 10px;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-}
-
-.updateButton:hover:not(:disabled) {
-  background-color: rgba(163, 177, 138, 0.1);
-}
-
-.updateButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .sessionMeta {
@@ -626,6 +715,45 @@
     font-size: 0.8rem;
   }
 
+  .sessionInfo {
+    padding: 14px 16px 16px 16px;
+  }
+
+  .sessionFieldName {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .sessionDateTime {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .sessionDuration {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .locationSection {
+    margin-bottom: 26px;
+  }
+
+  .actionButtons {
+    gap: 8px;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+  }
+
+  .cancelButton,
+  .rescheduleButton,
+  .updateButton {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    height: 32px;
+    flex: 1;
+  }
+
   .emptyState {
     padding: 32px 20px;
   }
@@ -710,12 +838,47 @@
     border-radius: 8px;
   }
 
-  .sessionDetails {
-    padding: 12px;
+  .sessionInfo {
+    padding: 12px 14px 14px 14px;
   }
 
   .sessionFieldName {
-    font-size: 0.95rem;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .sessionDateTime {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .sessionDuration {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .locationSection {
+    margin-bottom: 24px;
+  }
+
+  .actionButtons {
+    gap: 6px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .cancelButton,
+  .rescheduleButton,
+  .updateButton {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    height: 28px;
+    flex: 1;
+  }
+
+  .sessionDetails {
+    padding: 12px;
   }
 
   .cancelButton,
