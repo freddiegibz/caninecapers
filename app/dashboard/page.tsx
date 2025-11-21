@@ -393,9 +393,6 @@ export default function Dashboard() {
 
           <HeroSection />
 
-          {/* Section Divider */}
-          <div className={styles.sectionDivider}></div>
-
           {/* Dashboard Content */}
           <div className={styles.dashboardContent}>
             {/* Next Session Card */}
@@ -433,9 +430,6 @@ export default function Dashboard() {
                 </Link>
               </div>
             </div>
-
-            {/* Section Divider */}
-            <div className={styles.sectionDivider}></div>
 
             {/* Quick Actions Row */}
             <div className={styles.quickActionsContainer}>
