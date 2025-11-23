@@ -93,8 +93,7 @@ export default function BookingPage() {
           field: session.field,
           date: session.startTime, // ISO datetime string
           status: 'incomplete',
-          source: 'app',
-          client_email: user?.email || null // Store email for webhook matching
+          client_email: user?.email?.toLowerCase().trim() || null // Store email for webhook matching
         });
 
       if (createError) {

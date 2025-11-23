@@ -226,7 +226,7 @@ export default function MySessions() {
         }
 
         // FIRST: Always try to link any existing sessions with this user's email that don't have a user_id
-        const userEmail = user.email;
+        const userEmail = user.email?.toLowerCase().trim();
         console.log('🔍 Starting session loading for user:', user.id, 'email:', userEmail);
 
         if (userEmail) {
@@ -236,7 +236,7 @@ export default function MySessions() {
             const { data: exactMatchSessions, error: linkError } = await supabase
               .from('sessions')
               .select('id, client_email, date, field')
-              .eq('client_email', userEmail.toLowerCase())
+              .eq('client_email', userEmail)
               .is('user_id', null);
 
             console.log('🔍 Exact match query result:', { count: exactMatchSessions?.length || 0, error: linkError });
@@ -248,7 +248,7 @@ export default function MySessions() {
               const { data: caseInsensitiveSessions, error: caseError } = await supabase
                 .from('sessions')
                 .select('id, client_email, date, field')
-                .ilike('client_email', userEmail.toLowerCase())
+                .ilike('client_email', userEmail)
                 .is('user_id', null);
 
               if (!caseError && caseInsensitiveSessions && caseInsensitiveSessions.length > 0) {
@@ -459,8 +459,14 @@ export default function MySessions() {
             <>
               {activeTab === 'upcoming' && (
             <div className={styles.sessionList}>
-              {upcomingSessions.length > 0 ? (
-                upcomingSessions.map((session, index) => (
+              {(() => {
+                const visibleSessions = upcomingSessions.filter(s =>
+                  s.status === 'complete' &&
+                  new Date(s.iso) >= new Date() &&
+                  s.status !== 'cancelled'
+                );
+                return visibleSessions.length > 0 ? (
+                  visibleSessions.map((session, index) => (
                   <div key={session.id}>
                     <div className={styles.sessionCard}>
                       {/* Header Image */}
@@ -522,7 +528,7 @@ export default function MySessions() {
                         )}
                       </div>
                     </div>
-                    {index < upcomingSessions.length - 1 && <div className={styles.cardDivider}></div>}
+                    {index < visibleSessions.length - 1 && <div className={styles.cardDivider}></div>}
                   </div>
                 ))
               ) : (
@@ -543,6 +549,8 @@ export default function MySessions() {
                   </Link>
                 </div>
               )}
+                );
+              })()}
             </div>
           )}
 

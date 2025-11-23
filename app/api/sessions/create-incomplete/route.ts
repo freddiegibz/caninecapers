@@ -17,8 +17,7 @@ export async function POST(request: Request) {
         field,
         date,
         status: 'incomplete',
-        session_token: session_token || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        source: 'app'
+        session_token: session_token || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       })
       .select('id, session_token')
       .single();

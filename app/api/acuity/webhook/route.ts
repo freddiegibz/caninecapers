@@ -19,7 +19,6 @@ interface AcuityWebhookLog {
 
 // Database operation types
 interface SessionUpdateData {
-  status: 'complete';
   acuity_appointment_id: number;
   updated_at: string;
   date?: string;
@@ -29,8 +28,7 @@ interface SessionUpdateData {
 interface SessionInsertData {
   user_id: string | null;
   acuity_appointment_id: number;
-  status: 'complete';
-  source?: string;
+  status: 'incomplete';
   date?: string;
   field?: string;
   client_email?: string | null;
@@ -237,9 +235,6 @@ export async function POST(request: Request) {
     // Log form fields for debugging (but don't use for matching)
     const formFieldKeys = Object.keys(formData).filter(key => key.includes('forms'));
     console.log('📋 Form field keys found:', formFieldKeys);
-    const source = formData['source'];
-    const isAppGenerated = source === 'app' || formData['app_generated'] === 'true';
-    console.log('📄 Booking source validation:', { source, isAppGenerated });
 
     // Handle client email field - try multiple possible formats
     let clientEmail = formData['appointment[client][email]'] || formData['email'];
@@ -297,6 +292,11 @@ export async function POST(request: Request) {
       }
     }
 
+    // Normalize email: lowercase and trim
+    if (clientEmail) {
+      clientEmail = clientEmail.toLowerCase().trim();
+    }
+
     console.log('📄 Extracted fields:', { action, appointmentId, datetime, calendarId, clientEmail });
     console.log('📄 Session matching: Using email address for matching sessions');
 
@@ -316,7 +316,7 @@ export async function POST(request: Request) {
 
     // Sessions are now matched by email address, not Session ID
 
-    // Parse and validate calendar ID (skip for external bookings with missing data)
+    // Parse and validate calendar ID
     let calendarNum: number | null = null;
     let field = 'Unknown Field';
     let date: string | null = null;
@@ -384,38 +384,36 @@ export async function POST(request: Request) {
 
     if (incompleteSession) {
       console.log(`✅ Found incomplete session ${incompleteSession.id} for email ${clientEmail}`);
-      
+
       const updateData: SessionUpdateData = {
-        status: 'complete',
         acuity_appointment_id: parseInt(appointmentId, 10),
         updated_at: new Date().toISOString(),
       };
-      
+
       if (date) updateData.date = date;
       if (field !== 'Unknown Field') updateData.field = field;
-      
+
       const { error: updateErr } = await supabase
         .from('sessions')
         .update(updateData)
         .eq('id', incompleteSession.id);
-      
+
       if (updateErr) {
         console.error('❌ Session update error:', updateErr);
       } else {
-        console.log(`✅ Updated session ${incompleteSession.id} to complete for email ${clientEmail}`);
+        console.log(`✅ Updated session ${incompleteSession.id} with appointment data for email ${clientEmail}`);
         return NextResponse.json({ message: 'OK' }, { status: 200 });
       }
     } else {
       console.log(`⚠️ No incomplete session found for email ${clientEmail} - creating new session`);
     }
 
-    // If no incomplete session found, create new completed session
+    // If no incomplete session found, create new incomplete session
     // Note: We can't directly query auth.users with regular Supabase client
-    // The incomplete session would have had user_id if user was logged in
     // For new sessions without incomplete match, we'll create with user_id = null
     // It can be linked later if needed
-    
-    console.log('📝 Creating new completed session for email:', clientEmail);
+
+    console.log('📝 Creating new incomplete session for email:', clientEmail);
 
     // Try to find user by email to link the session
     const user = await findUserByEmail(clientEmail);
@@ -430,19 +428,19 @@ export async function POST(request: Request) {
     const insertData: SessionInsertData = {
       user_id: userId,
       acuity_appointment_id: parseInt(appointmentId, 10),
-      status: 'complete',
-      client_email: clientEmail.toLowerCase().trim(),
+      status: 'incomplete',
+      client_email: clientEmail,
     };
 
     if (date) insertData.date = date;
     if (field !== 'Unknown Field') insertData.field = field;
 
     const { error: insertErr } = await supabase.from('sessions').insert(insertData);
-    
+
     if (insertErr) {
       console.error('❌ Error creating session:', insertErr);
     } else {
-      console.log(`✅ Created new completed session for email ${clientEmail}`);
+      console.log(`✅ Created new incomplete session for email ${clientEmail}`);
     }
 
     // Always return 200 OK to prevent Acuity retry loops
