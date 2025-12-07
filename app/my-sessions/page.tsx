@@ -3,26 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import { formatLondon } from "../../src/utils/dateTime";
+import AppHeader from "../../components/AppHeader";
+import BottomNav from "../../components/BottomNav";
 import styles from "./page.module.css";
 
 // Icons
-const LocationIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-    <circle cx="12" cy="10" r="3"></circle>
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-  </svg>
-);
-
 const ClockIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
@@ -59,11 +46,33 @@ async function cancelSession(appointmentId: string): Promise<boolean> {
   }
 }
 
+interface FormattedSession {
+  id: string;
+  name: string;
+  startTime: string;
+  dateDisplay: string;
+  shortDate: string;
+  address: string;
+  image: string;
+  acuity_id: number | null;
+  status: string;
+}
+
+interface DatabaseSession {
+  id: string;
+  user_id: string;
+  field: string | null;
+  date: string;
+  duration: number | null;
+  status: string | null;
+  acuity_appointment_id: number | null;
+  created_at: string;
+}
+
 export default function MySessions() {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const [upcomingSessions, setUpcomingSessions] = useState<Array<any>>([]);
-  const [pastSessions, setPastSessions] = useState<Array<any>>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<FormattedSession[]>([]);
+  const [pastSessions, setPastSessions] = useState<FormattedSession[]>([]);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,24 +86,27 @@ export default function MySessions() {
           return;
         }
 
-        const { data: sessions, error } = await supabase
+        const { data, error } = await supabase
           .from('sessions')
           .select('*')
           .eq('user_id', user.id)
           .order('date', { ascending: true });
 
         if (error) throw error;
+        
+        // Cast data to known type
+        const sessions = data as DatabaseSession[];
 
         if (isMounted && sessions) {
           const now = new Date();
-          const upcoming: any[] = [];
-          const past: any[] = [];
+          const upcoming: FormattedSession[] = [];
+          const past: FormattedSession[] = [];
 
           sessions.forEach(session => {
             const sessionDate = new Date(session.date);
             const endTime = new Date(sessionDate.getTime() + 60 * 60 * 1000); // Assume 1hr
 
-            const formatted = {
+            const formatted: FormattedSession = {
               id: session.id,
               name: session.field || 'Unknown Field',
               startTime: formatLondon(session.date).split('·')[1]?.trim() || '',
@@ -166,20 +178,7 @@ export default function MySessions() {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.navbar}>
-        <Link href="/" className={styles.brand}>
-          <Image src="/caninecaperslogosymbol.png" alt="" width={32} height={32} />
-          <span className={styles.brandText}>Canine Capers</span>
-        </Link>
-        <div className={styles.navActions}>
-          <Link href="/location" className={styles.iconButton} aria-label="Locations">
-            <LocationIcon />
-          </Link>
-          <Link href="/settings" className={styles.iconButton} aria-label="Settings">
-            <SettingsIcon />
-          </Link>
-        </div>
-      </nav>
+      <AppHeader />
 
       <main className={styles.main}>
         <div className={styles.pageHeader}>
@@ -226,7 +225,7 @@ export default function MySessions() {
                         Manage
                       </a>
                       <button 
-                        onClick={() => handleCancel(session.acuity_id)}
+                        onClick={() => session.acuity_id && handleCancel(session.acuity_id)}
                         className={`${styles.actionButton} ${styles.cancelBtn}`}
                         disabled={updatingId === String(session.acuity_id)}
                       >
@@ -240,7 +239,7 @@ export default function MySessions() {
           ) : (
             <div className={styles.emptyStateBox}>
               <h3 className={styles.emptyTitle}>No Upcoming Bookings</h3>
-              <p className={styles.emptyText}>You don't have any scheduled visits at the moment.</p>
+              <p className={styles.emptyText}>You don&apos;t have any scheduled visits at the moment.</p>
               <Link href="/book" className={styles.bookBtn}>Book a Session</Link>
             </div>
           )}
@@ -278,6 +277,8 @@ export default function MySessions() {
         )}
 
       </main>
+
+      <BottomNav />
     </div>
   );
 }
