@@ -222,6 +222,235 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+/* Calendar Picker */
+.calendarWrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.calendarButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: #FFFFFF;
+  border: 1.5px solid #E8E6E1;
+  border-radius: 12px;
+  font-family: var(--font-poppins);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.calendarButton:hover {
+  border-color: #C5D1BE;
+  background-color: #FCFCFB;
+}
+
+.calendarButton svg:first-child {
+  color: #7B8A80;
+  flex-shrink: 0;
+}
+
+.calendarButtonValue {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2B3A29;
+  flex: 1;
+  text-align: left;
+}
+
+.calendarButton svg:last-child {
+  color: #7B8A80;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.calendarOpen .calendarButton svg:last-child {
+  transform: rotate(90deg);
+}
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border: 1.5px solid #E8E6E1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(43, 58, 41, 0.12);
+  padding: 1.25rem;
+  z-index: 100;
+  animation: calendarFadeIn 0.2s ease;
+}
+
+@keyframes calendarFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.calendarNavButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #E8E6E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #2B3A29;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calendarNavButton:hover {
+  border-color: #2B3A29;
+  background: #F9F8F4;
+}
+
+.calendarNavButton:active {
+  transform: scale(0.95);
+}
+
+.calendarMonthYear {
+  font-family: var(--font-lora);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2B3A29;
+}
+
+.calendarWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.calendarWeekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7B8A80;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0;
+}
+
+.calendarDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.calendarDay {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2B3A29;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  padding: 0.5rem;
+}
+
+.calendarDay:hover:not(:disabled) {
+  background: #F9F8F4;
+}
+
+.calendarDayOtherMonth {
+  color: #C5D1BE;
+}
+
+.calendarDayPast {
+  color: #D4D1CA;
+  cursor: not-allowed;
+}
+
+.calendarDayPast:hover {
+  background: transparent;
+}
+
+.calendarDayAvailable {
+  font-weight: 600;
+}
+
+.calendarDaySelected {
+  background: #2B3A29;
+  color: #FFFFFF;
+}
+
+.calendarDaySelected:hover {
+  background: #1F2D1F;
+}
+
+.calendarDayToday {
+  border: 1.5px solid #A3B18A;
+  font-weight: 600;
+}
+
+.calendarDayToday.calendarDaySelected {
+  border-color: #2B3A29;
+}
+
+.calendarDayDot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  background: #A3B18A;
+  border-radius: 50%;
+}
+
+.calendarDaySelected .calendarDayDot {
+  background: #FFFFFF;
+}
+
+.calendarFooter {
+  padding-top: 0.75rem;
+  border-top: 1px solid #F0EEE9;
+  text-align: center;
+}
+
+.calendarClearButton {
+  background: none;
+  border: none;
+  color: #7B8A80;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.calendarClearButton:hover {
+  background: #F9F8F4;
+  color: #2B3A29;
+}
+
 /* Slots - More Compact */
 .slotsContainer {
   display: flex;
@@ -280,12 +509,24 @@
 
 .emptyMessage {
   text-align: center;
-  padding: 1.5rem;
-  color: #7B8A80;
+  padding: 2rem 1.5rem;
   background: #FFFFFF;
   border-radius: 12px;
   border: 1px dashed rgba(43, 58, 41, 0.2);
+}
+
+.emptyTitle {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2B3A29;
+  margin-bottom: 0.75rem;
+}
+
+.emptyText {
+  color: #7B8A80;
   font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* Responsive */
