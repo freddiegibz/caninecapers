@@ -23,6 +23,12 @@ export default function Book() {
     startTime: string;
   };
 
+  // Interface for API response
+  type ApiAvailabilitySlot = {
+    calendarID: number | string;
+    startTime: string;
+  };
+
   const [sessions, setSessions] = useState<Session[]>([]);
   const [selectedType, setSelectedType] = useState<string>('18525224'); // 30 min default
   const [selectedField, setSelectedField] = useState<number>(4783035); // Central Bark default
@@ -36,7 +42,8 @@ export default function Book() {
         setLoading(true);
         const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(selectedType)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load availability");
-        const data: any[] = await res.json();
+
+        const data = (await res.json()) as ApiAvailabilitySlot[];
 
         const normalized = data
           .map((item) => ({
@@ -115,7 +122,7 @@ export default function Book() {
           >
             View Packages
           </a>
-        </div>
+                </div>
 
         <div className={styles.selectionGrid}>
           {/* Step 1: Duration */}
@@ -127,14 +134,14 @@ export default function Book() {
                 { id: '29373489', label: '45 min', price: '£8.25' },
                 { id: '18525161', label: '1 Hour', price: '£11.00' }
               ].map(opt => (
-                <button
+                        <button
                   key={opt.id}
                   className={`${styles.durationCard} ${selectedType === opt.id ? styles.active : ''}`}
                   onClick={() => setSelectedType(opt.id)}
                 >
                   <span className={styles.durationLabel}>{opt.label}</span>
                   <span className={styles.durationPrice}>{opt.price}</span>
-                </button>
+                        </button>
               ))}
             </div>
           </section>
@@ -155,7 +162,7 @@ export default function Book() {
                   <div className={styles.checkmark}><CheckIcon /></div>
                 )}
               </div>
-              
+
               <div 
                 className={`${styles.fieldCard} ${selectedField === 6255352 ? styles.active : ''}`}
                 onClick={() => setSelectedField(6255352)}
@@ -207,7 +214,7 @@ export default function Book() {
                 <div className={styles.emptyMessage}>
                   No sessions available for this configuration. Try changing the duration or field.
                 </div>
-              )}
+            )}
             </div>
           </section>
         </div>
