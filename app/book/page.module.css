@@ -141,13 +141,24 @@
   box-shadow: 0 4px 12px rgba(43, 58, 41, 0.2);
 }
 
+.durationCard.active .durationLabel {
+  color: #FFFFFF;
+}
+
+.durationCard.active .durationPrice {
+  color: #FFFFFF;
+  opacity: 0.9;
+}
+
 .durationLabel {
   font-weight: 600;
   font-size: 0.9rem;
+  color: #2B3A29;
 }
 
 .durationPrice {
   font-size: 0.8rem;
+  color: #5C6B5C;
   opacity: 0.8;
 }
 
