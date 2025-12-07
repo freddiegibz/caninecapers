@@ -1,132 +1,34 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import Script from "next/script";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../src/lib/supabaseClient";
-import SessionCard from "../../components/SessionCard";
+import AppHeader from "../../components/AppHeader";
+import BottomNav from "../../components/BottomNav";
 import styles from "./page.module.css";
+
+// Icons
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
 
 export default function Book() {
   const router = useRouter();
 
-  // Offers (Acuity Packages)
-  const OFFERS: Array<{
-    id: string;
-    title: string;
-    url: string;
-    appliesTo?: string[]; // appointmentTypeIDs this offer is most relevant for
-  }> = [
-    {
-      id: '938143',
-      title: 'Book 10 × 1 hour, get 2 free',
-      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=938143',
-      appliesTo: ['18525161']
-    },
-    {
-      id: '938145',
-      title: 'Book 10 × 30 minutes, get 2 free',
-      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=938145',
-      appliesTo: ['18525224']
-    },
-    {
-      id: '1210365',
-      title: 'Book 10 × 45 minutes, get 2 free',
-      url: 'https://app.acuityscheduling.com/catalog.php?owner=21300080&action=addCart&clear=1&id=1210365',
-      appliesTo: ['29373489']
-    },
-    {
-      id: '3e8feaf8',
-      title: 'Book 20 × 30 minutes, get 5 free',
-      url: 'https://caninecapers.as.me/catalog/3e8feaf8/cart',
-      appliesTo: ['18525224']
-    },
-    {
-      id: '20-hour-package',
-      title: 'Book 20 × 1 hour, get 5 free',
-      url: 'https://caninecapers.as.me/catalog/20-hour-package/cart',
-      appliesTo: ['18525161']
-    },
-    {
-      id: '20-45min-package',
-      title: 'Book 20 × 45 minutes, get 5 free',
-      url: 'https://caninecapers.as.me/catalog/3e8feaf8/cart',
-      appliesTo: ['29373489']
-    }
-  ];
-
-  type AvailabilityResponseItem = {
-    startTime: string; // ISO string
-    calendarID: number; // 4783035 or 6255352
-  };
-
-  type NormalizedSession = {
+  type Session = {
     id: string;
     calendarID: number;
-    startTime: string; // ISO
+    startTime: string;
   };
 
-  const [sessions, setSessions] = useState<NormalizedSession[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('18525224'); // default 30-Minute for sessions
-  const [selectedField, setSelectedField] = useState<number>(0); // For upcoming availability filtering (0 = All)
-  const [calendarField, setCalendarField] = useState<number>(4783035); // For calendar iframe (defaults to Central)
-  const [selectedDay, setSelectedDay] = useState<string>('all'); // 'all' or YYYY-MM-DD format
-  const [dayDropdownOpen, setDayDropdownOpen] = useState<boolean>(false);
-  const daySelectorRef = useRef<HTMLDivElement>(null);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [selectedType, setSelectedType] = useState<string>('18525224'); // 30 min default
+  const [selectedField, setSelectedField] = useState<number>(4783035); // Central Bark default
   const [loading, setLoading] = useState<boolean>(false);
-  const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [hasScrolled, setHasScrolled] = useState<boolean>(false);
 
-  // User info for Acuity iframe autofill
-  const [userInfo, setUserInfo] = useState<{
-    email?: string | null;
-    firstName?: string | null;
-    lastName?: string | null;
-    phone?: string | null;
-  } | null>(null);
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setUserInfo(null);
-          return;
-        }
-
-        const firstName = user.user_metadata?.first_name || user.user_metadata?.given_name || null;
-        const lastName = user.user_metadata?.last_name || user.user_metadata?.family_name || null;
-        const email = user.email || null;
-        const phone = user.user_metadata?.phone || null;
-
-        if (email) {
-          setUserInfo({
-            email,
-            firstName,
-            lastName,
-            phone,
-          });
-        } else {
-          setUserInfo(null);
-        }
-      } catch (err) {
-        console.error("Failed to load user for calendar autofill:", err);
-        setUserInfo(null);
-      }
-    };
-
-    loadUser();
-  }, []);
-
-  // Auto-select Central field when calendar panel opens
-  useEffect(() => {
-    if (showFilters) {
-      setCalendarField(4783035);
-    }
-  }, [showFilters]);
-
+  // Fetch availability
   useEffect(() => {
     let isMounted = true;
     const fetchAvailability = async () => {
@@ -134,9 +36,9 @@ export default function Book() {
         setLoading(true);
         const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(selectedType)}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load availability");
-        const data: AvailabilityResponseItem[] = await res.json();
+        const data: any[] = await res.json();
 
-        const normalized: NormalizedSession[] = data
+        const normalized = data
           .map((item) => ({
             id: crypto.randomUUID(),
             calendarID: Number(item.calendarID),
@@ -144,558 +46,174 @@ export default function Book() {
           }))
           .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
-        if (isMounted) {
-          setSessions(normalized);
-          setSelectedDay('all'); // Reset to "all" when sessions change
-        }
+        if (isMounted) setSessions(normalized);
       } catch {
-        // Silent fail to keep UI clean; show empty state instead
         if (isMounted) setSessions([]);
-      }
-      finally {
+      } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     fetchAvailability();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [selectedType]);
 
-  // Scroll detection for footer visibility
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      if (scrollTop > 100 && !hasScrolled) {
-        setHasScrolled(true);
-      }
-    };
+  // Group sessions by day
+  const groupedSessions = sessions.reduce((acc, session) => {
+    // Filter by selected field
+    if (session.calendarID !== selectedField) return acc;
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasScrolled]);
+    const dateKey = session.startTime.split('T')[0];
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(session);
+    return acc;
+  }, {} as Record<string, Session[]>);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dayDropdownOpen && daySelectorRef.current && !daySelectorRef.current.contains(event.target as Node)) {
-        setDayDropdownOpen(false);
-      }
-    };
+  const sortedDates = Object.keys(groupedSessions).sort();
 
-    if (dayDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dayDropdownOpen]);
-
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-GB', {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      timeZone: 'Europe/London'
-    });
-  };
-
-  const formatDateShort = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-GB', {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      timeZone: 'Europe/London'
-    });
-  };
-
-  const getDateKey = (iso: string) => {
-    const d = new Date(iso);
-    return d.toISOString().split('T')[0]; // Returns YYYY-MM-DD
-  };
-
-  // Get unique days from sessions
-  const getUniqueDays = () => {
-    const days = new Set<string>();
-    sessions.forEach(session => {
-      days.add(getDateKey(session.startTime));
-    });
-    return Array.from(days).sort();
-  };
-
-  // Get display text for selected day
-  const getSelectedDayText = () => {
-    if (selectedDay === 'all') return 'All Days';
-    const daySession = sessions.find(s => getDateKey(s.startTime) === selectedDay);
-    if (!daySession) return 'All Days';
-    return formatDateShort(daySession.startTime);
-  };
-
-  // Filter sessions by selected day and field
-  const filteredSessions = sessions.filter(session => {
-    // Filter by day
-    const dayMatch = selectedDay === 'all' || getDateKey(session.startTime) === selectedDay;
-    // Filter by field (0 = All fields, otherwise specific field)
-    const fieldMatch = selectedField === 0 || session.calendarID === selectedField;
-    return dayMatch && fieldMatch;
-  });
-
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleTimeString('en-GB', {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: 'Europe/London'
-    });
-  };
-
-  const getFieldMeta = (calendarID: number) => {
-    if (calendarID === 4783035) {
-      return { id: "central-bark" as const, name: "Central Bark" };
-    }
-    if (calendarID === 6255352) {
-      return { id: "hyde-bark" as const, name: "Hyde Bark" };
-    }
-    return { id: "central-bark" as const, name: "Central Bark" };
-  };
-
-  const getPriceForType = (appointmentTypeID: string) => {
-    switch (appointmentTypeID) {
-      case '18525224': // 30-Minute Reservation
-        return '£5.50';
-      case '29373489': // 45-Minute Reservation
-        return '£8.25';
-      case '18525161': // 1-Hour Reservation
-        return '£11.00';
-      default:
-        return '£5.50';
-    }
-  };
-
-
-  const handleBookSession = (session: NormalizedSession) => {
-    const meta = getFieldMeta(session.calendarID);
-    const price = getPriceForType(selectedType);
-    const durationText = selectedType === '18525224' ? '30 min' :
-                        selectedType === '29373489' ? '45 min' :
-                        selectedType === '18525161' ? '1 hour' : '30 min';
-
-    // Save booking data to localStorage before redirecting to Acuity
-    const bookingData = {
-      field: meta.name,
-      calendarID: session.calendarID.toString(),
-      appointmentTypeID: selectedType,
-      date: formatDate(session.startTime),
-      time: formatTime(session.startTime),
-      length: durationText,
-      price: price,
-      startTime: session.startTime
-    };
-
-    localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
-    console.log('Saved pending booking to localStorage:', bookingData);
-
-    // Navigate to booking confirmation page
-    const queryParams = new URLSearchParams({
+  const handleBook = (session: Session) => {
+    const price = selectedType === '18525224' ? '£5.50' : selectedType === '29373489' ? '£8.25' : '£11.00';
+    const duration = selectedType === '18525224' ? '30 min' : selectedType === '29373489' ? '45 min' : '1 hour';
+    const fieldName = session.calendarID === 4783035 ? 'Central Bark' : 'Hyde Bark';
+    
+    const params = new URLSearchParams({
       id: session.id,
-      image_url: meta.id === 'central-bark' ? '/centralbark.webp' : '/hydebark.webp',
-      date: formatDate(session.startTime),
-      time: formatTime(session.startTime),
-      length: durationText,
-      field: meta.name,
+      date: new Date(session.startTime).toLocaleDateString('en-GB'),
+      time: new Date(session.startTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      length: duration,
+      field: fieldName,
       price: price,
-      calendarID: session.calendarID.toString(),
       startTime: session.startTime,
-      appointmentTypeID: selectedType
+      appointmentTypeID: selectedType,
+      calendarID: String(session.calendarID)
     });
 
-    console.log('Navigating to booking page with session data:', {
-      id: session.id,
-      field: meta.name,
-      date: formatDate(session.startTime),
-      time: formatTime(session.startTime)
-    });
-
-    router.push(`/book/${session.id}?${queryParams.toString()}`);
+    router.push(`/book/${session.id}?${params.toString()}`);
   };
+
   return (
-    <>
-      <header className={styles.navbar}>
-        <div className={styles.navbarContent}>
-          <div className={styles.greeting}>
-            <Link href="/dashboard" className={styles.logoLink}>
-              <Image
-                src="/caninecaperslogosymbol.png"
-                alt="Canine Capers"
-                width={32}
-                height={32}
-                className={styles.logoIcon}
-              />
-            </Link>
-            <h1 className={styles.brandTitle}>Canine Capers</h1>
-          </div>
+    <div className={styles.container}>
+      <AppHeader />
+
+      <main className={styles.main}>
+        <div className={styles.header}>
+          <span className={styles.superTitle}>BOOKING</span>
+          <h1 className={styles.title}>Reserve Your Field</h1>
+          <p className={styles.subtitle}>Choose your perfect time for off-lead freedom.</p>
         </div>
-      </header>
 
-      <div className={styles.container}>
-        <main className={styles.main}>
-          {/* Page Header */}
-          <header className={styles.pageHeader}>
-            <h1 className={styles.pageTitle}>Book A Session</h1>
-            <p className={styles.pageSubtitle}>Find and book your next field session</p>
-            <div className={styles.headerDivider}></div>
-          </header>
-
-          {/* Collapsible Browse Calendar Section */}
-          <div className={styles.calendarToggleBar}>
-            <button
-              onClick={() => {
-                const newShowFilters = !showFilters;
-                setShowFilters(newShowFilters);
-                // Auto-select Central Bark field when opening calendar
-                if (newShowFilters) {
-                  setCalendarField(4783035);
-                } else {
-                  // Reset calendar field when closing
-                  setCalendarField(0);
-                }
-              }}
-              className={`${styles.calendarToggleButton} ${showFilters ? styles.expanded : ''}`}
-            >
-              <span className={styles.toggleIcon}>
-                {showFilters ? '−' : '+'}
-              </span>
-              <span className={styles.toggleText}>
-                {showFilters ? 'Hide Calendar' : 'Browse Calendar'}
-              </span>
-              <span className={styles.toggleArrow}>
-                {showFilters ? '↑' : '↓'}
-              </span>
-            </button>
+        {/* Offers Banner */}
+        <div className={styles.offersBanner}>
+          <div className={styles.offersText}>
+            <div className={styles.offersTitle}>Frequent Visitor?</div>
+            <div className={styles.offersSub}>Save up to 20% with our session packages.</div>
           </div>
+          <a 
+            href="https://caninecapers.as.me/catalog/3e8feaf8/cart" 
+            target="_blank"
+            className={styles.offersLink}
+          >
+            View Packages
+          </a>
+        </div>
 
-          {/* Expanded Calendar Panel */}
-          {showFilters && (
-            <div className={styles.calendarPanel}>
-              {/* Quick Filter Selection */}
-              <div className={styles.quickFilters}>
-                <div className={styles.filterGroup}>
-                  <span className={styles.filterLabel}>Length:</span>
-                  <div className={styles.filterOptions}>
-                    {[{ id: '18525224', label: '30m' }, { id: '29373489', label: '45m' }, { id: '18525161', label: '1h' }].map(opt => {
-                      const checked = selectedType === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          className={`${styles.quickFilter} ${checked ? styles.active : ''}`}
-                          onClick={() => {
-                            setSelectedType(opt.id);
-                          }}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <span className={styles.filterLabel}>Field:</span>
-                  <div className={styles.filterOptions}>
-                    {[
-                      { id: 4783035, label: 'Central' },
-                      { id: 6255352, label: 'Hyde' }
-                    ].map(field => {
-                      const isActive = field.id === 4783035; // Hard-code Central to be active
-                      const buttonClasses = [styles.quickFilter];
-                      if (isActive) {
-                        buttonClasses.push(styles.active);
-                      }
-                      return (
-                        <button
-                          key={field.id}
-                          className={buttonClasses.join(' ')}
-                          onClick={() => {
-                            setCalendarField(field.id);
-                          }}
-                        >
-                          {field.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Calendar Iframe */}
-              {calendarField > 0 && selectedType && (
-                <div className={styles.calendarContainer}>
-                  <iframe
-                    src={(() => {
-                      const params = new URLSearchParams();
-                      params.set("calendarID", String(calendarField));
-                      params.set("appointmentTypeID", selectedType);
-
-                      if (userInfo?.email) {
-                        params.set("email", userInfo.email);
-                        if (userInfo.firstName) params.set("firstName", userInfo.firstName);
-                        if (userInfo.lastName) params.set("lastName", userInfo.lastName);
-                        if (userInfo.phone) params.set("phone", userInfo.phone);
-                      }
-
-                      return `https://caninecapers.as.me/?${params.toString()}`;
-                    })()}
-                    title="Schedule Appointment"
-                    width="100%"
-                    height="600"
-                    frameBorder="0"
-                    allow="payment"
-                    className={styles.calendarIframe}
-                  ></iframe>
-                  <Script
-                    src="https://embed.acuityscheduling.com/js/embed.js"
-                    strategy="lazyOnload"
-                  />
-                </div>
-              )}
-
-              {/* Selection Prompt - Don't show when calendar is open since we auto-select */}
-              {false && (
-                <div className={styles.selectionPrompt}>
-                  Select length and field above to view calendar
-                </div>
-              )}
+        <div className={styles.selectionGrid}>
+          {/* Step 1: Duration */}
+          <section>
+            <h2 className={styles.sectionTitle}>1. Select Duration</h2>
+            <div className={styles.durationGrid}>
+              {[
+                { id: '18525224', label: '30 min', price: '£5.50' },
+                { id: '29373489', label: '45 min', price: '£8.25' },
+                { id: '18525161', label: '1 Hour', price: '£11.00' }
+              ].map(opt => (
+                <button
+                  key={opt.id}
+                  className={`${styles.durationCard} ${selectedType === opt.id ? styles.active : ''}`}
+                  onClick={() => setSelectedType(opt.id)}
+                >
+                  <span className={styles.durationLabel}>{opt.label}</span>
+                  <span className={styles.durationPrice}>{opt.price}</span>
+                </button>
+              ))}
             </div>
-          )}
+          </section>
 
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              Upcoming Availability
-              <span className={styles.titleUnderline}></span>
-            </h2>
-
-            {/* Unified Filter Row */}
-            <div className={styles.unifiedFilterRow}>
-              <div className={styles.filterSection}>
-                <span className={styles.filterSectionLabel}>Length</span>
-                <div className={styles.filterChips}>
-                  {[{ id: '18525224', label: '30 min' }, { id: '29373489', label: '45 min' }, { id: '18525161', label: '1 hour' }].map(opt => {
-                    const checked = selectedType === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                        onClick={() => setSelectedType(opt.id)}
-                        disabled={loading}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
+          {/* Step 2: Field */}
+          <section>
+            <h2 className={styles.sectionTitle}>2. Choose Field</h2>
+            <div className={styles.fieldGrid}>
+              <div 
+                className={`${styles.fieldCard} ${selectedField === 4783035 ? styles.active : ''}`}
+                onClick={() => setSelectedField(4783035)}
+              >
+                <Image src="/centralbark.webp" alt="Central Bark" fill className={styles.fieldImage} />
+                <div className={styles.fieldOverlay}>
+                  <span className={styles.fieldName}>Central Bark</span>
                 </div>
+                {selectedField === 4783035 && (
+                  <div className={styles.checkmark}><CheckIcon /></div>
+                )}
               </div>
-
-              <div className={styles.filterSection}>
-                <span className={styles.filterSectionLabel}>Field</span>
-                <div className={styles.filterChips}>
-                  {[
-                    { id: 0, label: 'All' },
-                    { id: 4783035, label: 'Central' },
-                    { id: 6255352, label: 'Hyde' }
-                  ].map(field => {
-                    const checked = selectedField === field.id;
-                    return (
-                      <button
-                        key={field.id}
-                        className={`${styles.filterChip} ${checked ? styles.activeChip : ''}`}
-                        onClick={() => setSelectedField(field.id)}
-                        disabled={loading}
-                      >
-                        {field.label}
-                      </button>
-                    );
-                  })}
+              
+              <div 
+                className={`${styles.fieldCard} ${selectedField === 6255352 ? styles.active : ''}`}
+                onClick={() => setSelectedField(6255352)}
+              >
+                <Image src="/hydebark.webp" alt="Hyde Bark" fill className={styles.fieldImage} />
+                <div className={styles.fieldOverlay}>
+                  <span className={styles.fieldName}>Hyde Bark</span>
                 </div>
+                {selectedField === 6255352 && (
+                  <div className={styles.checkmark}><CheckIcon /></div>
+                )}
               </div>
             </div>
-            {loading && (
-              <div style={{ width: '100%', textAlign: 'center', color: 'var(--forest)', marginBottom: '0.75rem', fontWeight: 600 }}>
-                Loading available sessions…
-              </div>
-            )}
-            {sessions.length === 0 && !loading && (
-              <p className={styles.noSessionsMessage}>No sessions available for this type.</p>
-            )}
-            
-            {/* Offers - Horizontal Scrollable Cards */}
-            {OFFERS.length > 0 && (
-              <div className={styles.offersSection}>
-                <h3 className={styles.offersTitle}>Save with Packages</h3>
-                <div className={styles.offersScrollContainer}>
-                  <div className={styles.offersGrid}>
-                    {OFFERS.map(offer => (
-                      <a
-                        key={offer.id}
-                        className={styles.offerCard}
-                        href={offer.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className={styles.offerContent}>
-                          <div className={styles.offerTitle}>{offer.title}</div>
-                          <button className={styles.offerButton}>Buy Package</button>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+          </section>
 
-            {sessions.length > 0 && (
-              <>
-                <h3 className={styles.availableSessionsSubtitle}>Available Sessions</h3>
-                {/* Day Selector Dropdown */}
-                <div className={styles.daySelectorContainer} ref={daySelectorRef}>
-                  <button
-                    className={styles.daySelectorButton}
-                    onClick={() => setDayDropdownOpen(!dayDropdownOpen)}
-                  >
-                    <span>{getSelectedDayText()}</span>
-                    <span className={styles.daySelectorArrow}>{dayDropdownOpen ? '↑' : '↓'}</span>
-                  </button>
-                  {dayDropdownOpen && (
-                    <div className={styles.dayDropdown}>
-                      <button
-                        className={`${styles.dayDropdownItem} ${selectedDay === 'all' ? styles.dayDropdownItemActive : ''}`}
-                        onClick={() => {
-                          setSelectedDay('all');
-                          setDayDropdownOpen(false);
-                        }}
-                      >
-                        All Days
-                      </button>
-                      {getUniqueDays().map((dayKey) => {
-                        const daySession = sessions.find(s => getDateKey(s.startTime) === dayKey);
-                        if (!daySession) return null;
-                        return (
-                          <button
-                            key={dayKey}
-                            className={`${styles.dayDropdownItem} ${selectedDay === dayKey ? styles.dayDropdownItemActive : ''}`}
-                            onClick={() => {
-                              setSelectedDay(dayKey);
-                              setDayDropdownOpen(false);
-                            }}
-                          >
-                            {formatDateShort(daySession.startTime)}
-                          </button>
-                        );
+          {/* Step 3: Time Slots */}
+          <section>
+            <h2 className={styles.sectionTitle}>3. Pick a Time</h2>
+            <div className={styles.slotsContainer}>
+              {loading ? (
+                <div className={styles.loading}>Finding available slots...</div>
+              ) : sortedDates.length > 0 ? (
+                sortedDates.map(date => (
+                  <div key={date} className={styles.dayGroup}>
+                    <div className={styles.dayHeader}>
+                      {new Date(date).toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long' 
                       })}
                     </div>
-                  )}
-                </div>
-                <div className={styles.availabilityScrollContainer}>
-                  <div className={styles.availabilityGrid}>
-                    {filteredSessions.map((session) => {
-                      const meta = getFieldMeta(session.calendarID);
-                      const timeString = formatTime(session.startTime);
-                      const dateString = formatDate(session.startTime);
-                      const durationText = selectedType === '18525224' ? '30 min' :
-                                          selectedType === '29373489' ? '45 min' :
-                                          selectedType === '18525161' ? '1 hour' : '30 min';
-                      const price = getPriceForType(selectedType);
-                      return (
-                        <SessionCard
+                    <div className={styles.slotsGrid}>
+                      {groupedSessions[date].map(session => (
+                        <button
                           key={session.id}
-                          meta={meta}
-                          time={timeString}
-                          date={dateString}
-                          duration={durationText}
-                          price={price}
-                          onClick={() => handleBookSession(session)}
-                        />
-                      );
-                    })}
+                          className={styles.slotButton}
+                          onClick={() => handleBook(session)}
+                        >
+                          {new Date(session.startTime).toLocaleTimeString('en-GB', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className={styles.emptyMessage}>
+                  No sessions available for this configuration. Try changing the duration or field.
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </section>
-        </main>
-      </div>
-
-      {/* Branded Footer Note - Only show after scrolling */}
-      {hasScrolled && (
-        <div className={styles.brandedFooter}>
-          <div className={styles.footerDivider}>🐾──────────────</div>
-          <div className={styles.footerNote}>
-            Canine Capers is proudly local — <span>thank you for supporting your community.</span>
-          </div>
         </div>
-      )}
+      </main>
 
-      <footer className={styles.mobileFooter} aria-label="Primary actions">
-        <Link href="/dashboard" className={styles.footerAction}>
-          <Image
-            src="/images/homeicon.png"
-            alt="Dashboard"
-            width={32}
-            height={32}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Home</span>
-        </Link>
-
-        <Link href="/book" className={styles.footerAction} aria-current="page">
-          <Image
-            src="/booksession.png"
-            alt="Book Session"
-            width={32}
-            height={32}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Book</span>
-        </Link>
-
-        <Link href="/my-sessions" className={styles.footerAction}>
-          <Image
-            src="/viewsessions.png"
-            alt="My Sessions"
-            width={32}
-            height={32}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Sessions</span>
-        </Link>
-
-        <Link href="/location" className={styles.footerAction}>
-          <Image
-            src="/location.png"
-            alt="Locations"
-            width={32}
-            height={32}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Location</span>
-        </Link>
-
-        <Link href="/settings" className={styles.footerAction}>
-          <Image
-            src="/images/settingsicon.png"
-            alt="Settings"
-            width={32}
-            height={32}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Settings</span>
-        </Link>
-      </footer>
-    </>
+      <BottomNav />
+    </div>
   );
 }

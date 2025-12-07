@@ -3,231 +3,166 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import AppHeader from "../../components/AppHeader";
+import BottomNav from "../../components/BottomNav";
 import styles from "./page.module.css";
 
+// Icons
+const PhoneIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+  </svg>
+);
+
+const MapPinIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+    <circle cx="12" cy="10" r="3"></circle>
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
 export default function Location() {
-  const [centralBarkExpanded, setCentralBarkExpanded] = useState(false);
+  const [centralBarkExpanded, setCentralBarkExpanded] = useState(true);
   const [hydeBarkExpanded, setHydeBarkExpanded] = useState(false);
 
   return (
-    <>
-      <header className={styles.navbar}>
-        <div className={styles.navbarContent}>
-          <div className={styles.greeting}>
-            <Link href="/dashboard" className={styles.logoLink}>
-              <Image
-                src="/caninecaperslogosymbol.png"
-                alt="Canine Capers"
-                width={32}
-                height={32}
-                className={styles.logoIcon}
-              />
-            </Link>
-            <h1 className={styles.brandTitle}>Canine Capers</h1>
-          </div>
+    <div className={styles.container}>
+      <AppHeader />
+
+      <main className={styles.main}>
+        <header className={styles.header}>
+          <span className={styles.superTitle}>VISIT US</span>
+          <h1 className={styles.title}>Our Locations</h1>
+          <p className={styles.subtitle}>Find your way to our private fields in the heart of the countryside.</p>
+        </header>
+
+        {/* Map Card */}
+        <div className={styles.mapSection}>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.759639341879!2d-2.3076475236467444!3d52.35664454831156!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48708b6a4fbcdd7f%3A0x898bb61085801618!2sCanine%20Capers%20Dog%20Field!5e0!3m2!1sen!2suk!4v1760959804151!5m2!1sen!2suk"
+            className={styles.mapFrame}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Field Locations"
+          ></iframe>
         </div>
-      </header>
 
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <div className={styles.headerRow}>
-            <Image
-              src="/location.png"
-              alt=""
-              width={24}
-              height={24}
-              className={styles.locationIcon}
-            />
-            <div className={styles.titleContainer}>
-              <h1 className={styles.pageTitle}>Find Your Field</h1>
-              <div className={styles.titleAccent}></div>
+        {/* Field Directions */}
+        <div className={styles.fieldsGrid}>
+          {/* Central Bark */}
+          <div className={styles.fieldCard}>
+            <div className={styles.fieldHeader}>
+              <Image src="/centralbark.webp" alt="Central Bark" fill className={styles.fieldImage} />
+              <div className={styles.fieldOverlay}>
+                <span className={styles.fieldName}>Central Bark</span>
+              </div>
             </div>
-          </div>
-
-          <div className={styles.mapCard}>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.759639341879!2d-2.3076475236467444!3d52.35664454831156!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48708b6a4fbcdd7f%3A0x898bb61085801618!2sCanine%20Capers%20Dog%20Field!5e0!3m2!1sen!2suk!4v1760959804151!5m2!1sen!2suk"
-              width="100%"
-              height="300"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Business Location Map"
-            ></iframe>
-          </div>
-
-          {/* Directions Section */}
-          <section className={styles.directionsSection}>
-            <h2 className={styles.directionsTitle}>Directions for Each Field</h2>
-            <p className={styles.directionsSubtitle}>
-              Both fields are located at Bewdley Rd North. Each field will have a sign with the name of the field on it. Use the map above for help. Follow the directions below depending on your booking.
-            </p>
-
-            {/* Central Bark Directions */}
-            <div className={styles.directionCard}>
-              <button
-                className={styles.directionToggle}
+            <div className={styles.fieldContent}>
+              <button 
+                className={styles.toggleButton}
                 onClick={() => setCentralBarkExpanded(!centralBarkExpanded)}
-                aria-expanded={centralBarkExpanded}
               >
-                <Image
-                  src="/locationicon/centralbark.png"
-                  alt="Central Bark"
-                  width={24}
-                  height={24}
-                  className={styles.directionIcon}
-                />
-                <span className={styles.directionFieldName}>Central Bark</span>
-                <span className={styles.directionArrow}>
-                  {centralBarkExpanded ? '↑' : '↓'}
+                <span>Arrival Directions</span>
+                <span className={`${styles.toggleIcon} ${centralBarkExpanded ? styles.expanded : ''}`}>
+                  <ChevronDownIcon />
                 </span>
               </button>
               {centralBarkExpanded && (
-                <div className={styles.directionContent}>
+                <div className={styles.directionsList}>
                   <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Entrance: Central Bark is the first field you&apos;ll see as you come down the road with both fields on. It&apos;s on the right, and you&apos;ll see a sign with the field name.</span>
+                    <span className={styles.stepNumber}>1</span>
+                    <span className={styles.stepText}>
+                      First field on the right as you enter the private road. Look for the Central Bark sign.
+                    </span>
                   </div>
                   <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Parking: The parking for Central Bark is on the left.</span>
+                    <span className={styles.stepNumber}>2</span>
+                    <span className={styles.stepText}>
+                      Parking is immediately on the left upon entering the gateway.
+                    </span>
                   </div>
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Hyde Bark Directions */}
-            <div className={styles.directionCard}>
-              <button
-                className={styles.directionToggle}
+          {/* Hyde Bark */}
+          <div className={styles.fieldCard}>
+            <div className={styles.fieldHeader}>
+              <Image src="/hydebark.webp" alt="Hyde Bark" fill className={styles.fieldImage} />
+              <div className={styles.fieldOverlay}>
+                <span className={styles.fieldName}>Hyde Bark</span>
+              </div>
+            </div>
+            <div className={styles.fieldContent}>
+              <button 
+                className={styles.toggleButton}
                 onClick={() => setHydeBarkExpanded(!hydeBarkExpanded)}
-                aria-expanded={hydeBarkExpanded}
               >
-                <Image
-                  src="/locationicon/hydebarki.png"
-                  alt="Hyde Bark"
-                  width={24}
-                  height={24}
-                  className={styles.directionIcon}
-                />
-                <span className={styles.directionFieldName}>Hyde Bark</span>
-                <span className={styles.directionArrow}>
-                  {hydeBarkExpanded ? '↑' : '↓'}
+                <span>Arrival Directions</span>
+                <span className={`${styles.toggleIcon} ${hydeBarkExpanded ? styles.expanded : ''}`}>
+                  <ChevronDownIcon />
                 </span>
               </button>
               {hydeBarkExpanded && (
-                <div className={styles.directionContent}>
+                <div className={styles.directionsList}>
                   <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Entrance: Follow the same signed &ldquo;Canine Capers&rdquo; road until the end. Please wait at the large gate until the field is empty.</span>
+                    <span className={styles.stepNumber}>1</span>
+                    <span className={styles.stepText}>
+                      Follow the lane to the very end. Please wait at the large gate until the previous visitor leaves.
+                    </span>
                   </div>
                   <div className={styles.directionItem}>
-                    <span className={styles.bullet}>•</span>
-                    <span>Parking: When the field is empty, drive up and you will see a gated car park. You&apos;ll see a sign with the field name.</span>
+                    <span className={styles.stepNumber}>2</span>
+                    <span className={styles.stepText}>
+                      Drive up to the gated car park once the field is empty.
+                    </span>
                   </div>
                 </div>
               )}
             </div>
-          </section>
+          </div>
+        </div>
 
-          <section className={styles.infoSection}>
-            {/* Address */}
+        {/* Contact Info */}
+        <div className={styles.contactCard}>
+          <h2 className={styles.contactTitle}>Get in Touch</h2>
+          <div className={styles.contactGrid}>
             <div className={styles.contactItem}>
-              <Image
-                src="/location.png"
-                alt="Location"
-                width={20}
-                height={24}
-                className={styles.contactIcon}
-              />
-              <div className={styles.contactContent}>
-                <h3 className={styles.infoTitle}>Address</h3>
-                <p className={styles.addressText}>
-                  Brickyard Cottage,<br />
-                  Stourport-on-Severn, Bewdley<br />
-                  DY13 8DZ, United Kingdom
-                </p>
+              <div className={styles.contactIcon}>
+                <MapPinIcon />
+              </div>
+              <span className={styles.contactLabel}>Address</span>
+              <div className={styles.contactValue}>
+                Brickyard Cottage<br/>
+                Stourport-on-Severn<br/>
+                DY13 8DZ
               </div>
             </div>
-
-            {/* Phone */}
             <div className={styles.contactItem}>
-              <Image
-                src="/locationicon/phone.png"
-                alt="Phone"
-                width={24}
-                height={24}
-                className={styles.contactIcon}
-              />
-              <div className={styles.contactContent}>
-                <h3 className={styles.infoTitle}>Phone</h3>
-                <a href="tel:+447533185734" className={styles.phoneLink}>+44 7533 185 734</a>
+              <div className={styles.contactIcon}>
+                <PhoneIcon />
               </div>
+              <span className={styles.contactLabel}>Phone</span>
+              <a href="tel:+447533185734" className={styles.contactValue}>
+                +44 7533 185 734
+              </a>
             </div>
+          </div>
+          <Link href="/book" className={styles.primaryButton}>
+            Book a Session
+          </Link>
+        </div>
+      </main>
 
-            {/* Book Session Button */}
-            <Link href="/book" className={styles.primaryButton}>Book a Session</Link>
-          </section>
-        </main>
-      </div>
-
-      <footer className={styles.mobileFooter} aria-label="Primary actions">
-        <Link href="/dashboard" className={styles.footerAction}>
-          <Image
-            src="/images/homeicon.png"
-            alt="Dashboard"
-            width={16}
-            height={16}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Home</span>
-        </Link>
-
-        <Link href="/book" className={styles.footerAction}>
-          <Image
-            src="/booksession.png"
-            alt="Book Session"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Book</span>
-        </Link>
-
-        <Link href="/my-sessions" className={styles.footerAction}>
-          <Image
-            src="/viewsessions.png"
-            alt="My Sessions"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Sessions</span>
-        </Link>
-
-        <Link href="/location" className={styles.footerAction} aria-current="page">
-          <Image
-            src="/location.png"
-            alt="Locations"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Location</span>
-        </Link>
-
-        <Link href="/settings" className={styles.footerAction}>
-          <Image
-            src="/images/settingsicon.png"
-            alt="Settings"
-            width={16}
-            height={16}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Settings</span>
-        </Link>
-      </footer>
-    </>
+      <BottomNav />
+    </div>
   );
 }

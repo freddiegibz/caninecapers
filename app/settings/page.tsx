@@ -7,275 +7,108 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import styles from "./page.module.css";
 
+// Icons
+const LocationIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+    <circle cx="12" cy="10" r="3"></circle>
+  </svg>
+);
+
+const SettingsIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+);
+
+const LogOutIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+  </svg>
+);
+
 export default function Settings() {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [userName, setUserName] = useState<string>('Loading...');
-  const [userEmail, setUserEmail] = useState<string>('Loading...');
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
+  const [userEmail, setUserEmail] = useState('Loading...');
+  
+  // Edit Mode State
+  const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
     phone: ''
   });
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileError, setProfileError] = useState('');
-  const [profileSuccess, setProfileSuccess] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [profileStatus, setProfileStatus] = useState<{type: 'success' | 'error', msg: string} | null>(null);
 
-  const loadUserData = async () => {
-    try {
-      console.log('Loading user data for settings...');
-      const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error('Error fetching user:', error);
-        setUserName('Guest');
-        setUserEmail('guest@example.com');
-        setIsLoadingUser(false);
-        return;
-      }
-
-      console.log('Settings - User fetched:', user);
-
-      if (user) {
-        // Set email directly from user object
-        setUserEmail(user.email || 'No email');
-
-        // Try multiple ways to get the name
-        let name = null;
-
-        // 1. Check user metadata for name
-        name = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.display_name;
-        console.log('Name from metadata:', name);
-
-        // 2. Check user metadata for first/last name combination
-        let firstName = null;
-        let lastName = null;
-        let phone = null;
-        if (user.user_metadata) {
-          firstName = user.user_metadata.first_name || user.user_metadata.given_name;
-          lastName = user.user_metadata.last_name || user.user_metadata.family_name;
-          phone = user.user_metadata.phone || null;
-          if (firstName || lastName) {
-            name = [firstName, lastName].filter(Boolean).join(' ');
-            console.log('Name from first/last name:', name);
-            // Set profile data for edit form
-            setProfileData({
-              firstName: firstName || '',
-              lastName: lastName || '',
-              phone: phone || ''
-            });
-          } else {
-            // Still set phone if available even without name
-            setProfileData({
-              firstName: '',
-              lastName: '',
-              phone: phone || ''
-            });
-          }
-        }
-
-        // 3. Try to fetch from profiles table
-        if (!name) {
-          console.log('Name not in metadata, checking profiles table...');
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('name, first_name, last_name, full_name')
-              .eq('id', user.id)
-              .single();
-
-            console.log('Profile query result:', { profile, profileError });
-
-            if (!profileError && profile) {
-              // Try different name fields from profiles table
-              name = profile.name || profile.full_name ||
-                     (profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : null) ||
-                     profile.first_name || profile.last_name;
-
-              console.log('Name from profiles table:', name);
-              
-              // Set profile data for edit form if not already set
-              if (!firstName && !lastName) {
-                setProfileData({
-                  firstName: profile.first_name || '',
-                  lastName: profile.last_name || '',
-                  phone: phone || ''
-                });
-              }
-            } else {
-              console.log('Profile query failed:', profileError?.message);
-            }
-          } catch (profileErr) {
-            console.error('Error querying profiles table:', profileErr);
-          }
-        }
-
-        // 4. Fallback to email username
-        if (!name && user.email) {
-          name = user.email.split('@')[0];
-          console.log('Using email username:', name);
-        }
-
-        const finalName = name || 'User';
-        console.log('Final name for settings:', finalName);
-        setUserName(finalName);
-      } else {
-        console.log('No authenticated user found in settings');
-        setUserName('Guest');
-        setUserEmail('guest@example.com');
-      }
-    } catch (error) {
-      console.error('Error loading user data for settings:', error);
-      setUserName('Guest');
-      setUserEmail('guest@example.com');
-    } finally {
-      setIsLoadingUser(false);
-    }
-  };
+  // Password Modal
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
+  const [passwordStatus, setPasswordStatus] = useState<{type: 'success' | 'error', msg: string} | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     loadUserData();
   }, []);
 
-  const handleLogout = async () => {
+  const loadUserData = async () => {
     try {
-      setIsLoggingOut(true);
-      console.log('Starting logout process...');
-
-      // Check if user is actually logged in first
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('Current user before logout:', user);
-
-      if (userError) {
-        console.error('Error checking current user:', userError);
-        alert('Unable to verify login status. Please try again.');
-        setIsLoggingOut(false);
-        return;
-      }
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('No user logged in, redirecting to home');
-        router.push('/');
+        setUserEmail('Guest');
         return;
       }
 
-      console.log('Calling supabase.auth.signOut()...');
-      const { error } = await supabase.auth.signOut();
-      console.log('signOut result - error:', error);
+      setUserEmail(user.email || '');
+      
+      let firstName = user.user_metadata?.first_name || '';
+      let lastName = user.user_metadata?.last_name || '';
+      let phone = user.user_metadata?.phone || '';
 
-      if (error) {
-        console.error('Logout error:', error);
-        alert(`Failed to log out: ${error.message}`);
-        setIsLoggingOut(false);
-      } else {
-        console.log('User logged out successfully, redirecting...');
-        // Use window.location for a hard redirect to ensure clean state
-        window.location.href = '/';
+      // Fallback to profiles table if needed
+      if (!firstName && !lastName) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          firstName = profile.first_name || '';
+          lastName = profile.last_name || '';
+        }
       }
+
+      setProfileData({ firstName, lastName, phone });
     } catch (error) {
-      console.error('Unexpected logout error:', error);
-      alert(`An unexpected error occurred: ${error}`);
-      setIsLoggingOut(false);
+      console.error(error);
     }
-  };
-
-  const handleChangePassword = async () => {
-    // Basic validation
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      setPasswordError('All fields are required');
-      return;
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long');
-      return;
-    }
-
-    try {
-      setIsChangingPassword(true);
-      setPasswordError('');
-      console.log('Starting password change process...');
-
-      // First, re-authenticate with current password
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user || !user.email) {
-        setPasswordError('Unable to verify user session');
-        setIsChangingPassword(false);
-        return;
-      }
-
-      console.log('Re-authenticating user...');
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: passwordData.currentPassword
-      });
-
-      if (signInError) {
-        console.error('Re-authentication failed:', signInError);
-        setPasswordError('Current password is incorrect');
-        setIsChangingPassword(false);
-        return;
-      }
-
-      console.log('Updating password...');
-      // Now update the password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: passwordData.newPassword
-      });
-
-      if (updateError) {
-        console.error('Password update failed:', updateError);
-        setPasswordError(updateError.message || 'Failed to update password');
-      } else {
-        console.log('Password updated successfully');
-        // Clear form and close modal
-        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        setShowPasswordModal(false);
-        alert('Password changed successfully!');
-      }
-    } catch (error) {
-      console.error('Unexpected error during password change:', error);
-      setPasswordError('An unexpected error occurred');
-    } finally {
-      setIsChangingPassword(false);
-    }
-  };
-
-  const openPasswordModal = () => {
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    setPasswordError('');
-    setShowPasswordModal(true);
   };
 
   const handleSaveProfile = async () => {
     try {
-      setIsSavingProfile(true);
-      setProfileError('');
-      setProfileSuccess('');
+      setIsSaving(true);
+      setProfileStatus(null);
 
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
-        setProfileError('Unable to verify user session');
-        setIsSavingProfile(false);
-        return;
-      }
-
-      // Update user metadata with first name, last name, and phone
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         data: {
           first_name: profileData.firstName.trim() || null,
           last_name: profileData.lastName.trim() || null,
@@ -283,323 +116,253 @@ export default function Settings() {
         }
       });
 
-      if (updateError) {
-        console.error('Failed to update profile:', updateError);
-        setProfileError(updateError.message || 'Failed to update profile');
-      } else {
-        console.log('Profile updated successfully');
-        setProfileSuccess('Profile updated successfully!');
-        // Reload user data to reflect changes
-        await loadUserData();
-        // Clear success message after a short delay
-        setTimeout(() => {
-          setProfileSuccess('');
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Unexpected error updating profile:', error);
-      setProfileError('An unexpected error occurred');
+      if (error) throw error;
+
+      setProfileStatus({ type: 'success', msg: 'Profile updated successfully' });
+      setIsEditing(false);
+      setTimeout(() => setProfileStatus(null), 3000);
+    } catch (err: any) {
+      setProfileStatus({ type: 'error', msg: err.message || 'Failed to update' });
     } finally {
-      setIsSavingProfile(false);
+      setIsSaving(false);
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
+      setPasswordStatus({ type: 'error', msg: 'All fields are required' });
+      return;
+    }
+    if (passwordData.new !== passwordData.confirm) {
+      setPasswordStatus({ type: 'error', msg: 'New passwords do not match' });
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) throw new Error('No user found');
+
+      // Verify current
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordData.current
+      });
+      if (signInError) throw new Error('Current password is incorrect');
+
+      // Update
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordData.new
+      });
+      if (updateError) throw updateError;
+
+      setPasswordStatus(null);
+      setShowPasswordModal(false);
+      setPasswordData({ current: '', new: '', confirm: '' });
+      alert('Password updated successfully');
+    } catch (err: any) {
+      setPasswordStatus({ type: 'error', msg: err.message });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  };
+
+  const fullName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ') || 'Valued Member';
+
   return (
-    <>
-      <header className={styles.navbar}>
-        <div className={styles.navbarContent}>
-          <div className={styles.greeting}>
-            <Link href="/dashboard" className={styles.logoLink}>
-              <Image
-                src="/caninecaperslogosymbol.png"
-                alt="Canine Capers"
-                width={32}
-                height={32}
-                className={styles.logoIcon}
-              />
-            </Link>
-            <h1 className={styles.brandTitle}>Canine Capers</h1>
-          </div>
+    <div className={styles.container}>
+      <nav className={styles.navbar}>
+        <Link href="/" className={styles.brand}>
+          <Image src="/caninecaperslogosymbol.png" alt="" width={32} height={32} />
+          <span className={styles.brandText}>Canine Capers</span>
+        </Link>
+        <div className={styles.navActions}>
+          <Link href="/location" className={styles.iconButton}>
+            <LocationIcon />
+          </Link>
+          <Link href="/settings" className={styles.iconButton}>
+            <SettingsIcon />
+          </Link>
         </div>
-      </header>
+      </nav>
 
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              Settings
-              <span className={styles.titleUnderline}></span>
-            </h2>
-
-            {/* Profile Section */}
-            <div className={styles.settingsSection}>
-              <h3 className={styles.sectionHeader}>Profile</h3>
-
-              <div className={styles.profileCard}>
-                <div className={styles.profileInfo}>
-                  <div className={styles.avatar}>
-                    <Image
-                      src="/centralbark.webp"
-                      alt="Profile"
-                      width={60}
-                      height={60}
-                      className={styles.avatarImage}
-                    />
-                  </div>
-                  <div className={styles.profileDetails}>
-                    <h4 className={styles.profileName}>
-                      {isLoadingUser ? 'Loading...' : userName}
-                    </h4>
-                    <p className={styles.profileEmail}>
-                      {isLoadingUser ? 'Loading...' : userEmail}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <main className={styles.main}>
+        {/* Hero Section */}
+        <div className={styles.profileHero}>
+          <div className={styles.avatarContainer}>
+            <div className={styles.avatar}>
+              <Image src="/centralbark.webp" alt="Profile" fill className={styles.avatarImage} />
             </div>
+          </div>
+          <h1 className={styles.heroName}>{fullName}</h1>
+          <p className={styles.heroEmail}>{userEmail}</p>
+        </div>
 
-            {/* Edit Profile Section */}
-            <div className={styles.settingsSection}>
-              <h3 className={styles.sectionHeader}>Edit Profile</h3>
-
-              <div className={styles.profileForm}>
-                <div className={styles.formDescription}>
-                  <p className={styles.descriptionText}>
-                    Your profile information will be automatically filled in when booking sessions.
-                    Keep your details up to date to make booking faster and easier.
-                  </p>
-                </div>
-
-                <div className={styles.formFields}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>First Name</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={profileData.firstName}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
-                      placeholder="Enter your first name"
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Last Name</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={profileData.lastName}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
-                      placeholder="Enter your last name"
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Phone Number</label>
-                    <input
-                      type="tel"
-                      className={styles.formInput}
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.formActions}>
-                  <button
-                    className={styles.saveButton}
-                    onClick={handleSaveProfile}
-                    disabled={isSavingProfile}
-                  >
-                    {isSavingProfile ? 'Saving...' : 'Save Changes'}
+        <div className={styles.contentGrid}>
+          {/* Left Column: Member Details */}
+          <div>
+            <div className={styles.sectionTitle}>Membership Details</div>
+            <div className={styles.membershipCard}>
+              <div className={styles.cardHeader}>
+                <h3 style={{margin:0, fontFamily:'var(--font-poppins)', fontSize:'1.1rem', color:'#2B3A29'}}>Personal Information</h3>
+                {!isEditing ? (
+                  <button className={styles.editButton} onClick={() => setIsEditing(true)}>
+                    Edit <EditIcon />
                   </button>
+                ) : (
+                  <div style={{display:'flex', gap:'0.5rem'}}>
+                    <button 
+                      className={styles.editButton} 
+                      onClick={() => setIsEditing(false)}
+                      style={{color:'#7B8A80'}}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      className={styles.editButton} 
+                      onClick={handleSaveProfile}
+                      disabled={isSaving}
+                      style={{background:'#2B3A29', color:'#fff'}}
+                    >
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.infoGrid}>
+                <div className={styles.infoGroup}>
+                  <label className={styles.infoLabel}>First Name</label>
+                  {isEditing ? (
+                    <input 
+                      className={styles.inputField}
+                      value={profileData.firstName}
+                      onChange={e => setProfileData(prev => ({...prev, firstName: e.target.value}))}
+                    />
+                  ) : (
+                    <div className={styles.infoValue}>{profileData.firstName || '—'}</div>
+                  )}
                 </div>
 
-                {profileError && (
-                  <div className={styles.errorMessage}>{profileError}</div>
-                )}
-                {profileSuccess && (
-                  <div className={styles.successMessage}>{profileSuccess}</div>
-                )}
-              </div>
-            </div>
-
-            {/* Account Section */}
-            <div className={styles.settingsSection}>
-              <h3 className={styles.sectionHeader}>Account</h3>
-
-              <div className={styles.accountActions}>
-                <button className={styles.accountButton} onClick={openPasswordModal}>
-                  <div className={styles.buttonIconContainer}>
-                    <Image
-                      src="/changepass.png"
-                      alt="Change Password"
-                      width={20}
-                      height={20}
-                      className={styles.buttonIconImage}
+                <div className={styles.infoGroup}>
+                  <label className={styles.infoLabel}>Last Name</label>
+                  {isEditing ? (
+                    <input 
+                      className={styles.inputField}
+                      value={profileData.lastName}
+                      onChange={e => setProfileData(prev => ({...prev, lastName: e.target.value}))}
                     />
-                  </div>
-                  <span className={styles.buttonText}>Change Password</span>
-                  <span className={styles.buttonArrow}>›</span>
-                </button>
+                  ) : (
+                    <div className={styles.infoValue}>{profileData.lastName || '—'}</div>
+                  )}
+                </div>
 
-                <button
-                  className={styles.accountButton}
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                >
-                  <div className={styles.buttonIconContainer}>
-                    <Image
-                      src="/logout.png"
-                      alt="Logout"
-                      width={20}
-                      height={20}
-                      className={styles.buttonIconImage}
+                <div className={`${styles.infoGroup} ${styles.fullWidth}`}>
+                  <label className={styles.infoLabel}>Phone Number</label>
+                  {isEditing ? (
+                    <input 
+                      className={styles.inputField}
+                      value={profileData.phone}
+                      onChange={e => setProfileData(prev => ({...prev, phone: e.target.value}))}
+                      placeholder="+44..."
                     />
-                  </div>
-                  <span className={styles.buttonText}>
-                    {isLoggingOut ? 'Logging out...' : 'Logout'}
-                  </span>
-                  <span className={styles.buttonArrow}>›</span>
-                </button>
+                  ) : (
+                    <div className={styles.infoValue}>{profileData.phone || '—'}</div>
+                  )}
+                </div>
               </div>
-            </div>
-
-          </section>
-        </main>
-      </div>
-
-      <footer className={styles.mobileFooter} aria-label="Primary actions">
-        <Link href="/dashboard" className={styles.footerAction}>
-          <Image
-            src="/images/homeicon.png"
-            alt="Dashboard"
-            width={16}
-            height={16}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Home</span>
-        </Link>
-
-        <Link href="/book" className={styles.footerAction}>
-          <Image
-            src="/booksession.png"
-            alt="Book Session"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Book</span>
-        </Link>
-
-        <Link href="/my-sessions" className={styles.footerAction}>
-          <Image
-            src="/viewsessions.png"
-            alt="My Sessions"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Sessions</span>
-        </Link>
-
-        <Link href="/location" className={styles.footerAction}>
-          <Image
-            src="/location.png"
-            alt="Locations"
-            width={26}
-            height={26}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Location</span>
-        </Link>
-
-        <Link href="/settings" className={styles.footerAction} aria-current="page">
-          <Image
-            src="/images/settingsicon.png"
-            alt="Settings"
-            width={16}
-            height={16}
-            className={styles.footerIcon}
-          />
-          <span className={styles.footerLabel}>Settings</span>
-        </Link>
-      </footer>
-
-      {/* Password Change Modal */}
-      {showPasswordModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowPasswordModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Change Password</h3>
-              <button
-                className={styles.modalClose}
-                onClick={() => setShowPasswordModal(false)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Current Password</label>
-                <input
-                  type="password"
-                  className={styles.formInput}
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                  placeholder="Enter your current password"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>New Password</label>
-                <input
-                  type="password"
-                  className={styles.formInput}
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                  placeholder="Enter your new password"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Confirm New Password</label>
-                <input
-                  type="password"
-                  className={styles.formInput}
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  placeholder="Confirm your new password"
-                />
-              </div>
-
-              {passwordError && (
-                <div className={styles.errorMessage}>{passwordError}</div>
+              {profileStatus && (
+                <div className={`${styles.statusMessage} ${styles[profileStatus.type]}`}>
+                  {profileStatus.msg}
+                </div>
               )}
             </div>
+          </div>
 
-            <div className={styles.modalFooter}>
-              <button
-                className={styles.cancelButton}
+          {/* Right Column: Actions & Security */}
+          <div className={styles.actionsColumn}>
+            <div>
+              <div className={styles.sectionTitle}>Account Security</div>
+              <div className={styles.actionCard}>
+                <button className={styles.actionButton} onClick={() => setShowPasswordModal(true)}>
+                  <div className={styles.actionContent}>
+                    <div className={styles.actionIcon}><LockIcon /></div>
+                    <div>
+                      <span className={styles.actionTitle}>Change Password</span>
+                      <span className={styles.actionDesc}>Update your login credentials</span>
+                    </div>
+                  </div>
+                  <span style={{color: '#A3B18A'}}>→</span>
+                </button>
+                
+                <button className={styles.logoutButton} onClick={handleLogout} disabled={isLoggingOut}>
+                  <LogOutIcon />
+                  {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowPasswordModal(false)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Update Password</h2>
+            
+            <input 
+              type="password" 
+              placeholder="Current Password"
+              className={styles.modalInput}
+              value={passwordData.current}
+              onChange={e => setPasswordData(prev => ({...prev, current: e.target.value}))}
+            />
+            <input 
+              type="password" 
+              placeholder="New Password"
+              className={styles.modalInput}
+              value={passwordData.new}
+              onChange={e => setPasswordData(prev => ({...prev, new: e.target.value}))}
+            />
+            <input 
+              type="password" 
+              placeholder="Confirm New Password"
+              className={styles.modalInput}
+              value={passwordData.confirm}
+              onChange={e => setPasswordData(prev => ({...prev, confirm: e.target.value}))}
+            />
+
+            {passwordStatus && (
+              <div className={`${styles.statusMessage} ${styles[passwordStatus.type]}`}>
+                {passwordStatus.msg}
+              </div>
+            )}
+
+            <div className={styles.modalActions}>
+              <button 
+                className={styles.secondaryBtn} 
                 onClick={() => setShowPasswordModal(false)}
-                disabled={isChangingPassword}
               >
                 Cancel
               </button>
-              <button
-                className={styles.submitButton}
+              <button 
+                className={styles.primaryBtn}
                 onClick={handleChangePassword}
                 disabled={isChangingPassword}
               >
-                {isChangingPassword ? 'Changing...' : 'Change Password'}
+                {isChangingPassword ? 'Updating...' : 'Update Password'}
               </button>
             </div>
           </div>
         </div>
       )}
-
-
-    </>
+    </div>
   );
 }

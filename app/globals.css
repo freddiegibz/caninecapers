@@ -4,13 +4,19 @@
   --font-poppins: 'Poppins', sans-serif;
   --font-lora: 'Lora', serif;
 
-  /* Theme colors */
+  /* Enhanced Theme Colors */
   --cream: #f3ede0;
+  --cream-light: #faf8f4;
   --forest: #2b3a29;
+  --forest-dark: #1f2d1f;
+  --forest-light: #3d5138;
   --sage: #a3b18a;
+  --sage-dark: #8f9d76;
   --stone: #d8d3c3;
   --text: #2b2b2b;
+  --text-muted: rgba(31, 45, 31, 0.9);
   --border: #e2dccb;
+  --border-light: rgba(226, 220, 203, 0.6);
 
   /* Dashboard tokens */
   --cc-bg: #FAF8F2;
@@ -18,6 +24,8 @@
   --cc-ink-muted: rgba(47,78,62,.72);
   --cc-tile: #F7F4EE;
   --elev-1: 0 2px 8px rgba(0,0,0,.08);
+  --elev-2: 0 4px 16px rgba(43, 58, 41, 0.1);
+  --elev-3: 0 8px 24px rgba(43, 58, 41, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,12 +43,13 @@ body {
 
 body {
   color: var(--foreground);
-  background: #f3ede0; /* cream background for pages */
+  background: var(--cream); /* cream background for pages */
   font-family: var(--font-lora);
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 * {
