@@ -11,13 +11,11 @@
   color: #2B3A29;
 }
 
-/* Remove old topBar styles - now handled by AppHeader component */
-
 /* Main Content */
 .content {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 6rem; /* Extra bottom padding for BottomNav */
+  padding: 2rem 1.5rem 6rem;
 }
 
 /* Greeting */
@@ -41,18 +39,28 @@
   letter-spacing: -0.02em;
 }
 
-/* Primary Card (Next Session / Book) */
+/* Primary Card - Sage Green Accent */
 .primaryCard {
-  background: #FFFFFF;
+  background: linear-gradient(135deg, #F4F1EA 0%, #FFFFFF 100%);
   border-radius: 24px;
   padding: 2rem;
   box-shadow: 
     0 10px 30px -5px rgba(43, 58, 41, 0.08),
     0 4px 12px -2px rgba(43, 58, 41, 0.04);
-  border: 1px solid rgba(43, 58, 41, 0.08);
-  margin-bottom: 2.5rem;
+  border: 1px solid rgba(163, 177, 138, 0.2);
+  margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
+}
+
+.primaryCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #A3B18A 0%, rgba(163, 177, 138, 0.5) 100%);
 }
 
 .primaryCard::after {
@@ -62,7 +70,7 @@
   right: 0;
   width: 150px;
   height: 150px;
-  background: radial-gradient(circle at top right, rgba(163, 177, 138, 0.1), transparent 70%);
+  background: radial-gradient(circle at top right, rgba(163, 177, 138, 0.15), transparent 70%);
   pointer-events: none;
 }
 
@@ -116,11 +124,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: #F4F1EA;
+  background: rgba(163, 177, 138, 0.15);
   border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 500;
   color: #2B3A29;
+  border: 1px solid rgba(163, 177, 138, 0.2);
 }
 
 /* Empty State */
@@ -169,47 +178,83 @@
   border-color: #2B3A29;
 }
 
-/* Quick Actions Grid */
+/* Quick Actions Grid - Two Column Horizontal Layout */
 .quickActions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  width: 100%;
 }
 
 .quickAction {
-  background: #FFFFFF;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 20px;
   text-decoration: none;
   border: 1px solid rgba(43, 58, 41, 0.08);
   box-shadow: 0 4px 12px rgba(43, 58, 41, 0.04);
   transition: all 0.2s ease;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Book Field Card - Forest Green Accent */
+.quickAction:first-child {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4F1EA 100%);
+  border-left: 4px solid #2B3A29;
+}
+
+.quickAction:first-child .quickActionIcon {
+  background: #2B3A29;
+}
+
+.quickAction:first-child .quickActionIcon img {
+  filter: brightness(0) invert(1);
+}
+
+/* My Sessions Card - Sage Green Accent */
+.quickAction:last-child {
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(163, 177, 138, 0.08) 100%);
+  border-left: 4px solid #A3B18A;
+}
+
+.quickAction:last-child .quickActionIcon {
+  background: rgba(163, 177, 138, 0.2);
 }
 
 .quickAction:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(43, 58, 41, 0.08);
-  border-color: rgba(163, 177, 138, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(43, 58, 41, 0.1);
+}
+
+.quickAction:first-child:hover {
+  border-color: #2B3A29;
+}
+
+.quickAction:last-child:hover {
+  border-color: #A3B18A;
 }
 
 .quickActionIcon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #F9F8F4;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .quickActionText {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
 }
 
 .quickActionLabel {
@@ -225,7 +270,7 @@
 
 /* Notice Section */
 .noticeSection {
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 .sectionHeader {
@@ -243,22 +288,30 @@
 }
 
 .noticeList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
 .notice {
-  background: #FFFFFF;
   border-radius: 16px;
   padding: 1.25rem;
-  border-left: 4px solid #A3B18A; /* Default info color */
+  border-left: 4px solid #A3B18A;
   box-shadow: 0 4px 12px rgba(43, 58, 41, 0.04);
+  position: relative;
+  overflow: hidden;
 }
 
+/* Info Notice - Sage Green */
+.notice:not(.warning) {
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(163, 177, 138, 0.05) 100%);
+  border-left-color: #A3B18A;
+}
+
+/* Warning Notice - Warm Earth Tone */
 .notice.warning {
-  border-left-color: #D4A373; /* Earthy warning tone */
-  background: #FFFCF9;
+  background: linear-gradient(135deg, #FFFCF9 0%, rgba(212, 163, 115, 0.1) 100%);
+  border-left-color: #D4A373;
 }
 
 .noticeTitle {
@@ -276,7 +329,7 @@
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .content {
     padding: 1.5rem 1rem 7rem;
   }
@@ -286,7 +339,23 @@
     gap: 1rem;
   }
   
+  .quickAction {
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .noticeList {
+    grid-template-columns: 1fr;
+  }
+
   .greetingName {
     font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quickAction {
+  flex-direction: column;
+  text-align: center;
   }
 }

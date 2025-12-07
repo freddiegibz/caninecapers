@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../src/lib/supabaseClient";
 import AppHeader from "../../components/AppHeader";
 import BottomNav from "../../components/BottomNav";
@@ -32,7 +31,6 @@ const EditIcon = () => (
 );
 
 export default function Settings() {
-  const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userEmail, setUserEmail] = useState('Loading...');
   
@@ -68,7 +66,7 @@ export default function Settings() {
       
       let firstName = user.user_metadata?.first_name || '';
       let lastName = user.user_metadata?.last_name || '';
-      let phone = user.user_metadata?.phone || '';
+      const phone = user.user_metadata?.phone || '';
 
       // Fallback to profiles table if needed
       if (!firstName && !lastName) {

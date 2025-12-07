@@ -11,18 +11,16 @@
   color: #2B3A29;
 }
 
-/* Navbar styles removed - handled by component */
-
 /* Main Content */
 .main {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 6rem; /* Extra padding for bottom nav */
+  padding: 1.5rem 1.5rem 6rem;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .superTitle {
@@ -33,134 +31,137 @@
   color: #7B8A80;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .title {
   font-family: var(--font-lora);
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 500;
   color: #2B3A29;
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   line-height: 1.1;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: #5C6B5C;
   margin: 0;
   font-family: var(--font-lora);
   font-style: italic;
 }
 
-/* Offers Banner */
+/* Offers Banner - More Compact */
 .offersBanner {
   background: #2B3A29;
-  border-radius: 16px;
-  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
   color: #FFFFFF;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
-  box-shadow: 0 8px 24px rgba(43, 58, 41, 0.2);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(43, 58, 41, 0.15);
 }
 
 .offersTitle {
   font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
 }
 
 .offersSub {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   opacity: 0.9;
 }
 
 .offersLink {
   background: #FFFFFF;
   color: #2B3A29;
-  padding: 0.6rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 100px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .offersLink:hover {
   transform: translateY(-2px);
 }
 
-/* Selection Grid */
+/* Selection Grid - Tighter Spacing */
 .selectionGrid {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
 }
 
 .sectionTitle {
-  font-family: var(--font-lora);
-  font-size: 1.25rem;
-  color: #2B3A29;
-  margin: 0 0 1.5rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(43, 58, 41, 0.1);
+  font-family: var(--font-poppins);
+  font-size: 0.9rem;
+  color: #7B8A80;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
-/* Duration Cards */
+/* Duration Cards - Horizontal Compact Layout */
 .durationGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .durationCard {
   background: #FFFFFF;
   border: 1px solid rgba(43, 58, 41, 0.1);
-  border-radius: 16px;
-  padding: 1.25rem 1rem;
+  border-radius: 12px;
+  padding: 0.75rem 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.04);
+  box-shadow: 0 2px 8px rgba(43, 58, 41, 0.03);
 }
 
 .durationCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(43, 58, 41, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.06);
 }
 
 .durationCard.active {
   background: #2B3A29;
   border-color: #2B3A29;
   color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.2);
 }
 
 .durationLabel {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .durationPrice {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   opacity: 0.8;
 }
 
-/* Field Selection */
+/* Field Selection - More Compact */
 .fieldGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .fieldCard {
   position: relative;
-  height: 180px;
-  border-radius: 20px;
+  height: 140px;
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
@@ -173,7 +174,7 @@
 
 .fieldCard.active {
   border-color: #2B3A29;
-  box-shadow: 0 0 0 4px rgba(43, 58, 41, 0.15);
+  box-shadow: 0 0 0 3px rgba(43, 58, 41, 0.12);
 }
 
 .fieldImage {
@@ -183,70 +184,71 @@
 .fieldOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
+  background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 50%);
   display: flex;
   align-items: flex-end;
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .fieldName {
   color: #FFFFFF;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .checkmark {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.75rem;
+  right: 0.75rem;
   background: #FFFFFF;
   color: #2B3A29;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-/* Slots */
+/* Slots - More Compact */
 .slotsContainer {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .dayGroup {
   background: #FFFFFF;
-  border-radius: 20px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
   border: 1px solid rgba(43, 58, 41, 0.08);
+  box-shadow: 0 2px 8px rgba(43, 58, 41, 0.03);
 }
 
 .dayHeader {
-  font-family: var(--font-lora);
+  font-family: var(--font-poppins);
   font-weight: 600;
   color: #2B3A29;
-  margin-bottom: 1.25rem;
-  font-size: 1.1rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(43, 58, 41, 0.06);
 }
 
 .slotsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 0.5rem;
 }
 
 .slotButton {
   background: #F4F1EA;
   border: none;
-  padding: 0.75rem 0.5rem;
-  border-radius: 10px;
+  padding: 0.6rem 0.4rem;
+  border-radius: 8px;
   font-family: var(--font-poppins);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #2B3A29;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -260,17 +262,19 @@
 
 .loading {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   color: #7B8A80;
+  font-size: 0.9rem;
 }
 
 .emptyMessage {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   color: #7B8A80;
   background: #FFFFFF;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px dashed rgba(43, 58, 41, 0.2);
+  font-size: 0.9rem;
 }
 
 /* Responsive */
@@ -278,15 +282,20 @@
   .offersBanner {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
+    gap: 0.75rem;
+    padding: 1rem;
   }
   
   .fieldGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
   
   .durationGrid {
     grid-template-columns: 1fr;
+  }
+  
+  .fieldCard {
+    height: 120px;
   }
 }
