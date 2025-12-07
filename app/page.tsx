@@ -40,15 +40,18 @@ export default function Home() {
             <div className={styles.heroOverlay}></div>
           </div>
           <div className={styles.heroContent}>
-            <Image
-              src="/caninecaperslogotext_final.png?v=1"
-              alt="Canine Capers"
-              width={1200}
-              height={240}
-              className={styles.mainLogo}
-            />
+            <div className={styles.logoWrapper}>
+              <Image
+                src="/caninecaperslogosymbol.png"
+                alt="Canine Capers"
+                width={100}
+                height={100}
+                className={styles.heroLogo}
+              />
+            </div>
+            <h1 className={styles.title}>Canine Capers</h1>
             <p className={styles.subtitle}>
-            Stourport&apos;s home for safe, private dog adventures. Space to run, play, and just be a dog.
+              Stourport&apos;s home for safe, private dog adventures. Space to run, play, and just be a dog.
             </p>
             <div className={styles.actions}>
               <Link href="/signin" className={styles.primaryButton}>
@@ -67,8 +70,8 @@ export default function Home() {
               <Image
                 src="/hillicon.png"
                 alt="Hill landscape"
-                width={96}
-                height={96}
+                width={80}
+                height={80}
                 className={styles.iconImage}
               />
             </div>
@@ -82,8 +85,8 @@ export default function Home() {
               <Image
                 src="/pawprintclock.png"
                 alt="Paw print with clock"
-                width={96}
-                height={96}
+                width={80}
+                height={80}
                 className={styles.iconImage}
               />
             </div>
@@ -97,8 +100,8 @@ export default function Home() {
               <Image
                 src="/dogheart.png"
                 alt="Dog heart"
-                width={96}
-                height={96}
+                width={80}
+                height={80}
                 className={styles.iconImage}
               />
             </div>
