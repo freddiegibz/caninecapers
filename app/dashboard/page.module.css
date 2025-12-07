@@ -1,423 +1,302 @@
-/* Premium Dashboard - Country Living Aesthetic */
+/* Dashboard - Premium App Design */
 
-.dashboard {
+.page {
   min-height: 100vh;
-  background-color: #F9F8F4;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(163, 177, 138, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(216, 211, 195, 0.2) 0px, transparent 50%);
-  padding: 0;
+  background: #FAFAF8;
   font-family: var(--font-poppins);
-  color: #2B3A29;
 }
 
-/* Main Content */
-.content {
-  max-width: 1000px;
+.main {
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 6rem;
+  padding: 1.5rem 1.25rem 6rem;
 }
 
-/* Greeting */
+/* ===== Hero Greeting ===== */
+.hero {
+  padding: 0.5rem 0 2rem;
+}
+
 .greeting {
-  margin-bottom: 2rem;
-}
-
-.greetingText {
-  font-family: var(--font-lora);
-  font-size: 1.1rem;
-  color: #7B8A80;
+  display: block;
+  font-size: 0.875rem;
+  color: #8B9A87;
+  font-weight: 500;
   margin-bottom: 0.25rem;
-  font-style: italic;
+  letter-spacing: 0.02em;
 }
 
-.greetingName {
-  font-size: 2.25rem;
+.userName {
+  font-family: var(--font-lora);
+  font-size: 2rem;
   font-weight: 600;
-  color: #2B3A29;
+  color: #1A2E1A;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
-/* Primary Card - Sage Green Accent */
-.primaryCard {
-  background: linear-gradient(135deg, #F4F1EA 0%, #FFFFFF 100%);
-  border-radius: 24px;
-  padding: 2rem;
-  box-shadow: 
-    0 10px 30px -5px rgba(43, 58, 41, 0.08),
-    0 4px 12px -2px rgba(43, 58, 41, 0.04);
-  border: 1px solid rgba(163, 177, 138, 0.2);
+/* ===== Action Buttons ===== */
+.actions {
+  display: flex;
+  gap: 0.75rem;
   margin-bottom: 2rem;
-  position: relative;
-  overflow: hidden;
 }
 
-.primaryCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, #A3B18A 0%, rgba(163, 177, 138, 0.5) 100%);
+.actionPrimary,
+.actionSecondary {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
 }
 
-.primaryCard::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle at top right, rgba(163, 177, 138, 0.15), transparent 70%);
-  pointer-events: none;
+.actionPrimary {
+  background: #2B3A29;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(43, 58, 41, 0.2);
 }
 
-.cardLabel {
+.actionPrimary,
+.actionPrimary span {
+  color: #FFFFFF;
+}
+
+.actionPrimary .actionIcon {
+  color: #FFFFFF;
+}
+
+.actionPrimary:hover {
+  background: #1F2D1F;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.25);
+}
+
+.actionPrimary:hover,
+.actionPrimary:hover span,
+.actionPrimary:hover .actionIcon {
+  color: #FFFFFF;
+}
+
+.actionPrimary:active {
+  transform: scale(0.98);
+}
+
+.actionSecondary {
+  background: #FFFFFF;
+  color: #2B3A29;
+  border: 1.5px solid #E8E6E1;
+}
+
+.actionSecondary:hover {
+  border-color: #2B3A29;
+  background: #FCFCFB;
+}
+
+.actionSecondary:active {
+  transform: scale(0.98);
+}
+
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Section Labels ===== */
+.sectionLabel {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #7B8A80;
-  margin-bottom: 1.5rem;
+  letter-spacing: 0.08em;
+  color: #8B9A87;
+  margin-bottom: 0.75rem;
 }
 
-.cardLabelDot {
-  width: 8px;
-  height: 8px;
-  background: #A3B18A;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(163, 177, 138, 0.2);
+/* ===== Session Card ===== */
+.sessionSection {
+  margin-bottom: 2rem;
 }
 
-.sessionDisplay {
-  margin-bottom: 1.5rem;
+.sessionCard {
+  display: block;
+  background: #FFFFFF;
+  border: 1px solid #E8E6E1;
+  border-radius: 16px;
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
 }
 
-.sessionTime {
-  font-family: var(--font-poppins);
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #2B3A29;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+.sessionCard:hover {
+  border-color: #C5D1BE;
+  box-shadow: 0 4px 16px rgba(43, 58, 41, 0.08);
+}
+
+.sessionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: #8B9A87;
 }
 
 .sessionDate {
   font-family: var(--font-lora);
   font-size: 1.25rem;
-  color: #5C6B5C;
-  margin-top: 0.5rem;
+  font-weight: 600;
+  color: #1A2E1A;
 }
 
-.sessionMeta {
+.sessionTime,
+.sessionLocation {
   display: flex;
-  gap: 1rem;
-}
-
-.metaChip {
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: rgba(163, 177, 138, 0.15);
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #2B3A29;
-  border: 1px solid rgba(163, 177, 138, 0.2);
+  font-size: 0.9rem;
+  color: #5C6B5C;
 }
 
-/* Empty State */
-.emptyState {
-  text-align: left;
+.sessionTime {
+  margin-bottom: 0.5rem;
 }
 
-.emptyText {
-  font-family: var(--font-lora);
-  font-size: 1.5rem;
-  color: #2B3A29;
-  margin: 0 0 2rem 0;
-  max-width: 300px;
-  line-height: 1.3;
+.sessionLoading {
+  padding: 2rem;
+  text-align: center;
+  color: #8B9A87;
+  font-size: 0.9rem;
 }
 
-.actionButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: #2B3A29;
-  color: #FFFFFF;
-  padding: 1rem 2rem;
-  border-radius: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 16px rgba(43, 58, 41, 0.15);
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-
-.actionButton:active {
-  transform: scale(0.98);
-}
-
-.actionButton:hover {
-  background: #1F2D1F;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(43, 58, 41, 0.2);
-}
-
-.actionButtonSecondary {
+.sessionCardEmpty {
   background: #FFFFFF;
+  border: 1px dashed #D4D1CA;
+  border-radius: 16px;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+.sessionCardEmpty p {
+  margin: 0 0 0.75rem;
+  color: #8B9A87;
+  font-size: 0.95rem;
+}
+
+.bookLink {
+  display: inline-block;
   color: #2B3A29;
-  border: 1px solid rgba(43, 58, 41, 0.2);
-  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.05);
-}
-
-.actionButtonSecondary:hover {
-  background: #F9F8F4;
-  border-color: #2B3A29;
-}
-
-/* Quick Actions Grid - Two Column Horizontal Layout */
-.quickActions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-  width: 100%;
-}
-
-.quickAction {
-  padding: 1.25rem;
-  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
   text-decoration: none;
-  border: 1px solid rgba(43, 58, 41, 0.08);
-  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.04);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  position: relative;
+  padding: 0.5rem 1rem;
+  background: #F4F3EF;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.bookLink:hover {
+  background: #ECEAE4;
+}
+
+/* ===== Notices ===== */
+.noticesSection {
+  margin-top: 1.5rem;
+}
+
+.noticesList {
+  background: #FFFFFF;
+  border: 1px solid #E8E6E1;
+  border-radius: 16px;
   overflow: hidden;
-  width: 100%;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
 }
 
-/* Book Field Card - Forest Green Accent */
-.quickAction:first-child {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F4F1EA 100%);
-  border-left: 4px solid #2B3A29;
-}
-
-.quickAction:first-child .quickActionIcon {
-  background: #2B3A29;
-}
-
-.quickAction:first-child .quickActionIcon img {
-  filter: brightness(0) invert(1);
-}
-
-/* My Sessions Card - Sage Green Accent */
-.quickAction:last-child {
-  background: linear-gradient(135deg, #FFFFFF 0%, rgba(163, 177, 138, 0.08) 100%);
-  border-left: 4px solid #A3B18A;
-}
-
-.quickAction:last-child .quickActionIcon {
-  background: rgba(163, 177, 138, 0.2);
-}
-
-.quickAction:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(43, 58, 41, 0.1);
-}
-
-.quickAction:active {
-  transform: scale(0.98);
-}
-
-.quickAction:first-child:hover {
-  border-color: #2B3A29;
-}
-
-.quickAction:last-child:hover {
-  border-color: #A3B18A;
-}
-
-.quickActionIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+.noticeItem {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #F0EEE9;
+}
+
+.noticeItem:last-child {
+  border-bottom: none;
+}
+
+.noticeDot {
+  width: 8px;
+  height: 8px;
+  background: #A3B18A;
+  border-radius: 50%;
+  margin-top: 0.35rem;
   flex-shrink: 0;
 }
 
-.quickActionText {
+.noticeWarning .noticeDot {
+  background: #D4A373;
+}
+
+.noticeContent {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   flex: 1;
-}
-
-.quickActionLabel {
-  font-weight: 600;
-  color: #2B3A29;
-  font-size: 1rem;
-}
-
-.quickActionSub {
-  font-size: 0.85rem;
-  color: #7B8A80;
-}
-
-/* Notice Section */
-.noticeSection {
-  margin-top: 2rem;
-}
-
-.sectionHeader {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(43, 58, 41, 0.1);
-}
-
-.sectionTitle {
-  font-family: var(--font-lora);
-  font-size: 1.5rem;
-  color: #2B3A29;
-  margin: 0;
-  font-weight: 500;
-}
-
-.noticeList {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.notice {
-  border-radius: 16px;
-  padding: 1.25rem;
-  border-left: 4px solid #A3B18A;
-  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.04);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Info Notice - Sage Green */
-.notice:not(.warning) {
-  background: linear-gradient(135deg, #FFFFFF 0%, rgba(163, 177, 138, 0.05) 100%);
-  border-left-color: #A3B18A;
-}
-
-/* Warning Notice - Warm Earth Tone */
-.notice.warning {
-  background: linear-gradient(135deg, #FFFCF9 0%, rgba(212, 163, 115, 0.1) 100%);
-  border-left-color: #D4A373;
+  min-width: 0;
 }
 
 .noticeTitle {
   font-weight: 600;
-  font-size: 1rem;
-  color: #2B3A29;
-  margin: 0 0 0.5rem 0;
-}
-
-.noticeMessage {
   font-size: 0.9rem;
-  color: #5C6B5C;
-  margin: 0;
-  line-height: 1.5;
+  color: #1A2E1A;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .content {
-    padding: 1.5rem 1rem 7rem;
-    overflow-x: hidden; /* Prevent horizontal scroll on body */
+.noticeText {
+  font-size: 0.825rem;
+  color: #6B7A6B;
+  line-height: 1.4;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .main {
+    padding: 1rem 1rem 6rem;
   }
 
-  .quickActions {
-    /* Keep side-by-side on mobile, but smaller gap */
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 0.75rem;
+  .hero {
+    padding: 0.25rem 0 1.5rem;
   }
 
-  .quickAction {
-    /* Stack icon and text vertically for compactness on mobile */
-    flex-direction: column; 
-    align-items: center;
-    text-align: center;
-    padding: 1rem 0.75rem;
-    gap: 0.5rem;
-  }
-
-  .quickActionIcon {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 0.25rem;
-  }
-  
-  .quickActionLabel {
-    font-size: 0.9rem;
-  }
-
-  .quickActionSub {
-    display: none; /* Hide subtitle on mobile for cleaner look */
-  }
-  
-  /* Horizontal Scrolling for Notices */
-  .noticeList {
-  display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-  gap: 1rem;
-    padding-bottom: 1rem; /* Space for scrollbar if visible, or touch area */
-    margin: 0 -1rem; /* Negative margin to let cards scroll edge-to-edge */
-    padding-left: 1rem; /* Padding to align first card */
-    padding-right: 1rem; /* Padding to see last card properly */
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Hide scrollbar Firefox */
-  }
-  
-  .noticeList::-webkit-scrollbar {
-    display: none; /* Hide scrollbar Chrome/Safari */
-  }
-
-  .notice {
-    min-width: 280px; /* Fixed width for carousel items */
-    scroll-snap-align: start;
-    margin-bottom: 0;
-  }
-
-  .greetingName {
+  .userName {
     font-size: 1.75rem;
   }
 
-  .sessionTime {
-    font-size: 2rem;
+  .actions {
+    gap: 0.5rem;
   }
-  
-  .primaryCard {
-    padding: 1.5rem;
-  }
-}
 
-@media (max-width: 480px) {
-    /* Quick Actions adjustments for very small screens */
-    .quickAction {
-        padding: 0.75rem 0.5rem;
+  .actionPrimary,
+  .actionSecondary {
+    padding: 0.75rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .sessionCard {
+    padding: 1rem;
+  }
+
+  .sessionDate {
+    font-size: 1.1rem;
+  }
+
+  .noticeItem {
+    padding: 0.875rem 1rem;
   }
 }
