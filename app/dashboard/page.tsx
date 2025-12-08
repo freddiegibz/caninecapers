@@ -9,43 +9,6 @@ import BottomNav from "../../components/BottomNav";
 import styles from "./page.module.css";
 
 // Icons
-const CalendarIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-    <line x1="16" y1="2" x2="16" y2="6"></line>
-    <line x1="8" y1="2" x2="8" y2="6"></line>
-    <line x1="3" y1="10" x2="21" y2="10"></line>
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="12 6 12 12 16 14"></polyline>
-  </svg>
-);
-
-const MapPinIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-    <circle cx="12" cy="10" r="3"></circle>
-  </svg>
-);
-
-const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-  </svg>
-);
-
 const ChevronRightIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="9 18 15 12 9 6"></polyline>
@@ -55,6 +18,21 @@ const ChevronRightIcon = () => (
 const ChevronDownIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
+const ProfileIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="12 6 12 12 16 14"></polyline>
   </svg>
 );
 
@@ -75,7 +53,7 @@ export default function Dashboard() {
   const [nextSession, setNextSession] = useState<NextSession>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [noticesExpanded, setNoticesExpanded] = useState(true);
+  const [noticesExpanded, setNoticesExpanded] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -116,17 +94,18 @@ export default function Dashboard() {
         if (isMounted && noticesData?.length) {
           setNotices(noticesData);
         } else if (isMounted) {
+          // Default notices if none in DB
           setNotices([
             {
               id: '1',
               title: 'Winter Hours',
-              message: 'Last booking slot is now 4:00 PM through February.',
+              message: 'Last booking slot is now 4:00 PM.',
               priority: 'info',
             },
             {
               id: '2',
-              title: 'Hyde Bark Update',
-              message: 'Agility equipment upgrades complete.',
+              title: 'Field Maintenance',
+              message: 'Agility course closed for upgrades.',
               priority: 'warning',
             }
           ]);
@@ -142,24 +121,13 @@ export default function Dashboard() {
     return () => { isMounted = false; };
   }, []);
 
-  const getGreeting = () => {
-    const h = new Date().getHours();
-    return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  };
-
   const formatSessionDate = (iso: string) => {
     const date = new Date(iso);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const isToday = date.toDateString() === today.toDateString();
-    const isTomorrow = date.toDateString() === tomorrow.toDateString();
-    
-    if (isToday) return "Today";
-    if (isTomorrow) return "Tomorrow";
-    
-    return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    return date.toLocaleDateString('en-GB', { 
+      weekday: 'short', 
+      day: 'numeric', 
+      month: 'short' 
+    });
   };
 
   const formatSessionTime = (iso: string) => {
@@ -170,102 +138,91 @@ export default function Dashboard() {
 
   return (
     <div className={styles.page}>
-      {/* Header / brand */}
-      <header className={styles.header}>
-        <div className={styles.brand}>
+      
+      {/* 1. Top Bar */}
+      <header className={styles.topBar}>
+        <div className={styles.logoContainer}>
           <Image 
-            src="/dogdashboardsection.png" 
+            src="/caninecaperslogosymbol.png" 
             alt="Canine Capers" 
-            width={40} 
-            height={30} 
-            className={styles.brandIcon} 
+            width={32} 
+            height={32}
+            className={styles.logo}
           />
-          <span className={styles.brandName}>Canine Capers</span>
+          <span className={styles.logoText}>Canine Capers</span>
         </div>
+        <Link href="/settings" className={styles.profileButton}>
+          <ProfileIcon />
+        </Link>
       </header>
 
       <main className={styles.main}>
-        {/* Greeting */}
-        <section className={styles.hero}>
-          <span className={styles.greeting}>{getGreeting()}</span>
-          <h1 className={styles.userName}>{userName || "Welcome"}</h1>
-        </section>
-
-        {/* Primary booking actions */}
-        <section className={styles.actions}>
-          <Link href="/book" className={styles.actionPrimary}>
-            <span className={styles.actionIcon}><PlusIcon /></span>
-            <span>Book Session</span>
-          </Link>
-          <Link href="/my-sessions" className={styles.actionSecondary}>
-            <span className={styles.actionIcon}><CalendarIcon /></span>
-            <span>My Sessions</span>
-          </Link>
-        </section>
-
-        {/* Next session */}
-        <section className={styles.sessionSection}>
-          <div className={styles.sectionLabel}>
-            <span>Next Session</span>
-          </div>
-          
-          {loading ? (
-            <div className={styles.sessionCard}>
-              <div className={styles.sessionLoading}>Loading...</div>
+        
+        {/* 2. Hero Card */}
+        <section className={styles.heroCard}>
+          <div className={styles.heroContent}>
+            <p className={styles.welcomeText}>Welcome back, {userName || "User"}</p>
+            <h1 className={styles.heroTitle}>What would you<br />like to do?</h1>
+            
+            <div className={styles.heroActions}>
+              <Link href="/book" className={styles.btnPrimary}>
+                Book Session
+              </Link>
+              <Link href="/my-sessions" className={styles.btnSecondary}>
+                My Sessions
+              </Link>
             </div>
+          </div>
+        </section>
+
+        {/* 3. Upcoming Session Card */}
+        <section className={styles.section}>
+          {loading ? (
+             <div className={styles.sessionCardLoading}>Loading...</div>
           ) : nextSession ? (
             <Link href="/my-sessions" className={styles.sessionCard}>
-              <div className={styles.sessionHeader}>
-                <div className={styles.sessionDate}>
-                  {formatSessionDate(nextSession.iso)}
+              <div className={styles.sessionThumbnail}>
+                {/* Fallback pattern since we don't have real thumbnails */}
+                <div className={styles.thumbnailPattern} />
+              </div>
+              <div className={styles.sessionInfo}>
+                <span className={styles.sessionField}>{nextSession.field}</span>
+                <div className={styles.sessionDateTime}>
+                  <ClockIcon />
+                  <span>{formatSessionDate(nextSession.iso)} · {formatSessionTime(nextSession.iso)}</span>
                 </div>
-                <ChevronRightIcon />
-              </div>
-              <div className={styles.sessionTime}>
-                <ClockIcon />
-                <span>{formatSessionTime(nextSession.iso)}</span>
-              </div>
-              <div className={styles.sessionLocation}>
-                <MapPinIcon />
-                <span>{nextSession.field}</span>
+                <span className={styles.viewDetails}>View details &rarr;</span>
               </div>
             </Link>
           ) : (
-            <div className={styles.sessionCardEmpty}>
-              <p>No upcoming sessions</p>
-              <Link href="/book" className={styles.bookLink}>
+            <div className={styles.emptySessionCard}>
+              <p className={styles.emptyTitle}>No upcoming sessions</p>
+              <Link href="/book" className={styles.emptyCta}>
                 Book your first session
               </Link>
             </div>
           )}
         </section>
 
-        {/* Notices */}
+        {/* 4. Notices (Collapsible) */}
         {notices.length > 0 && (
-          <section className={styles.noticesSection}>
+          <section className={styles.section}>
             <button 
               className={styles.noticesHeader} 
               onClick={() => setNoticesExpanded(!noticesExpanded)}
-              aria-expanded={noticesExpanded}
             >
-              <div className={styles.sectionLabelNotice}>
-                <BellIcon />
-                <span>Notices ({notices.length})</span>
-              </div>
+              <span className={styles.noticesTitle}>Notices ({notices.length})</span>
               {noticesExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
             </button>
             
             {noticesExpanded && (
               <div className={styles.noticesList}>
                 {notices.map(notice => (
-                  <div 
-                    key={notice.id} 
-                    className={`${styles.noticeItem} ${notice.priority === 'warning' ? styles.noticeWarning : ''}`}
-                  >
-                    <div className={styles.noticeDot}></div>
+                  <div key={notice.id} className={styles.noticeItem}>
+                    <div className={`${styles.noticeDot} ${notice.priority === 'warning' ? styles.warningDot : ''}`} />
                     <div className={styles.noticeContent}>
-                      <span className={styles.noticeTitle}>{notice.title}</span>
-                      <span className={styles.noticeText}>{notice.message}</span>
+                      <span className={styles.noticeHeading}>{notice.title}</span>
+                      <span className={styles.noticeMessage}>{notice.message}</span>
                     </div>
                   </div>
                 ))}
@@ -273,9 +230,9 @@ export default function Dashboard() {
             )}
           </section>
         )}
+
       </main>
 
-      {/* FAB + nav */}
       <BottomNav />
     </div>
   );

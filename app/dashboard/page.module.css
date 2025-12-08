@@ -1,43 +1,41 @@
-/* Dashboard - Premium App Design */
+/* Dashboard - Clean Native iOS Style */
 
 .page {
   min-height: 100vh;
   background: #FAFAF8;
   font-family: var(--font-poppins);
+  padding-bottom: 6rem; /* Space for BottomNav */
 }
 
 .main {
-  max-width: 600px;
+  padding: 0 1.25rem;
+  max-width: 500px;
   margin: 0 auto;
-  padding: 0 1.25rem 7rem; /* Top padding moved to header spacing, bottom increased for FAB */
 }
 
-/* ===== Header / Brand ===== */
-.header {
+/* 1. Top Bar */
+.topBar {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  height: 44px; /* iOS nav bar height */
-  padding: 0 1rem;
+  padding: 0.75rem 1.25rem;
   background: #FAFAF8;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.brand {
+.logoContainer {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.brandIcon {
-  width: auto;
-  height: 24px;
+.logo {
   object-fit: contain;
 }
 
-.brandName {
+.logoText {
   font-family: var(--font-lora);
   font-weight: 700;
   font-size: 1rem;
@@ -45,207 +43,193 @@
   letter-spacing: -0.01em;
 }
 
-/* ===== Hero Greeting ===== */
-.hero {
-  padding: 1rem 0 1rem; /* Tightened spacing */
-  text-align: center; /* Centered as per new layout vibe, or keep left? Prompt said "Greeting block... secondary" */
-}
-
-.greeting {
-  display: block;
-  font-size: 0.75rem; /* Reduced size */
-  color: #8B9A87;
-  font-weight: 500;
-  margin-bottom: 0.125rem;
-  letter-spacing: 0.02em;
-}
-
-.userName {
-  font-family: var(--font-lora);
-  font-size: 1.5rem; /* Reduced size from 2rem */
-  font-weight: 600;
-  color: #1A2E1A;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-/* ===== Action Buttons ===== */
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem; /* Reduced margin */
-}
-
-.actionPrimary,
-.actionSecondary {
-  flex: 1;
+.profileButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.5rem; /* Reduced padding */
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.actionPrimary {
-  background: #2B3A29;
-  color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(43, 58, 41, 0.2);
-}
-
-.actionPrimary,
-.actionPrimary span {
-  color: #FFFFFF;
-}
-
-.actionPrimary .actionIcon {
-  color: #FFFFFF;
-}
-
-.actionPrimary:hover {
-  background: #1F2D1F;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.25);
-}
-
-.actionPrimary:hover,
-.actionPrimary:hover span,
-.actionPrimary:hover .actionIcon {
-  color: #FFFFFF;
-}
-
-.actionPrimary:active {
-  transform: scale(0.98);
-}
-
-.actionSecondary {
-  background: #FFFFFF;
-  color: #2B3A29;
-  border: 1.5px solid #E8E6E1;
-}
-
-.actionSecondary:hover {
-  border-color: #2B3A29;
-  background: #FCFCFB;
-}
-
-.actionSecondary:active {
-  transform: scale(0.98);
-}
-
-.actionIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ===== Section Labels ===== */
-.sectionLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #8B9A87;
-  margin-bottom: 0.5rem;
-}
-
-/* ===== Session Card ===== */
-.sessionSection {
-  margin-bottom: 1.5rem; /* Reduced spacing */
-}
-
-.sessionCard {
-  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: #FFFFFF;
   border: 1px solid #E8E6E1;
-  border-radius: 14px; /* Slightly tighter radius */
-  padding: 1rem; /* Tighter padding */
+  color: #5C6B5C;
+  transition: all 0.2s ease;
+}
+
+.profileButton:hover {
+  background: #F4F3EF;
+  color: #2B3A29;
+}
+
+/* 2. Hero Card */
+.heroCard {
+  background: #FFFFFF;
+  border-radius: 22px;
+  padding: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(43, 58, 41, 0.04);
+  border: 1px solid rgba(232, 230, 225, 0.5);
+}
+
+.welcomeText {
+  font-size: 0.85rem;
+  color: #8B9A87;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.heroTitle {
+  font-family: var(--font-lora);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1A2E1A;
+  line-height: 1.2;
+  margin: 0 0 1.5rem 0;
+}
+
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+}
+
+.btnPrimary {
+  background: #2B3A29;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(43, 58, 41, 0.15);
+}
+
+.btnPrimary:hover {
+  background: #1F2D1F;
+  transform: translateY(-1px);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: #2B3A29;
+  border: 1.5px solid #2B3A29;
+}
+
+.btnSecondary:hover {
+  background: #F9F9F8;
+}
+
+/* 3. Sections (Sessions & Notices) */
+.section {
+  margin-bottom: 1.75rem;
+}
+
+/* Session Card */
+.sessionCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 1rem;
+  text-decoration: none;
+  border: 1px solid #E8E6E1;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
 }
 
 .sessionCard:hover {
   border-color: #C5D1BE;
-  box-shadow: 0 4px 16px rgba(43, 58, 41, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.sessionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  color: #8B9A87;
+.sessionThumbnail {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  background: #F0EEE9;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.sessionDate {
+.thumbnailPattern {
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(#C5D1BE 2px, transparent 2px);
+  background-size: 10px 10px;
+  opacity: 0.5;
+}
+
+.sessionInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.sessionField {
+  display: block;
   font-family: var(--font-lora);
-  font-size: 1.125rem; /* Slightly smaller */
   font-weight: 600;
+  font-size: 1.1rem;
   color: #1A2E1A;
-}
-
-.sessionTime,
-.sessionLocation {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #5C6B5C;
-}
-
-.sessionTime {
   margin-bottom: 0.25rem;
 }
 
-.sessionLoading {
-  padding: 1.5rem;
-  text-align: center;
-  color: #8B9A87;
+.sessionDateTime {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.85rem;
+  color: #5C6B5C;
+  margin-bottom: 0.5rem;
 }
 
-.sessionCardEmpty {
-  background: #FFFFFF;
-  border: 1px dashed #D4D1CA;
-  border-radius: 12px; /* Smaller radius */
-  padding: 1.5rem 1rem; /* Reduced padding */
+.viewDetails {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2B3A29;
+}
+
+.emptySessionCard {
   text-align: center;
+  padding: 2rem 1.5rem;
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1px dashed #D4D1CA;
 }
 
-.sessionCardEmpty p {
-  margin: 0 0 0.75rem;
+.emptyTitle {
   color: #8B9A87;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
 }
 
-.bookLink {
+.emptyCta {
   display: inline-block;
   color: #2B3A29;
   font-weight: 600;
   font-size: 0.9rem;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  background: #F4F3EF;
-  border-radius: 8px;
-  transition: background 0.15s ease;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.bookLink:hover {
-  background: #ECEAE4;
+.sessionCardLoading {
+  text-align: center;
+  color: #8B9A87;
+  padding: 2rem;
+  font-size: 0.9rem;
 }
 
-/* ===== Notices ===== */
-.noticesSection {
-  margin-top: 1rem;
-}
-
+/* 4. Notices */
 .noticesHeader {
   display: flex;
   align-items: center;
@@ -253,82 +237,69 @@
   width: 100%;
   background: none;
   border: none;
-  padding: 0;
+  padding: 0 0.25rem;
+  margin-bottom: 0.75rem;
   cursor: pointer;
-  margin-bottom: 0.5rem;
   color: #8B9A87;
 }
 
-.sectionLabelNotice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.7rem; /* Smaller font size for notices label */
+.noticesTitle {
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: #8B9A87;
 }
 
 .noticesList {
-  background: #FFFFFF;
-  border: 1px solid #E8E6E1;
-  border-radius: 12px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .noticeItem {
   display: flex;
-  align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.875rem 1rem; /* Less inner padding */
-  border-bottom: 1px solid #F0EEE9;
-}
-
-.noticeItem:last-child {
-  border-bottom: none;
+  background: #FFFFFF;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid #E8E6E1;
 }
 
 .noticeDot {
-  width: 6px;
-  height: 6px;
-  background: #A3B18A;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  background: #A3B18A;
   margin-top: 0.4rem;
   flex-shrink: 0;
 }
 
-.noticeWarning .noticeDot {
+.warningDot {
   background: #D4A373;
 }
 
 .noticeContent {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  flex: 1;
-  min-width: 0;
+  gap: 0.15rem;
 }
 
-.noticeTitle {
+.noticeHeading {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #1A2E1A;
 }
 
-.noticeText {
-  font-size: 0.8rem;
+.noticeMessage {
+  font-size: 0.85rem;
   color: #6B7A6B;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 480px) {
-  .main {
-    padding: 0 1rem 6rem;
-  }
-
-  .userName {
-    font-size: 1.25rem;
+/* Mobile responsive adjustments */
+@media (max-width: 380px) {
+  .heroTitle {
+    font-size: 1.5rem;
   }
 }

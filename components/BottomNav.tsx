@@ -22,7 +22,7 @@ const CalendarIcon = () => (
 );
 
 const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19"></line>
     <line x1="5" y1="12" x2="19" y2="12"></line>
   </svg>
@@ -54,13 +54,14 @@ export default function BottomNav() {
         <span>Home</span>
       </Link>
       
+      <Link href="/book" className={`${styles.navItem} ${isActive('/book') ? styles.active : ''}`}>
+        <div className={styles.navItemIcon}><PlusIcon /></div>
+        <span>Book</span>
+      </Link>
+
       <Link href="/my-sessions" className={`${styles.navItem} ${isActive('/my-sessions') ? styles.active : ''}`}>
         <div className={styles.navItemIcon}><CalendarIcon /></div>
         <span>Sessions</span>
-      </Link>
-
-      <Link href="/book" className={styles.navItemMain} aria-label="Book Session">
-        <PlusIcon />
       </Link>
 
       <Link href="/location" className={`${styles.navItem} ${isActive('/location') ? styles.active : ''}`}>
@@ -75,4 +76,3 @@ export default function BottomNav() {
     </nav>
   );
 }
-
