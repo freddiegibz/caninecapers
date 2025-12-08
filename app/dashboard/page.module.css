@@ -4,7 +4,7 @@
   min-height: 100vh;
   background: #FAFAF8;
   font-family: var(--font-poppins);
-  padding-bottom: 6rem; /* Space for BottomNav */
+  padding-bottom: 7rem; /* Extra bottom padding for FAB overlap */
 }
 
 .main {
