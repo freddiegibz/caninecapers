@@ -423,7 +423,7 @@ export default function Book() {
                       day: 'numeric', 
                       month: 'long',
                       year: 'numeric'
-                    })} hasn't been loaded yet. Please check back closer to the date, or select a day from the available options above.
+                    })} hasn&apos;t been loaded yet. Please check back closer to the date, or select a day from the available options above.
                   </p>
                 </div>
               ) : filteredDates.length > 0 ? (
