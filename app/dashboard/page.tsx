@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatLondon } from "../../src/utils/dateTime";
 import { supabase } from "../../src/lib/supabaseClient";
-import AppHeader from "../../components/AppHeader";
 import BottomNav from "../../components/BottomNav";
 import styles from "./page.module.css";
 
@@ -52,6 +52,12 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
+const ChevronDownIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
 type Notice = {
   id: string;
   title: string;
@@ -69,6 +75,7 @@ export default function Dashboard() {
   const [nextSession, setNextSession] = useState<NextSession>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noticesExpanded, setNoticesExpanded] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -163,16 +170,28 @@ export default function Dashboard() {
 
   return (
     <div className={styles.page}>
-      <AppHeader />
+      {/* Header / brand */}
+      <header className={styles.header}>
+        <div className={styles.brand}>
+          <Image 
+            src="/dogdashboardsection.png" 
+            alt="Canine Capers" 
+            width={40} 
+            height={30} 
+            className={styles.brandIcon} 
+          />
+          <span className={styles.brandName}>Canine Capers</span>
+        </div>
+      </header>
 
       <main className={styles.main}>
-        {/* Hero Greeting */}
+        {/* Greeting */}
         <section className={styles.hero}>
           <span className={styles.greeting}>{getGreeting()}</span>
           <h1 className={styles.userName}>{userName || "Welcome"}</h1>
         </section>
 
-        {/* Quick Actions Row */}
+        {/* Primary booking actions */}
         <section className={styles.actions}>
           <Link href="/book" className={styles.actionPrimary}>
             <span className={styles.actionIcon}><PlusIcon /></span>
@@ -184,7 +203,7 @@ export default function Dashboard() {
           </Link>
         </section>
 
-        {/* Next Session Card */}
+        {/* Next session */}
         <section className={styles.sessionSection}>
           <div className={styles.sectionLabel}>
             <span>Next Session</span>
@@ -224,28 +243,39 @@ export default function Dashboard() {
         {/* Notices */}
         {notices.length > 0 && (
           <section className={styles.noticesSection}>
-            <div className={styles.sectionLabel}>
-              <BellIcon />
-              <span>Notices</span>
-            </div>
-            <div className={styles.noticesList}>
-              {notices.map(notice => (
-                <div 
-                  key={notice.id} 
-                  className={`${styles.noticeItem} ${notice.priority === 'warning' ? styles.noticeWarning : ''}`}
-                >
-                  <div className={styles.noticeDot}></div>
-                  <div className={styles.noticeContent}>
-                    <span className={styles.noticeTitle}>{notice.title}</span>
-                    <span className={styles.noticeText}>{notice.message}</span>
+            <button 
+              className={styles.noticesHeader} 
+              onClick={() => setNoticesExpanded(!noticesExpanded)}
+              aria-expanded={noticesExpanded}
+            >
+              <div className={styles.sectionLabelNotice}>
+                <BellIcon />
+                <span>Notices ({notices.length})</span>
+              </div>
+              {noticesExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </button>
+            
+            {noticesExpanded && (
+              <div className={styles.noticesList}>
+                {notices.map(notice => (
+                  <div 
+                    key={notice.id} 
+                    className={`${styles.noticeItem} ${notice.priority === 'warning' ? styles.noticeWarning : ''}`}
+                  >
+                    <div className={styles.noticeDot}></div>
+                    <div className={styles.noticeContent}>
+                      <span className={styles.noticeTitle}>{notice.title}</span>
+                      <span className={styles.noticeText}>{notice.message}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
       </main>
 
+      {/* FAB + nav */}
       <BottomNav />
     </div>
   );
