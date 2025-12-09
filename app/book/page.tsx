@@ -55,6 +55,7 @@ export default function Book() {
   const [selectedField, setSelectedField] = useState<number>(4783035); // Central Bark default
   const [selectedDay, setSelectedDay] = useState<string>(''); // Empty = show all days
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingSpecificDate, setLoadingSpecificDate] = useState<boolean>(false);
   const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -89,6 +90,39 @@ export default function Book() {
     fetchAvailability();
     return () => { isMounted = false; };
   }, [selectedType]);
+
+  // Fetch availability for a specific date
+  const fetchAvailabilityForDate = async (dateKey: string) => {
+    try {
+      setLoadingSpecificDate(true);
+      const res = await fetch(`/api/availability?appointmentTypeID=${encodeURIComponent(selectedType)}&startDate=${encodeURIComponent(dateKey)}&endDate=${encodeURIComponent(dateKey)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to load availability");
+
+      const data = (await res.json()) as ApiAvailabilitySlot[];
+
+      const newSessions = data
+        .map((item) => ({
+          id: crypto.randomUUID(),
+          calendarID: Number(item.calendarID),
+          startTime: item.startTime,
+        }))
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+      // Add new sessions to existing ones
+      setSessions(prev => {
+        const combined = [...prev, ...newSessions];
+        // Remove duplicates based on startTime and calendarID
+        const unique = combined.filter((session, index, self) =>
+          index === self.findIndex(s => s.startTime === session.startTime && s.calendarID === session.calendarID)
+        );
+        return unique.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+      });
+    } catch (error) {
+      console.error("Failed to fetch availability for date:", error);
+    } finally {
+      setLoadingSpecificDate(false);
+    }
+  };
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -185,6 +219,12 @@ export default function Book() {
       setSelectedDay(''); // Deselect if clicking same date
     } else {
       setSelectedDay(dateKey);
+      // Check if this date has availability loaded
+      const dateHasAvailability = sortedDates.includes(dateKey);
+      if (!dateHasAvailability && !loadingSpecificDate) {
+        // Automatically fetch availability for this date
+        fetchAvailabilityForDate(dateKey);
+      }
     }
     setCalendarOpen(false);
   };
@@ -415,17 +455,32 @@ export default function Book() {
               {loading ? (
                 <div className={styles.loading}>Finding available slots...</div>
               ) : selectedDay && !selectedDayHasAvailability ? (
-                <div className={styles.emptyMessage}>
-                  <div className={styles.emptyTitle}>Availability Not Yet Loaded</div>
-                  <p className={styles.emptyText}>
-                    Availability for {new Date(selectedDay).toLocaleDateString('en-GB', { 
-                      weekday: 'long', 
-                      day: 'numeric', 
-                      month: 'long',
-                      year: 'numeric'
-                    })} hasn&apos;t been loaded yet. Please check back closer to the date, or select a day from the available options above.
-                  </p>
-                </div>
+                loadingSpecificDate ? (
+                  <div className={styles.loading}>Loading availability for {new Date(selectedDay).toLocaleDateString('en-GB', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                  })}...</div>
+                ) : (
+                  <div className={styles.emptyMessage}>
+                    <div className={styles.emptyTitle}>Availability Not Yet Loaded</div>
+                    <p className={styles.emptyText}>
+                      Availability for {new Date(selectedDay).toLocaleDateString('en-GB', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })} hasn&apos;t been loaded yet.
+                    </p>
+                    <button
+                      className={styles.loadAvailabilityButton}
+                      onClick={() => fetchAvailabilityForDate(selectedDay)}
+                      disabled={loadingSpecificDate}
+                    >
+                      Load Availability
+                    </button>
+                  </div>
+                )
               ) : filteredDates.length > 0 ? (
                 filteredDates.map(date => (
                   <div key={date} className={styles.dayGroup}>
